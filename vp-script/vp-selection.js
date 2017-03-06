@@ -1,34 +1,43 @@
 ﻿
+(function (diagram) {
+    diagram.selectionChanged = $.Callbacks();
+})(window.svgpublish);
+
 $(document).ready(function () {
 
-    var diagram = window.svgpublish || {};
-    
-    if (!diagram.shapes || !diagram.enableSelection)
-        return;
+    var diagram = window.svgpublish;
 
     var haveSvgfilters = SVGFEColorMatrixElement && SVGFEColorMatrixElement.SVG_FECOLORMATRIX_TYPE_SATURATE === 2;
 
-    diagram.clearSelection = function() {
-        
-        if (haveSvgfilters)
-            $("#" + diagram.selectedShapeId).removeAttr('filter');
-        else
-            $("#" + diagram.selectedShapeId).css('opacity', 1);
+    if (!diagram.shapes || !diagram.enableSelection)
+        return;
 
-		delete diagram.selectedShapeId;
-    }
-    
-    diagram.setSelection = function(elem) {
+    diagram.setSelection = function(shapeId) {
         
-        diagram.selectedShapeId = $(elem).attr('id');
-        if (haveSvgfilters)
-            $(elem).attr('filter', 'url(#select)');
-        else
-            $(elem).css('opacity', '0.5');
+        if (diagram.selectedShapeId && diagram.selectedShapeId !== shapeId) {
+
+            if (haveSvgfilters)
+                $("#" + diagram.selectedShapeId).removeAttr('filter');
+            else
+                $("#" + diagram.selectedShapeId).css('opacity', 1);
+
+            delete diagram.selectedShapeId;
+        }
+
+        if (!diagram.selectedShapeId || diagram.selectedShapeId !== shapeId) {
+
+            diagram.selectedShapeId = shapeId;
+            diagram.selectionChanged.fire(shapeId);
+
+            if (haveSvgfilters)
+                $("#" + shapeId).attr('filter', 'url(#select)');
+            else
+                $("#" + shapeId).css('opacity', '0.5');
+        }
     }
 
     $("div.svg").on('click', function () {
-     	diagram.clearSelection();
+     	diagram.setSelection();
    	});
 
     $.each(diagram.shapes, function (shapeId) {
@@ -38,24 +47,22 @@ $(document).ready(function () {
         $shape.css("cursor", 'pointer');
 
         $shape.on('click', function (evt) {
-                evt.stopPropagation();
-                diagram.clearSelection();
-                diagram.setSelection(this);
+            evt.stopPropagation();
+            var thisId = $(this).attr('id');
+            diagram.setSelection(thisId);
         });
 
+        // hover support
         if (haveSvgfilters) {
             $shape.on('mouseover', function () {
                 var thisId = $(this).attr('id');
-                if (diagram.selectedShapeId !== thisId) {
-                    var thisDhapeData = diagram.shapes[thisId];
-                    $(this).attr('filter', thisDhapeData.DefaultLink ? 'url(#hyperlink)' : 'url(#hover)');
-                }
+                if (diagram.selectedShapeId !== thisId && !diagram.shapes[thisId].DefaultLink)
+                    $(this).attr('filter', 'url(#hover)');
             });
             $shape.on('mouseout', function () {
                 var thisId = $(this).attr('id');
-                if (diagram.selectedShapeId !== thisId) {
+                if (diagram.selectedShapeId !== thisId && !diagram.shapes[thisId].DefaultLink)
                     $(this).removeAttr('filter');
-                }
             });
         }
     });

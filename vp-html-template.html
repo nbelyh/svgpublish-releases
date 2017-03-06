@@ -6,53 +6,49 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<script src="{{UrlPrefix}}jquery.min.js"></script>
-<link href="{{UrlPrefix}}bootstrap.min.css" rel="stylesheet"/>
-<script src="{{UrlPrefix}}bootstrap.min.js"></script>
+<script src="{{UrlPrefix}}jquery-3.1.1.min.js"></script>
+<link href="{{UrlPrefix}}bootstrap-3.3.7.min.css" rel="stylesheet"/>
+<script src="{{UrlPrefix}}bootstrap-3.3.7.min.js"></script>
 {{#EnableLayers}}
-<link href="{{UrlPrefix}}bootstrap-switch.min.css" rel="stylesheet" />
-<script src="{{UrlPrefix}}bootstrap-switch.min.js"></script>
+<link href="{{UrlPrefix}}bootstrap-switch-3.3.2.min.css" rel="stylesheet" />
+<script src="{{UrlPrefix}}bootstrap-switch-3.3.2.min.js"></script>
 {{/EnableLayers}}
-<link href="{{UrlPrefix}}vp-style.min.css" rel="stylesheet" />
-<script src="{{UrlPrefix}}vp-script.min.js"></script>
-{{#EnableD3}}<script src="{{UrlPrefix}}d3.min.js"></script>{{/EnableD3}}
-<script>
+{{#EnableD3}}<script src="{{UrlPrefix}}d3-4.5.0.min.js"></script>{{/EnableD3}}
+{{#EnableMustache}}<script src="{{UrlPrefix}}mustache-2.3.0.min.js"></script>{{/EnableMustache}}
+<link href="{{UrlPrefix}}vp-style-1.1.0.min.css" rel="stylesheet" />
+    <script>
     window.svgpublish = {{{Data}}}
     $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
-</script>
+    </script>
+<script src="{{UrlPrefix}}vp-script-1.1.0.min.js"></script>
 </head>
 <body>
 {{{HTML}}}
-{{#EnableSelection}}
-<svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <defs>
-        <filter id="hover">
-            <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
-            <feColorMatrix result="drop" in="offset" type="matrix" values="1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0.3 0"></feColorMatrix>
-            <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
-        </filter>
-
-        <filter id="select">
-            <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
-            <feColorMatrix result="drop" in="offset" type="matrix" values="1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0.9 0"></feColorMatrix>
-            <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
-        </filter>
-
-        <filter id="hyperlink">
-            <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
-            <feColorMatrix result="drop" in="offset" type="matrix" values="0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 0 0 0 0.3 0"></feColorMatrix>
-            <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
-        </filter>
-    </defs>
-</svg>
-{{/EnableSelection}}
 {{#EnableSidebar}}
-<div id="diagram-sidebar" style="display: none">
-    <div>
-        <div>
-            <h3 id="panel-caption">{{DiagramName}}</h3>
+<div id="diagram-sidebar" class="container" style="display: none">
+        <h3 id="panel-caption">{{DiagramName}}</h3>
+        {{#EnableSearch}}
+        <div id="shape-search" class="panel panel-default" style="display: none">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseSearch">
+                        <svg class="icon-search">
+                            <symbol id="icon-search" viewBox="0 0 32 32">
+                                <path d="M28.232 6.232l-4.465-4.464c-0.972-0.972-2.893-1.768-4.268-1.768h-15c-1.375 0-2.5 1.125-2.5 2.5v27c0 1.375 1.125 2.5 2.5 2.5h23c1.375 0 2.5-1.125 2.5-2.5v-19c0-1.375-0.796-3.296-1.768-4.268zM26.818 7.646c0.098 0.098 0.195 0.218 0.29 0.354h-5.108v-5.108c0.136 0.095 0.256 0.192 0.354 0.29l4.465 4.464zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5h15c0.151 0 0.32 0.019 0.5 0.053v7.947h7.947c0.034 0.18 0.053 0.349 0.053 0.5v19z"></path>
+                            </symbol>
+                            <use xlink:href="#icon-search"></use>
+                        </svg> Search
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseSearch" class="panel-collapse collapse in">
+                <div id="panel-search" class="panel-body">
+                    <input type="text" id="search-term" class="form-control" value="" autocomplete="off"/>
+                    <div id="panel-search-results"></div>
+                </div>
+            </div>
         </div>
-        {{#EnablePages}}
+        {{/EnableSearch}}{{#EnablePages}}
         <div id="shape-pages" class="panel panel-default" style="display: none">
             <div class="panel-heading">
                 <h4 class="panel-title">
@@ -129,7 +125,6 @@
             </div>
         </div>
         {{/EnableProps}}
-    </div>
 </div>
 
 <div id="sidebar-toggle" style="display: none">
@@ -144,6 +139,27 @@
 <div id="svg" class="svg appear">
     {{{SVG}}}
 </div>
+
+<svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter id="hover">
+            <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
+            <feColorMatrix result="drop" in="offset" type="matrix" values="1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0.3 0"></feColorMatrix>
+            <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
+        </filter>
+
+        <filter id="select">
+            <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
+            <feColorMatrix result="drop" in="offset" type="matrix" values="1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0.9 0"></feColorMatrix>
+            <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
+        </filter>
+        <filter id="hyperlink">
+            <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
+            <feColorMatrix result="drop" in="offset" type="matrix" values="0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 0 0 0 0.3 0"></feColorMatrix>
+            <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
+        </filter>
+    </defs>
+</svg>
 
 <script type="text/javascript">
     (function (diagram) { {{{JS}}} })(window.svgpublish);

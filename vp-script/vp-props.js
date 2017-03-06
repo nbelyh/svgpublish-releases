@@ -41,18 +41,5 @@ $(document).ready(function () {
         $("#panel-props").html($html);
     }
 
-    $("div.svg").on('click', function () {
-        showShapeProperties();
-    });
-
-    $.each(diagram.shapes, function (shapeId, shape) {
-
-        if (!shape.Props)
-            return;
-
-        var $shape = $("#" + shapeId);
-        $shape.on('click', function () {
-            showShapeProperties($(this).attr('id'));
-        });
-    });
+    diagram.selectionChanged.add(showShapeProperties);
 });
