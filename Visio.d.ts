@@ -75,6 +75,9 @@ interface IShape {
     comments: ICommentCollection;
     subShapes: IShapeCollection;
     view: IShapeView;
+
+	getBounds(): IIBoundingBox;
+    load(param?: object);
 }
 
 interface IDocumentView {
