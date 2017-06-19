@@ -76,7 +76,7 @@ interface IShape {
     subShapes: IShapeCollection;
     view: IShapeView;
 
-	getBounds(): IIBoundingBox;
+	getBounds(): IBoundingBox;
     load(param?: object);
 }
 
