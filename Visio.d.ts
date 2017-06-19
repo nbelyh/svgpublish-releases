@@ -66,6 +66,14 @@ interface IShapeView{
     highlight: boolean;
 }
 
+interface IBoundingBox {
+    height: number;
+    width: number;
+    x: number;
+    y: number;
+    load(param?: object);
+}
+
 interface IShape {
     id: number;
     name: string;
@@ -92,14 +100,6 @@ interface IDocument  {
     application: IApplication;
     pages: IPageCollection;
     view: IDocumentView;
-}
-
-interface IBoundingBox {
-    height: number;
-    width: number;
-    x: number;
-    y: number;
-    load(param?: object);
 }
 
 declare const Visio: IVisio;
