@@ -87,7 +87,14 @@ interface ICommentCollection {
     load(param?: object);
 }
 
-declare type DataRefreshCompleteFunction = (args:IDataRefreshCompleteEventArgs) => void;
+declare type EventHandler<T> = (args:T) => void;
+
+interface IEventHandler<T> {
+    add(handler: EventHandler<T>);
+    fireEvent(T)
+    remove(handler: EventHandler<T>);
+}
+
 interface IDataRefreshCompleteEventArgs  {
     /**
      * Gets the successfailure of the DataRefreshComplete event
@@ -133,7 +140,11 @@ interface IDocument  {
     /**
      * 
      */
-    onPageLoadComplete()
+    onMouseLeave: IEventHandler<IMouseLeaveEventArgs>;
+    onMouseEnter: IEventHandler<IMouseEnterEventArgs>;
+    onSelectionChanged: IEventHandler<ISelectionChangedEventArgs>;
+    onPageLoadComplete: IEventHandler<IPageLoadCompleteEventArgs>;
+    onDataRefreshComplete : IEventHandler<IDataRefreshCompleteEventArgs>;
 }
 
 interface IDocumentView {
@@ -306,7 +317,6 @@ interface IPageCollection  {
     load(param?: object);
 }
 
-declare type PageLoadCompleteFunction = (args:IPageLoadCompleteEventArgs) => void;
 interface IPageLoadCompleteEventArgs  {
     /**
      * Gets the name of the page that raised the PageLoad event
@@ -383,7 +393,6 @@ interface ISelection {
     load(param?: object);
 }
 
-declare type SelectionChangeFunction = (args:ISelectionChangedEventArgs) => void;
 interface ISelectionChangedEventArgs  {
     /**
      * Gets the array of shape names that raised the SelectionChanged event
@@ -507,8 +516,7 @@ interface IShapeDataItemCollection {
     load(param?: object);
 }
 
-declare type IShapeMouseEnterFunction = (args:IShapeMouseEnterEventArgs) => void;
-interface IShapeMouseEnterEventArgs {
+interface IMouseEnterEventArgs {
     /**
      * Gets the name of the shape object that raised the MouseEnter event
      */
@@ -519,8 +527,7 @@ interface IShapeMouseEnterEventArgs {
     pageName: string;
 }
 
-declare type ShapeMouseLeaveFunction = (args:IShapeMouseLeaveEventArgs) => void;
-interface IShapeMouseLeaveEventArgs  {
+interface IMouseLeaveEventArgs  {
     /**
      * Gets the name of the shape object that raised the MouseLeave  event
      */
