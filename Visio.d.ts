@@ -1,7 +1,13 @@
 
 interface IRequestContext {
+    /**
+     * Current document
+     */
     document: IDocument;
-    sync();
+    /**
+     * Executes a batch script
+     */
+    sync(): Promise<void>;
 }
 
 declare type BatchFunction = (ctx: IRequestContext) => void;
@@ -91,7 +97,6 @@ declare type EventHandler<T> = (args:T) => void;
 
 interface IEventHandler<T> {
     add(handler: EventHandler<T>);
-    fireEvent(T)
     remove(handler: EventHandler<T>);
 }
 
