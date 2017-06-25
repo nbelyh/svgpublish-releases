@@ -1,4 +1,10 @@
-﻿$(document).ready(function () {
+﻿
+//-----------------------------------------------------------------------
+// Copyright (c) 2017 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Nikolay Belykh, nbelyh@gmail.com
+//-----------------------------------------------------------------------
+
+$(document).ready(function () {
 
     var diagram = window.svgpublish || {};
 
@@ -41,22 +47,24 @@
                 width = 0;
 
             $("#diagram-sidebar").width(width + 'px').show();
-            $("#sidebar-toggle").css("left", width + 'px');
+            $("#sidebar-toggle").css("left", width + 20 + 'px');
         }
     };
 
     var fnMouseUp = function (mouseUpEvt) {
 
+        $("iframe").css("pointer-events", "auto");
+
         $(document).off('mousemove', fnMouseMove);
         $(document).off('mouseup', fnMouseUp);
 
-        var width = (mouseUpEvt.clientX - dragClientX + dragWidth);
+        var width = (mouseUpEvt.clientX - dragClientX + dragWidth + 20);
 
         if (width < 0)
             width = 0;
 
         if (Math.abs(mouseUpEvt.clientX - dragClientX) < 20) {
-            showSidebar(width < 20, 400);
+            showSidebar(width < 40, 400);
         } else {
             sidebarWidth = width;
             showSidebar(true, 0);
@@ -66,6 +74,11 @@
     };
 
     $("#sidebar-toggle").on("mousedown", function (moseDownEvt) {
+
+        if (moseDownEvt.button !== 0)
+            return;
+
+        $("iframe").css("pointer-events", "none");
 
         dragClientX = moseDownEvt.clientX;
         dragWidth = $("#diagram-sidebar").width();
@@ -86,7 +99,10 @@
 			.show()
 			.animate({
 			    width: (sidebarWidth) + 'px',
-			}, animationTime);
+			}, animationTime, function() {
+                if (window.editor && window.editor.layout)
+                    window.editor.layout();
+            });
 
             $("#sidebar-toggle")
 			.addClass("rotated")

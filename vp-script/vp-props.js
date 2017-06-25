@@ -1,4 +1,9 @@
 ﻿
+//-----------------------------------------------------------------------
+// Copyright (c) 2017 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Nikolay Belykh, nbelyh@gmail.com
+//-----------------------------------------------------------------------
+
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};

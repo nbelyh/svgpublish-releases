@@ -1,16 +1,25 @@
-﻿$(document).ready(function () {
+﻿
+//-----------------------------------------------------------------------
+// Copyright (c) 2017 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Nikolay Belykh, nbelyh@gmail.com
+//-----------------------------------------------------------------------
+
+$(document).ready(function () {
 
     var diagram = window.svgpublish || {};
     
     if (!diagram.shapes || !diagram.enableSearch)
         return;
 
+    function qs(key) {
+        key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+        var match = location.search.match(new RegExp("[?&]" + key + "=([^&]+)(&|$)"));
+        return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+    }
+
     $("#shape-search").show();
 
-    $("#search-term").on("keyup", function (evt) {
-
-        var term = '' + $("#search-term").val();
-
+    function search(term) {
         var $html = $("<div />");
 
         if (!term.length) {
@@ -53,7 +62,7 @@
                 var $a = $('<a href="#">' + text.replace(re, "<span class='search-hilight'>$1</span>") + '</a>')
                     .on("click", function () {
                         diagram.setSelection(shapeId);
-                        $("#" + shapeId).fadeTo(300, 0.3).fadeTo(300, 1).fadeTo(300, 0.3).fadeTo(300, 1);
+                        $("#" + shapeId).fadeTo(300, 0.3).fadeTo(300, 1);
                     });
 
                 $li.append($a);
@@ -64,8 +73,15 @@
 
         $("#panel-search-results")
             .html($html);
+    }
 
+    $("#search-term").on("keyup", function () {
+
+        search($("#search-term").val());
         return false;
     });
 
+    var urlTerm = qs("term");
+    if (urlTerm)
+        search(urlTerm);
 });
