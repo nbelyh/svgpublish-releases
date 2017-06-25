@@ -1,0 +1,228 @@
+﻿{{#MarkOfTheWeb}}<!-- saved from url=(0014)about:internet -->
+{{/MarkOfTheWeb}}<!DOCTYPE html>
+<html class="vp">
+<head>
+    <title>{{DiagramName}}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script src="{{UrlPrefix}}jquery-3.1.1.min.js"></script>
+    <link href="{{UrlPrefix}}bootstrap-3.3.7.min.css" rel="stylesheet" />
+    <script src="{{UrlPrefix}}bootstrap-3.3.7.min.js"></script>
+    {{#EnableLayers}}
+    <link href="{{UrlPrefix}}bootstrap-switch-3.3.2.min.css" rel="stylesheet" />
+    <script src="{{UrlPrefix}}bootstrap-switch-3.3.2.min.js"></script>
+    {{/EnableLayers}}
+    {{#EnableD3}}
+    <script src="{{UrlPrefix}}d3-4.5.0.min.js"></script>{{/EnableD3}}
+    {{#EnableMustache}}
+    <script src="{{UrlPrefix}}mustache-2.3.0.min.js"></script>{{/EnableMustache}}
+    <link href="{{UrlPrefix}}vp-style-1.1.1.min.css" rel="stylesheet" />
+    <script>
+        window.svgpublish = {{{Data}}}
+        $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
+    </script>
+    <script src="{{UrlPrefix}}vp-script-1.1.1.min.js"></script>
+</head>
+<body>
+    {{{HTML}}}
+    {{#EnableSidebar}}
+    <div id="diagram-sidebar" style="display: none; padding: 0 10px 0 10px">
+        <h3 id="panel-caption">{{DiagramName}}</h3>
+        {{#EnableSearch}}
+        <div id="shape-search" class="panel panel-default" style="display: none">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <svg class="icon-search">
+                        <symbol id="icon-search" viewBox="0 0 32 32">
+                            <path d="M28.232 6.232l-4.465-4.464c-0.972-0.972-2.893-1.768-4.268-1.768h-15c-1.375 0-2.5 1.125-2.5 2.5v27c0 1.375 1.125 2.5 2.5 2.5h23c1.375 0 2.5-1.125 2.5-2.5v-19c0-1.375-0.796-3.296-1.768-4.268zM26.818 7.646c0.098 0.098 0.195 0.218 0.29 0.354h-5.108v-5.108c0.136 0.095 0.256 0.192 0.354 0.29l4.465 4.464zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5h15c0.151 0 0.32 0.019 0.5 0.053v7.947h7.947c0.034 0.18 0.053 0.349 0.053 0.5v19z"></path>
+                        </symbol>
+                        <use xlink:href="#icon-search"></use>
+                    </svg>&nbsp;
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseSearch">Search</a>
+                </h4>
+            </div>
+            <div id="collapseSearch" class="panel-collapse collapse in">
+                <div id="panel-search" class="panel-body">
+                    <input type="text" id="search-term" class="form-control" value="" autocomplete="off" />
+                    <div id="panel-search-results"></div>
+                </div>
+            </div>
+        </div>
+        {{/EnableSearch}}{{#EnablePages}}
+        <div id="shape-pages" class="panel panel-default" style="display: none">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <svg class="icon-sidebar">
+                        <symbol id="icon-page" viewBox="0 0 32 32">
+                            <path d="M28.232 6.232l-4.465-4.464c-0.972-0.972-2.893-1.768-4.268-1.768h-15c-1.375 0-2.5 1.125-2.5 2.5v27c0 1.375 1.125 2.5 2.5 2.5h23c1.375 0 2.5-1.125 2.5-2.5v-19c0-1.375-0.796-3.296-1.768-4.268zM26.818 7.646c0.098 0.098 0.195 0.218 0.29 0.354h-5.108v-5.108c0.136 0.095 0.256 0.192 0.354 0.29l4.465 4.464zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5h15c0.151 0 0.32 0.019 0.5 0.053v7.947h7.947c0.034 0.18 0.053 0.349 0.053 0.5v19z"></path>
+                        </symbol>
+                        <use xlink:href="#icon-page"></use>
+                    </svg>&nbsp;
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapsePages">Pages</a>
+                </h4>
+            </div>
+            <div id="collapsePages" class="panel-collapse collapse in">
+                <div id="panel-pages" class="panel-body">
+                </div>
+            </div>
+        </div>
+        {{/EnablePages}}{{#EnableLayers}}
+        <div id="shape-layers" class="panel panel-default" style="display: none">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <svg class="icon-sidebar">
+                        <symbol id="icon-layer" viewBox="0 0 32 32">
+                            <path d="M28.232 6.232l-4.465-4.464c-0.972-0.972-2.893-1.768-4.268-1.768h-15c-1.375 0-2.5 1.125-2.5 2.5v27c0 1.375 1.125 2.5 2.5 2.5h23c1.375 0 2.5-1.125 2.5-2.5v-19c0-1.375-0.796-3.296-1.768-4.268zM26.818 7.646c0.098 0.098 0.195 0.218 0.29 0.354h-5.108v-5.108c0.136 0.095 0.256 0.192 0.354 0.29l4.465 4.464zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5h15c0.151 0 0.32 0.019 0.5 0.053v7.947h7.947c0.034 0.18 0.053 0.349 0.053 0.5v19z"></path>
+                        </symbol>
+                        <use xlink:href="#icon-layer"></use>
+                    </svg>&nbsp;
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseLayers">Layers</a>
+                </h4>
+            </div>
+            <div id="collapseLayers" class="panel-collapse collapse in">
+                <div id="panel-layers" class="panel-body">
+                </div>
+            </div>
+        </div>
+        {{/EnableLayers}}{{#EnableLinks}}
+        <div id="shape-links" class="panel panel-default" style="display: none">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <svg class="icon-sidebar">
+                        <symbol id="icon-chain" viewBox="0 0 26 28">
+                            <path d="M22.75 19c0-0.406-0.156-0.781-0.438-1.062l-3.25-3.25c-0.281-0.281-0.672-0.438-1.062-0.438-0.453 0-0.812 0.172-1.125 0.5 0.516 0.516 1.125 0.953 1.125 1.75 0 0.828-0.672 1.5-1.5 1.5-0.797 0-1.234-0.609-1.75-1.125-0.328 0.313-0.516 0.672-0.516 1.141 0 0.391 0.156 0.781 0.438 1.062l3.219 3.234c0.281 0.281 0.672 0.422 1.062 0.422s0.781-0.141 1.062-0.406l2.297-2.281c0.281-0.281 0.438-0.656 0.438-1.047zM11.766 7.984c0-0.391-0.156-0.781-0.438-1.062l-3.219-3.234c-0.281-0.281-0.672-0.438-1.062-0.438s-0.781 0.156-1.062 0.422l-2.297 2.281c-0.281 0.281-0.438 0.656-0.438 1.047 0 0.406 0.156 0.781 0.438 1.062l3.25 3.25c0.281 0.281 0.672 0.422 1.062 0.422 0.453 0 0.812-0.156 1.125-0.484-0.516-0.516-1.125-0.953-1.125-1.75 0-0.828 0.672-1.5 1.5-1.5 0.797 0 1.234 0.609 1.75 1.125 0.328-0.313 0.516-0.672 0.516-1.141zM25.75 19c0 1.188-0.484 2.344-1.328 3.172l-2.297 2.281c-0.844 0.844-1.984 1.297-3.172 1.297-1.203 0-2.344-0.469-3.187-1.328l-3.219-3.234c-0.844-0.844-1.297-1.984-1.297-3.172 0-1.234 0.5-2.406 1.375-3.266l-1.375-1.375c-0.859 0.875-2.016 1.375-3.25 1.375-1.188 0-2.344-0.469-3.187-1.313l-3.25-3.25c-0.859-0.859-1.313-1.984-1.313-3.187 0-1.188 0.484-2.344 1.328-3.172l2.297-2.281c0.844-0.844 1.984-1.297 3.172-1.297 1.203 0 2.344 0.469 3.187 1.328l3.219 3.234c0.844 0.844 1.297 1.984 1.297 3.172 0 1.234-0.5 2.406-1.375 3.266l1.375 1.375c0.859-0.875 2.016-1.375 3.25-1.375 1.188 0 2.344 0.469 3.187 1.313l3.25 3.25c0.859 0.859 1.313 1.984 1.313 3.187z"></path>
+                        </symbol>
+                        <use xlink:href="#icon-chain"></use>
+                    </svg>&nbsp;
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseLinks">Shape Links</a>
+                </h4>
+            </div>
+            <div id="collapseLinks" class="panel-collapse collapse in">
+                <div id="panel-links" class="panel-body">
+                </div>
+            </div>
+        </div>
+        {{/EnableLinks}}{{#EnableProps}}
+        <div id="shape-props" class="panel panel-default" style="display: none">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <svg class="icon-sidebar">
+                        <symbol id="icon-list-ul" viewBox="0 0 28 28">
+                            <path d="M6 22c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM6 14c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM28 20.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5zM6 6c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM28 12.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5zM28 4.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5z"></path>
+                        </symbol>
+                        <use xlink:href="#icon-list-ul"></use>
+                    </svg>&nbsp;
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseProps">Shape Properties</a>
+                </h4>
+            </div>
+            <div id="collapseProps" class="panel-collapse collapse in">
+                <div id="panel-props" class="panel-body">
+                </div>
+            </div>
+        </div>
+        {{/EnableProps}}
+        {{#EnableCode}}
+        <div id="shape-code" class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <svg class="icon-sidebar">
+                        <symbol id="icon-list-ul" viewBox="0 0 28 28">
+                            <path d="M6 22c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM6 14c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM28 20.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5zM6 6c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM28 12.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5zM28 4.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5z"></path>
+                        </symbol>
+                        <use xlink:href="#icon-list-ul"></use>
+                    </svg>&nbsp;
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseCode">Code Editor</a>
+                </h4>
+            </div>
+            <div id="collapseCode" class="panel-collapse collapse in">
+                <div id="panel-code" class="panel-body">
+                    <div style="display: flex; flex-direction: column; overflow: hidden; height: 80vh; width: 100%">
+                        <div style="margin: 10px">
+                            <input type="button" class="btn btn-default" value="Run" onclick="onRun()" />
+                        </div>
+                        <div id="container" style="border: 1px solid grey; flex: 1"></div>
+
+                        <script src="https://unpkg.com/monaco-editor@0.8.3/min/vs/loader.js"></script>
+                        <script>
+                            require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.8.3/min/vs' } });
+                            window.MonacoEnvironment = { getWorkerUrl: () => proxy };
+
+                            var proxy = URL.createObjectURL(
+                                new Blob([
+                                        "self.MonacoEnvironment = { baseUrl: 'https://unpkg.com/monaco-editor@0.8.3/min/' }; importScripts('https://unpkg.com/monaco-editor@0.8.3/min/vs/base/worker/workerMain.js');"
+                                ], { type: 'text/javascript' }));
+
+                            require(["vs/editor/editor.main"],
+                                function() {
+                                    $.get("https://raw.githubusercontent.com/nbelyh/svgpublish-templates/master/diagram.d.ts", function(d) {
+                                        monaco.languages.typescript.javascriptDefaults.addExtraLib(d, "diagram.d.ts");
+                                    });
+                                    {{#EnableD3}}
+                                    $.get("https://raw.githubusercontent.com/WeaveTeam/TodoApp/master/typings/d3/d3.d.ts", function(d) {
+                                        monaco.languages.typescript.javascriptDefaults.addExtraLib(d, "d3.d.ts");
+                                    });
+                                    {{/EnableD3}}
+                                    window.editor = monaco.editor.create(document.getElementById('container'),
+                                        {
+                                            value: [
+                                                'function x() {',
+                                                '\tconsole.log("Hello world!");',
+                                                '}'
+                                            ].join('\n'),
+                                            language: 'javascript'
+                                        });
+                                });
+
+                            function onRun() {
+                                if (window.editor) {
+                                    eval("(function (diagram) { " + window.editor.getValue() + "})(window.svgpublish);");
+                                }
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/EnableCode}}
+    </div>
+
+    <div id="sidebar-toggle" style="display: none">
+        <svg class="icon-sidebar">
+            <symbol id="icon-bars" viewBox="0 0 24 28">
+                <path d="M24 21v2c0 0.547-0.453 1-1 1h-22c-0.547 0-1-0.453-1-1v-2c0-0.547 0.453-1 1-1h22c0.547 0 1 0.453 1 1zM24 13v2c0 0.547-0.453 1-1 1h-22c-0.547 0-1-0.453-1-1v-2c0-0.547 0.453-1 1-1h22c0.547 0 1 0.453 1 1zM24 5v2c0 0.547-0.453 1-1 1h-22c-0.547 0-1-0.453-1-1v-2c0-0.547 0.453-1 1-1h22c0.547 0 1 0.453 1 1z"></path>
+            </symbol>
+            <use xlink:href="#icon-bars"></use>
+        </svg>
+    </div>
+    {{/EnableSidebar}}
+    <div id="svg" class="svg appear">
+        {{{SVG}}}
+    </div>
+
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <defs>
+            <filter id="hover">
+                <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
+                <feColorMatrix result="drop" in="offset" type="matrix" values="1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0.3 0"></feColorMatrix>
+                <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
+            </filter>
+
+            <filter id="select">
+                <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
+                <feColorMatrix result="drop" in="offset" type="matrix" values="1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0.9 0"></feColorMatrix>
+                <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
+            </filter>
+            <filter id="hyperlink">
+                <feMorphology result="offset" in="SourceGraphic" operator="dilate" radius="5"></feMorphology>
+                <feColorMatrix result="drop" in="offset" type="matrix" values="0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 0 0 0 0.3 0"></feColorMatrix>
+                <feBlend in="SourceGraphic" in2="drop" mode="normal"></feBlend>
+            </filter>
+        </defs>
+    </svg>
+
+    <script type="text/javascript">
+        (function (diagram) { {{{JS}}} })(window.svgpublish);
+    </script>
+</body>
+</html>
