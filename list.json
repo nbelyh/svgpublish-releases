@@ -5,6 +5,11 @@
         "hash": "8131b9dc483160c690e358e9b8edc8b0"
 },
 {
+        "name": "SvgPublish: Shape Selction",
+        "description": "Shows message box with shape text when a shape is clicked",
+        "hash": "41bba9a70a28c78e1cc86abe58b6aa61"
+},
+{
         "name": "VisioOnline: Hello world",
         "description": "Simple script that shows the toolbar. To make sure it works :)",
         "hash": "d134578aef64e0642a13fe709a70de52"
