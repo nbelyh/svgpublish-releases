@@ -1,22 +1,12 @@
 [
 {
-        "name": "Hello World",
-        "description": "A very basic app taht writes 'hello world' to the console",
-        "url": "http://something.com"
+        "name": "SvgPublish: List shapes",
+        "description": "A very basic app taht lists shapes on the diagram to console",
+        "hash": "8131b9dc483160c690e358e9b8edc8b0"
 },
 {
-        "name": "Hello Visio Online",
+        "name": "VisioOnline: Hello world",
         "description": "Simple script that shows the toolbars. Just to make sure it works",
-        "url": "http://something.com"
-},
-{
-       "name": "1981-91 Suzuki FA50 Shuttle",
-        "description": "Layers demo",
-        "url": "https://gists.github.com/gist/514405025544f31653cd5da41a6caf24"
-},
-{
-        "name": "Hello",
-        "description": "something",
-        "url": "http://something.com"
+        "hash": "http://something.com"
 }
 ]

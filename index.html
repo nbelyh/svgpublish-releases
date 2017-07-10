@@ -8,20 +8,18 @@
 
   <body>
     <script id="template" type="x-tmpl-mustache">
-        <ul class="nav nav-pills nav-stacked">
+        <div class="list-group">
             {{#.}}
-            <li>
-                <a href="{{{url}}}">
-                    <b>{{name}}</b>
-                    <div class="text-muted">{{description}}</div>
-                </a>
-            </li>
+            <a href="#" id="{{hash}}" class="list-group-item list-group-item-action">
+                <div><strong>{{name}}</strong></div>
+                <div>{{description}}</div>
+            </a>
             {{/.}}
-        </ul>
+        </div>
     </script>
 
-    <div class="container">
-        <h3 style="padding-left: 20px">Please select a gist</h3>
+    <div class="container-fluid">
+        <h3 style="padding-left: 20px">Please select a gists</h3>
         <div id="target"></div>
     </div>
 
