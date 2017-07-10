@@ -4,11 +4,17 @@ $.get("./list.json", function(data) {
 	$('#target').html(rendered);
 });
 
-$('.list-group a').click(function(e) {
-        e.preventDefault()
+$(document).ready(function() {
+    $('.list-group a').click(function(e) {
+            e.preventDefault()
 
-    $that = $(this);
+        $that = $(this);
 
-    $that.parent().find('a').removeClass('active');
-    $that.addClass('active');
-});
+        $that.parent().find('a').removeClass('active');
+        $that.addClass('active');
+    });
+})
+
+function getSelectedHash() {
+    return $("#target a.active").attr("id")
+}
