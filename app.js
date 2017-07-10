@@ -4,13 +4,11 @@ $.get("./list.json", function(data) {
 	$('#target').html(rendered);
 });
 
-$(function(){
-    $('.list-group a').click(function(e) {
-         e.preventDefault()
+$('.list-group a').click(function(e) {
+        e.preventDefault()
 
-        $that = $(this);
+    $that = $(this);
 
-        $that.parent().find('a').removeClass('active');
-        $that.addClass('active');
-    });
-})
+    $that.parent().find('a').removeClass('active');
+    $that.addClass('active');
+});
