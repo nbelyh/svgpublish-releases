@@ -21,33 +21,51 @@
     width: 0;
     top: 0;
     bottom: 0;
-    left: 0;
     z-index: 1000;
     display: none;
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
     background-color: #f7f7f7;
+}
+
+.vp-sidebar-left #diagram-sidebar {
+    left: 0;
     border-right: 1px solid #777;
 }
 
+.vp-sidebar-right #diagram-sidebar {
+    right: 0;
+    border-left: 1px solid #777;
+}
+
 #diagram-sidebar > div {
-        min-width: 200px;
+    min-width: 200px;
 }
 
 #sidebar-toggle {
     position: fixed;
-    left: 0;
     top: 40px;
     background: #f5f5f5;
     margin: 0;
-    padding: .5em .6em .4em .5em;
+    padding: .5em;
     font-size: 1.2em;
     cursor: pointer;
     border: 1px solid #777;
     z-index: 1001;
+}
+
+.vp-sidebar-left #sidebar-toggle {
+    left: 0;
     border-left: 1px solid #f5f5f5;
     border-top-right-radius: 0.2em;
     border-bottom-right-radius: 0.2em;
+}
+
+.vp-sidebar-right #sidebar-toggle {
+    right: 0;
+    border-right: 1px solid #f5f5f5;
+    border-top-left-radius: 0.2em;
+    border-bottom-left-radius: 0.2em;
 }
 
 #sidebar-toggle:active span.glyphicon {

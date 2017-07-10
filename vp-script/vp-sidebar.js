@@ -11,6 +11,10 @@ $(document).ready(function () {
     if (!diagram.enableSidebar)
         return;
 
+    var right = diagram.rightSidebar;
+    
+    $("body").addClass(right ? "vp-sidebar-right" : "vp-sidebar-left");
+
     var sidebarWidth = 400;
 
     $("#sidebar-toggle").on("dragstart", function () {
@@ -41,13 +45,13 @@ $(document).ready(function () {
 
     var fnMouseMove = function (mouseMoveEvt) {
         if (dragClientX) {
-            var width = (mouseMoveEvt.clientX - dragClientX + dragWidth);
+            var width = dragWidth + (right ? -1 : 1) * (mouseMoveEvt.clientX - dragClientX);
 
             if (width < 0)
                 width = 0;
 
             $("#diagram-sidebar").width(width + 'px').show();
-            $("#sidebar-toggle").css("left", width + 20 + 'px');
+            $("#sidebar-toggle").css(right ? "right" : "left", width + 'px');
         }
     };
 
@@ -58,13 +62,13 @@ $(document).ready(function () {
         $(document).off('mousemove', fnMouseMove);
         $(document).off('mouseup', fnMouseUp);
 
-        var width = (mouseUpEvt.clientX - dragClientX + dragWidth + 20);
+        var width = (right ? -1 : 1) * (mouseUpEvt.clientX - dragClientX) + dragWidth;
 
         if (width < 0)
             width = 0;
 
         if (Math.abs(mouseUpEvt.clientX - dragClientX) < 20) {
-            showSidebar(width < 40, 400);
+            showSidebar(width < 20, 400);
         } else {
             sidebarWidth = width;
             showSidebar(true, 0);
@@ -102,13 +106,15 @@ $(document).ready(function () {
 			}, animationTime, function() {
                 if (window.editor && window.editor.layout)
                     window.editor.layout();
-            });
+                    if (diagram.enableSidebarHtml)
+                        showSidebarHtml();
+                });
 
             $("#sidebar-toggle")
 			.addClass("rotated")
-			.animate({
-			    left: (sidebarWidth - 2) + 'px'
-			}, animationTime);
+			.animate(
+            right ? { right: (sidebarWidth - 2) + 'px' } : { left: (sidebarWidth - 2) + 'px' },
+            animationTime);
         } else {
             $("#diagram-sidebar").animate({
                 width: "0"
@@ -118,9 +124,9 @@ $(document).ready(function () {
 
             $("#sidebar-toggle")
 			.removeClass("rotated")
-			.animate({
-			    left: "0"
-			}, animationTime);
+			.animate(
+            right ? { right: "0" } : { left: "0" },
+            animationTime);
         }
 
         if (isSidebarEnabled() && storage) {
@@ -130,4 +136,14 @@ $(document).ready(function () {
     }
 
     diagram.showSidebar = showSidebar;
+
+    function showSidebarHtml(thisShapeId) {
+
+        var shape = thisShapeId ? diagram.shapes[thisShapeId] : {};
+        var $html = Mustache.render($('#sidebar-template').html(), shape);
+        $("#sidebar-html").html($html);
+    }
+
+    if (diagram.enableSidebarHtml)
+        diagram.selectionChanged.add(showSidebarHtml);
 });

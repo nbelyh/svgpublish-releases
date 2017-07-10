@@ -13,22 +13,24 @@
     <link href="{{UrlPrefix}}bootstrap-switch-3.3.2.min.css" rel="stylesheet" />
     <script src="{{UrlPrefix}}bootstrap-switch-3.3.2.min.js"></script>
     {{/EnableLayers}}
-    {{#EnableD3}}
-    <script src="{{UrlPrefix}}d3-4.5.0.min.js"></script>{{/EnableD3}}
-    {{#EnableMustache}}
-    <script src="{{UrlPrefix}}mustache-2.3.0.min.js"></script>{{/EnableMustache}}
+    {{#EnableD3}}<script src="{{UrlPrefix}}d3-4.5.0.min.js"></script>{{/EnableD3}}
+    {{#EnableMustache}}<script src="{{UrlPrefix}}mustache-2.3.0.min.js"></script>{{/EnableMustache}}
     <link href="{{UrlPrefix}}vp-style-1.1.1.min.css" rel="stylesheet" />
     <script>
         window.svgpublish = {{{Data}}}
         $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
     </script>
     <script src="{{UrlPrefix}}vp-script-1.1.1.min.js"></script>
+    {{#CSS}}<style>{{{CSS}}}</style>{{/CSS}}
 </head>
 <body>
-    {{{HTML}}}
+    {{#HTML}}{{{HTML}}}{{/HTML}}
     {{#EnableSidebar}}
-    <div id="diagram-sidebar" style="display: none; padding: 0 10px 0 10px">
-        <h3 id="panel-caption">{{DiagramName}}</h3>
+    {{#EnableSidebarHtml}}<script id="sidebar-template" type="x-tmpl-mustache">{{{SidebarHtml}}}</script>{{/EnableSidebarHtml}}
+    <div id="diagram-sidebar" style="display: none; position: absolute">
+    <div style="height: 100%; width: 100%; padding: 1em">
+        {{#EnableSidbarTitle}}<h3 id="panel-caption">{{DiagramName}}</h3>{{/EnableSidbarTitle}}
+        {{#EnableSidebarHtml}}<div id="sidebar-html"></div>{{/EnableSidebarHtml}}
         {{#EnableSearch}}
         <div id="shape-search" class="panel panel-default" style="display: none">
             <div class="panel-heading">
@@ -137,11 +139,11 @@
             </div>
             <div id="collapseCode" class="panel-collapse collapse in">
                 <div id="panel-code" class="panel-body">
-                    <div style="display: flex; flex-direction: column; overflow: hidden; height: 80vh; width: 100%">
+                    <div style="display: flex; flex-direction: column; overflow: hidden; height: 70vh; width: 100%">
                         <div style="margin: 10px">
                             <input type="button" class="btn btn-default" value="Run" onclick="onRun()" />
                         </div>
-                        <div id="container" style="border: 1px solid grey; flex: 1"></div>
+                        <div id="code" style="border: 1px solid grey; flex: 1"></div>
 
                         <script src="https://unpkg.com/monaco-editor@0.8.3/min/vs/loader.js"></script>
                         <script>
@@ -163,8 +165,8 @@
                                         monaco.languages.typescript.javascriptDefaults.addExtraLib(d, "d3.d.ts");
                                     });
                                     {{/EnableD3}}
-                                    window.editor = monaco.editor.create(document.getElementById('container'),
-                                        {
+
+                                    window.editor = monaco.editor.create(document.getElementById('code'), {
                                             value: [
                                                 'function x() {',
                                                 '\tconsole.log("Hello world!");',
@@ -186,6 +188,7 @@
         </div>
         {{/EnableCode}}
     </div>
+</div>
 
     <div id="sidebar-toggle" style="display: none">
         <svg class="icon-sidebar">
@@ -220,9 +223,6 @@
             </filter>
         </defs>
     </svg>
-
-    <script type="text/javascript">
-        (function (diagram) { {{{JS}}} })(window.svgpublish);
-    </script>
+    {{#JS}}<script type="text/javascript">(function (diagram) { {{{JS}}} })(window.svgpublish);</script>{{/JS}}
 </body>
 </html>
