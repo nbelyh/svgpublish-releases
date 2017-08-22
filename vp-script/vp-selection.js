@@ -71,4 +71,25 @@ $(document).ready(function () {
             });
         }
     });
+
+    function getUrlParameter(name) {
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.hash);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    };
+
+    diagram.highlightShape = function (shapeId) {
+        $("#" + shapeId).fadeTo(300, 0.3).fadeTo(300, 1).fadeTo(300, 0.3).fadeTo(300, 1);
+        diagram.setSelection(shapeId);
+    }
+
+    function processHash() {
+        var shape = getUrlParameter('shape');
+        if (shape) {
+            diagram.highlightShape(shape);
+        }
+    }
+
+    processHash();
+    $(window).on('hashchange', processHash);
 });

@@ -20,12 +20,8 @@ $(document).ready(function () {
         if (link.Address)
             return link.Address;
 
-        if (link.PageId >= 0 && diagram.pages) {
-            
-            var page = diagram.pages.filter(function (item) { return item.Id === link.PageId; })[0];
-            if (page)
-                return document.location.href.replace("__" +diagram.currentPage.Id, "__" + link.PageId);
-        }
+        if (link.PageId >= 0 && diagram.pages)
+            return document.location.href.replace("__" +diagram.currentPage.Id, "__" + link.PageId);
 
         return "#";
     }

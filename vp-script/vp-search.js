@@ -11,13 +11,54 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableSearch)
         return;
 
-    function qs(key) {
-        key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
-        var match = location.search.match(new RegExp("[?&]" + key + "=([^&]+)(&|$)"));
-        return match && decodeURIComponent(match[1].replace(/\+/g, " "));
-    }
-
     $("#shape-search").show();
+
+    var baseLocation = document.location.protocol + '//' + document.location.host + document.location.pathname;
+
+    function processPage(term, pageId, $ul, external) {
+        $.each(diagram.searchIndex[pageId], function (shapeId, searchText) {
+
+            var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
+
+            if (!re.test(searchText))
+                return;
+
+            var $li = $('<li />');
+
+            var a = '';
+            a += '<a>';
+
+            if (external) {
+                var page = diagram.pages.filter(function (p) {
+                    return p.Id == pageId;
+                })[0];
+
+
+                a += '<div class="text-muted small">';
+                a += '(page ' + page.Name + ')';
+                a += '</div>';
+            }
+
+            a += '<div>';
+            a += searchText.replace(re, "<span class='search-hilight'>$1</span>");
+            a += '</div>';
+
+            a += '</a>';
+
+            var $a = $(a);
+
+            var pageUrl = external
+                ? baseLocation.replace("__" + diagram.currentPage.Id, "__" + pageId)
+                : baseLocation;
+
+            var targetUrl = pageUrl + "#?shape=" + shapeId + "&term=" + encodeURIComponent(term);
+            $a.attr('href', targetUrl);
+
+            $li.append($a);
+
+            $li.appendTo($ul);
+        });
+    }
 
     function search(term) {
         var $html = $("<div />");
@@ -30,44 +71,19 @@ $(document).ready(function () {
             $html.append("<hr/>");
             $html.append($hint);
         } else {
-            var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
-
             var $ul = $('<ul class="nav nav-stacked nav-pills"/>');
 
             $html.append("<hr/>");
             $html.append("<p>Results for <strong>" + term + "</strong>:</p>");
             $html.append($ul);
 
-            $.each(diagram.shapes, function (shapeId, shape) {
+            var currentPageId = diagram.currentPage.Id;
 
-                var text = '' + shape.SearchText;
+            processPage(term, currentPageId, $ul);
 
-                var found = re.test(text);
-
-                if (!found && shape.Props) {
-                    for (var key in shape.Props) {
-                        text = shape.Props[key];
-                        if (re.test(text))
-                            found = true;
-                        if (found)
-                            break;
-                    };
-                }
-
-                if (!found)
-                    return;
-
-                var $li = $('<li />');
-
-                var $a = $('<a href="#">' + text.replace(re, "<span class='search-hilight'>$1</span>") + '</a>')
-                    .on("click", function () {
-                        diagram.setSelection(shapeId);
-                        $("#" + shapeId).fadeTo(300, 0.3).fadeTo(300, 1);
-                    });
-
-                $li.append($a);
-
-                $li.appendTo($ul);
+            $.each(diagram.searchIndex, function(pageId) {
+                if (pageId != currentPageId)
+                    processPage(term, pageId, $ul, true);
             });
         }
 
@@ -81,7 +97,15 @@ $(document).ready(function () {
         return false;
     });
 
-    var urlTerm = qs("term");
-    if (urlTerm)
-        search(urlTerm);
+    function getUrlParameter(name) {
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.hash);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    };
+
+    var term = getUrlParameter('term');
+    if (term) {
+        $('#search-term').val(term);
+        search(term);
+    }
 });
