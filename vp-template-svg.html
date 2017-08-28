@@ -6,7 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <script src="{{UrlPrefix}}jquery-3.1.1.min.js"></script>
+    {{#SafariFullscreen}}<meta name="apple-mobile-web-app-capable" content="yes" />
+    {{/SafariFullscreen}}<script src="{{UrlPrefix}}jquery-3.1.1.min.js"></script>
     <link href="{{UrlPrefix}}bootstrap-3.3.7.min.css" rel="stylesheet" />
     <script src="{{UrlPrefix}}bootstrap-3.3.7.min.js"></script>
     {{#EnableLayers}}
@@ -15,12 +16,12 @@
     {{/EnableLayers}}
     {{#EnableD3}}<script src="{{UrlPrefix}}d3-4.5.0.min.js"></script>{{/EnableD3}}
     {{#EnableMustache}}<script src="{{UrlPrefix}}mustache-2.3.0.min.js"></script>{{/EnableMustache}}
-    <link href="{{UrlPrefix}}vp-style-1.1.1.min.css" rel="stylesheet" />
+    <link href="{{UrlPrefix}}vp-style-1.2.1.min.css" rel="stylesheet" />
     <script>
         window.svgpublish = {{{Data}}}
         $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
     </script>
-    <script src="{{UrlPrefix}}vp-script-1.1.1.min.js"></script>
+    <script src="{{UrlPrefix}}vp-script-1.2.1.min.js"></script>
     {{#CSS}}<style>{{{CSS}}}</style>{{/CSS}}
 </head>
 <body>
@@ -65,7 +66,9 @@
                 </h4>
             </div>
             <div id="collapsePages" class="panel-collapse collapse in">
-                <div id="panel-pages" class="panel-body">
+                <div class="panel-body">
+                    {{#EnablePageLookup}}<input type="text" id="search-page" class="form-control" value="" autocomplete="off" />{{/EnablePageLookup}}
+                    <div id="panel-pages"></div>
                 </div>
             </div>
         </div>
@@ -138,13 +141,13 @@
                 </h4>
             </div>
             <div id="collapseCode" class="panel-collapse collapse in">
-                <div id="panel-code" class="panel-body">
-                    <div style="display: flex; flex-direction: column; overflow: hidden; height: 70vh; width: 100%">
-                        <div style="margin: 10px">
+                <div id="vp-panel-code" class="panel-body" style="max-height:90vh">
+                    <div>
+                        <div>
                             <input type="button" class="btn btn-default" value="Run" onclick="onRun()" />
                         </div>
-                        <div id="code" style="border: 1px solid grey; flex: 1"></div>
-
+                        <div id="vp-code"></div>
+                        <div id="vp-terminal"></div>
                         <script src="https://unpkg.com/monaco-editor@0.8.3/min/vs/loader.js"></script>
                         <script>
                             require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.8.3/min/vs' } });
@@ -152,11 +155,10 @@
 
                             var proxy = URL.createObjectURL(
                                 new Blob([
-                                        "self.MonacoEnvironment = { baseUrl: 'https://unpkg.com/monaco-editor@0.8.3/min/' }; importScripts('https://unpkg.com/monaco-editor@0.8.3/min/vs/base/worker/workerMain.js');"
+                                    "self.MonacoEnvironment = { baseUrl: 'https://unpkg.com/monaco-editor@0.8.3/min/' }; importScripts('https://unpkg.com/monaco-editor@0.8.3/min/vs/base/worker/workerMain.js');"
                                 ], { type: 'text/javascript' }));
 
-                            require(["vs/editor/editor.main"],
-                                function() {
+                            require(["vs/editor/editor.main"], function() {
                                     $.get("https://raw.githubusercontent.com/nbelyh/svgpublish-templates/master/diagram.d.ts", function(d) {
                                         monaco.languages.typescript.javascriptDefaults.addExtraLib(d, "diagram.d.ts");
                                     });
@@ -166,15 +168,24 @@
                                     });
                                     {{/EnableD3}}
 
-                                    window.editor = monaco.editor.create(document.getElementById('code'), {
-                                            value: [
-                                                'function x() {',
-                                                '\tconsole.log("Hello world!");',
-                                                '}'
-                                            ].join('\n'),
-                                            language: 'javascript'
-                                        });
+                                  	window.editor = monaco.editor.create(document.getElementById('vp-code'), {
+										value: {{{CodeJS}}},
+                                        language: 'javascript',
+                                    	lineNumbers: 'off'
+                                    });
+                            });
+
+                            require(["vs/editor/editor.main"], function() {
+                                window.terminal = monaco.editor.create(document.getElementById('vp-terminal'), {
+                                    readOnly: true,
+                                    lineNumbers: 'off'
                                 });
+                                    var oldLog = console.log;
+                                    console.log = function (message) {
+                                    window.terminal.setValue(window.terminal.getValue() + message + "\n");
+                                        oldLog.apply(console, arguments);
+                                    };
+                            });
 
                             function onRun() {
                                 if (window.editor) {
@@ -223,6 +234,6 @@
             </filter>
         </defs>
     </svg>
-    {{#JS}}<script type="text/javascript">(function (diagram) { {{{JS}}} })(window.svgpublish);</script>{{/JS}}
+    {{^EnableCode}}{{#JS}}<script type="text/javascript">(function (diagram) { {{{JS}}} })(window.svgpublish);</script>{{/JS}}{{/EnableCode}}
 </body>
 </html>

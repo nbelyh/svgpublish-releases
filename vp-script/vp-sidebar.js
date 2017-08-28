@@ -106,9 +106,13 @@ $(document).ready(function () {
 			}, animationTime, function() {
                 if (window.editor && window.editor.layout)
                     window.editor.layout();
-                    if (diagram.enableSidebarHtml)
-                        showSidebarHtml();
-                });
+
+                if (window.terminal && window.terminal.layout)
+                    window.terminal.layout();
+
+                if (diagram.enableSidebarHtml)
+                    showSidebarHtml();
+            });
 
             $("#sidebar-toggle")
 			.addClass("rotated")
