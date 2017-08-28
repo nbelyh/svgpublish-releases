@@ -10,18 +10,25 @@
   <body>
     <script id="template" type="x-tmpl-mustache">
         <div class="list-group">
-            {{#.}}
-            <a href="#" id="{{hash}}" class="list-group-item list-group-item-action">
-                <div><strong>{{name}}</strong></div>
-                <div>{{description}}</div>
-            </a>
-            {{/.}}
+        {{#.}}
+        <a href="#" id="{{hash}}" class="list-group-item list-group-item-action" url={{url}}>
+            <div><strong>{{name}}</strong></div>
+            <div>{{description}}</div>
+        </a>
+        {{/.}}
         </div>
     </script>
 
     <div class="container-fluid">
         <h3 style="padding-left: 20px">Please select a gists</h3>
-        <div id="target"></div>
+        <div class="row">
+            <div class="col-xs-6">
+                <div id="target"></div>
+            </div>
+            <div class="col-xs-6">
+                <pre id="preview"></pre>
+            </div>
+        <div>
     </div>
 
     <!-- jQuery first, then Tether, then Bootstrap JS. -->
