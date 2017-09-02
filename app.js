@@ -9,7 +9,8 @@ function getParameterByName(name, url) {
 }
 
 function findFirstFile(files) {
-    var js = $.grep(files, f => f.split('.').pop() == 'js');
+    var js = files.filter(function (f) {
+        return f.split('.').pop() == 'js'});
     return js && js.length ? js[0] : files[0];
 }
 
@@ -30,14 +31,12 @@ $(document).ready(function () {
                 filename: x.files[firstFile].filename,
                 url: x.files[firstFile].raw_url,
             };
-        });
-        
-        var dataFiltered = $.grep(data, function(x) {
+        }).filter(function(x) {
             return x.name && (!term || x.name.indexOf(term) >= 0)
         });
 
         var itemTemplate = $('#itemTemplate').html();
-        var itemRendered = Mustache.render(itemTemplate, dataFiltered);
+        var itemRendered = Mustache.render(itemTemplate, data);
         $('#target').html(itemRendered);
 
         $('.list-group a').click(function (e) {
