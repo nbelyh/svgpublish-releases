@@ -23,7 +23,7 @@ $(document).ready(function () {
                 url: x.files[firstFile].raw_url
             };
         }).filter(function(x) {
-            return x.name.indexOf(term) >= 0
+            return x.name && x.name.indexOf(term) >= 0
         });
 
         var template = $('#template').html();
