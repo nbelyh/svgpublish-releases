@@ -8,6 +8,11 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+function findFirstFile(files) {
+    var js = files.filter(f => f.split('.').pop() == 'js');
+    return js && js.length ? js[0] : files[0];
+}
+
 $(document).ready(function () {
 
     var term = getParameterByName('term');
@@ -15,20 +20,23 @@ $(document).ready(function () {
     $.get("https://api.github.com/users/nbelyh/gists", function (json) {
 
         var data = json.map(function(x) {
-            var firstFile = Object.keys(x.files)[0];
+            
+            var firstFile = findFirstFile(Object.keys(x.files));
+
             return {
                 name: x.description.substr(0, x.description.indexOf('.')),
                 description: x.description.substr(x.description.indexOf('.')+1),
                 hash: x.id,
-                url: x.files[firstFile].raw_url
+                filename: x.files[firstFile].filename,
+                url: x.files[firstFile].raw_url,
             };
         }).filter(function(x) {
-            return x.name && x.name.indexOf(term) >= 0
+            return x.name && (!term || x.name.indexOf(term) >= 0)
         });
 
-        var template = $('#template').html();
-        var rendered = Mustache.render(template, data);
-        $('#target').html(rendered);
+        var itemTemplate = $('#itemTemplate').html();
+        var itemRendered = Mustache.render(itemTemplate, data);
+        $('#target').html(itemRendered);
 
         $('.list-group a').click(function (e) {
             e.preventDefault()
@@ -36,7 +44,15 @@ $(document).ready(function () {
             $that = $(this);
 
             $.get($that.attr('url'), function(result) {
-                $("#preview").html(result);
+
+                var previewTemplate = $('#previewTemplate').html();
+                var previewRendered = Mustache.render(previewTemplate, {
+                    url: "https://gist.github.com/nbelyh/" + $that.attr('hash'),
+                    filename: $that.attr('filename'),
+                    html: result
+                });
+                        
+                $("#preview").html(previewRendered);
             })
 
             $('#details').html($that.attr('url'))
