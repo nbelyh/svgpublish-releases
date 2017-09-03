@@ -1098,14 +1098,17 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        if (!shape.Comment)
-            return;
-
         var $shape = $("#" + shapeId);
+
+        var tip = diagram.enableTooltipHtml ? Mustache.render($('#tooltip-template').html(), shape) : shape.Comment;
+
+        if (!tip)
+            return;
 
         $shape.tooltip({
             container: "body",
-            title: shape.Comment
+            html: true,
+            title: tip
         });
     });
 });
