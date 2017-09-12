@@ -26,11 +26,11 @@
 </head>
 <body>
     {{#HTML}}{{{HTML}}}{{/HTML}}
-    {{#EnableSidebar}}
-    {{#EnableSidebarHtml}}<script id="sidebar-template" type="text/x-tmpl-mustache">{{{SidebarHtml}}}</script>{{/EnableSidebarHtml}}
     {{#EnableTooltipHtml}}<script id="tooltip-template" type="text/x-tmpl-mustache">{{{TooltipHtml}}}</script>{{/EnableTooltipHtml}}
     {{#EnablePopoverHtml}}<script id="popover-title-template" type="text/x-tmpl-mustache">{{{PopoverTitleHtml}}}</script>{{/EnablePopoverHtml}}
     {{#EnablePopoverHtml}}<script id="popover-content-template" type="text/x-tmpl-mustache">{{{PopoverContentHtml}}}</script>{{/EnablePopoverHtml}}
+    {{#EnableSidebar}}
+    {{#EnableSidebarHtml}}<script id="sidebar-template" type="text/x-tmpl-mustache">{{{SidebarHtml}}}</script>{{/EnableSidebarHtml}}
     <div id="diagram-sidebar" style="display: none; position: absolute">
     <div style="height: 100%; width: 100%; padding: 1em">
         {{#EnableSidbarTitle}}<h3 id="panel-caption">{{DiagramName}}</h3>{{/EnableSidbarTitle}}
