@@ -8,7 +8,7 @@ $(document).ready(function () {
 
     var diagram = window.svgpublish || {};
     
-    if (!diagram.shapes || !diagram.enableTooltips) {
+    if (!diagram.shapes || !diagram.enablePopovers) {
         return;
     }
 
@@ -16,17 +16,19 @@ $(document).ready(function () {
 
         var $shape = $("#" + shapeId);
 
-        var tip = diagram.enableTooltipHtml ? Mustache.render($('#tooltip-template').html(), shape) : shape.Comment;
-        var placement = diagram.tooltipPlacement || "auto top";
+        var title = diagram.enablePopoverHtml ? Mustache.render($('#popover-title-template').html(), shape) : shape.Text;
+        var content = diagram.enablePopoverHtml ? Mustache.render($('#popover-content-template').html(), shape) : shape.Comment;
+        var placement = diagram.popoverPlacement || "auto top";
 
-        if (!tip)
+        if (!content)
             return;
 
-        $shape.tooltip({
+        $shape.popover({
+            title: title,
+            content: content,
+            placement: placement,
             container: "body",
-            html: true,
-            title: tip,
-            placement: placement
+            html: true
         });
     });
 });
