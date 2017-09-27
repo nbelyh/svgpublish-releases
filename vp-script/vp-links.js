@@ -20,8 +20,14 @@ $(document).ready(function () {
         if (link.Address)
             return link.Address;
 
-        if (link.PageId >= 0 && diagram.pages)
-            return document.location.href.replace("__" +diagram.currentPage.Id, "__" + link.PageId);
+        var linkPageId = link.PageId;
+        if (linkPageId >= 0 && diagram.pages) {
+            var targetPage = diagram.pages.filter(function (p) { return p.Id === linkPageId })[0];
+            var curpath = location.pathname;
+            var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
+            var href = document.location.origin + newpath;
+            return href;
+        }
 
         return "#";
     }

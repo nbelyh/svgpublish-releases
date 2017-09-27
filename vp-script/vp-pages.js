@@ -23,7 +23,10 @@ $(document).ready(function () {
             if (term && !re.test(page.Name))
                 return;
 
-            var href = document.location.href.replace("__" + diagram.currentPage.Id, "__" + page.Id);
+            var curpath = location.pathname;
+            var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), page.FileName);
+            var href = document.location.origin + newpath;
+
             var text = term ? page.Name.replace(re, "<span class='search-hilight'>$1</span>") : page.Name;
 
             var $a = $("<a />")

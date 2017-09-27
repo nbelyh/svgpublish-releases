@@ -13,8 +13,6 @@ $(document).ready(function () {
 
     $("#shape-search").show();
 
-    var baseLocation = document.location.protocol + '//' + document.location.host + document.location.pathname;
-
     function processPage(term, pageId, $ul, external) {
         $.each(diagram.searchIndex[pageId], function (shapeId, searchText) {
 
@@ -47,9 +45,14 @@ $(document).ready(function () {
 
             var $a = $(a);
 
-            var pageUrl = external
-                ? baseLocation.replace("__" + diagram.currentPage.Id, "__" + pageId)
-                : baseLocation;
+            var pageUrl = document.location.origin + document.location.pathname;
+
+            if (external) {
+                var targetPage = diagram.pages.filter(function (p) { return p.Id == pageId })[0];
+                var curpath = location.pathname;
+                var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
+                pageUrl = document.location.origin + newpath;
+            }
 
             var targetUrl = pageUrl + "#?shape=" + shapeId + "&term=" + encodeURIComponent(term);
             $a.attr('href', targetUrl);
