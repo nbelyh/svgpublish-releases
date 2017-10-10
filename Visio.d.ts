@@ -145,8 +145,8 @@ interface IDocument  {
     /**
      * 
      */
-    onMouseLeave: IEventHandler<IMouseLeaveEventArgs>;
-    onMouseEnter: IEventHandler<IMouseEnterEventArgs>;
+    onShapeMouseLeave: IEventHandler<IShapeMouseLeaveEventArgs>;
+    onShapeMouseEnter: IEventHandler<IShapeMouseEnterEventArgs>;
     onSelectionChanged: IEventHandler<ISelectionChangedEventArgs>;
     onPageLoadComplete: IEventHandler<IPageLoadCompleteEventArgs>;
     onDataRefreshComplete : IEventHandler<IDataRefreshCompleteEventArgs>;
@@ -521,7 +521,7 @@ interface IShapeDataItemCollection {
     load(param?: object);
 }
 
-interface IMouseEnterEventArgs {
+interface IShapeMouseEnterEventArgs {
     /**
      * Gets the name of the shape object that raised the MouseEnter event
      */
@@ -532,7 +532,7 @@ interface IMouseEnterEventArgs {
     pageName: string;
 }
 
-interface IMouseLeaveEventArgs  {
+interface IShapeMouseLeaveEventArgs  {
     /**
      * Gets the name of the shape object that raised the MouseLeave  event
      */
