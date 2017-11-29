@@ -1,0 +1,20 @@
+﻿<html class="vp">
+<head>
+<title>{{DiagramName}}</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<script src="{{UrlPrefix}}jquery-3.1.1.min.js"></script>
+<link href="{{UrlPrefix}}vp-style-1.2.2.css" rel="stylesheet" />
+    <script>
+	var svgpublish = {};
+    $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
+    </script>
+<script src="{{UrlPrefix}}vp-script-1.2.2.js"></script>
+</head>
+<body>
+<div id="svg" class="svg appear">
+    {{{SVG}}}
+</div>
+</body>
+</html>
