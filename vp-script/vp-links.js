@@ -4,6 +4,8 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
+/*global jQuery, $, Mustache */
+
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};
@@ -26,6 +28,11 @@ $(document).ready(function () {
             var curpath = location.pathname;
             var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
             var href = document.location.origin + newpath;
+
+            if (link.ShapeId) {
+                href += "#?shape=" + link.ShapeId;
+            }
+
             return href;
         }
 

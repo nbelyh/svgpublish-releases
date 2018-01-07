@@ -4,6 +4,8 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
+/*global jQuery, $, Mustache */
+
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};
@@ -32,7 +34,7 @@ $(document).ready(function () {
     if (sidebarWidth >= maxWidth)
         sidebarWidth = maxWidth;
 
-    var showSidebarSetting = storage ? storage.getItem("DiagramSidebarVisible") == '1' : 0;
+    var showSidebarSetting = storage ? storage.getItem("DiagramSidebarVisible") === '1' : 0;
 
     $("#sidebar-toggle").show();
 
@@ -102,7 +104,7 @@ $(document).ready(function () {
             $("#diagram-sidebar")
 			.show()
 			.animate({
-			    width: (sidebarWidth) + 'px',
+			    width: (sidebarWidth) + 'px'
 			}, animationTime, function() {
                 if (window.editor && window.editor.layout)
                     window.editor.layout();

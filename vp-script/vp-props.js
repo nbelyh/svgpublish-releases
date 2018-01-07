@@ -4,6 +4,8 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
+/*global jQuery, $, Mustache */
+
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};

@@ -83,18 +83,18 @@
             $(elem).on('mousewheel', handleMouseWheel); // Chrome/Safari/Opera/IE
 
         return {
-            zoomIn: function () {
-                zoom(Math.pow(1 + zoomScale, +1));
-            },
-            zoomOut: function () {
-                zoom(Math.pow(1 + zoomScale, -1));
-            },
-            zoomReset: function () {
-                initCTM();
-            },
+            zoom: zoom,
+            reset: initCTM,
+            focus: setStartShape,
             onViewChanged: function (handler) {
                 onViewChanged = handler;
             }
+        };
+
+        function getUrlParameter(name) {
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.hash);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         };
 
         function fitInBox(width, height, maxWidth, maxHeight) {
@@ -151,6 +151,46 @@
 
             var viewPort = $(svg).find("#viewport").get(0);
             setCTM(viewPort, m);
+
+            $(window).on('hashchange', processHash);
+            processHash();
+        }
+
+        function processHash() {
+            var startShape = getUrlParameter('shape');
+            if (startShape) {
+                setStartShape(startShape);
+            }
+
+            var startZoom = getUrlParameter('zoom');
+            if (startZoom) {
+                zoom(startZoom);
+            }
+        }
+
+        function setStartShape(shapeId) {
+            var p2 = getDefaultPoint();
+            var p1 = getShapePoint(shapeId);
+
+            var viewPort = getViewPort();
+            var m = viewPort.getCTM();
+            if (p1 && p2) {
+                var cp = p1.matrixTransform(m.inverse());
+                var sp = p2.matrixTransform(m.inverse());
+                setCTM(viewPort, m.translate(sp.x - cp.x, sp.y - cp.y));
+            }
+        }
+
+        function getShapePoint(shapeId) {
+            var shapeElem = svg.getElementById(shapeId);
+            if (!shapeElem)
+                return undefined;
+            
+            var rect = shapeElem.getBoundingClientRect();
+            var pt = svg.createSVGPoint();
+            pt.x = (rect.left + rect.right) / 2;
+            pt.y = (rect.top + rect.bottom) / 2;
+            return pt;
         }
 
         function getEventClientPoint(evt) {
@@ -163,7 +203,7 @@
                 var pt2 = makeClientPoint(touches[1].pageX, touches[1].pageY);
 
                 return makeClientPoint((pt1.pageX + pt2.pageX) / 2, (pt1.pageY + pt2.pageY) / 2);
-                
+
             } else {
                 var realEvt = evt.originalEvent
                     ? evt.originalEvent.touches
@@ -340,7 +380,7 @@
             }
 
             if (state === 'down') {
-              
+
                 if (diff(clientPt, stateOriginClient) > panDelta)
                     state = 'pan';
             }

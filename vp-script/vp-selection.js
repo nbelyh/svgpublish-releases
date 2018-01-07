@@ -4,6 +4,8 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
+/*global jQuery, $, Mustache */
+
 (function (diagram) {
     diagram.selectionChanged = $.Callbacks();
 })(window.svgpublish);
