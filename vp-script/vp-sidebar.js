@@ -14,6 +14,7 @@ $(document).ready(function () {
         return;
 
     var right = diagram.rightSidebar;
+    var alwaysHide = diagram.alwaysHideSidebar;
     
     $("body").addClass(right ? "vp-sidebar-right" : "vp-sidebar-left");
 
@@ -38,7 +39,7 @@ $(document).ready(function () {
 
     $("#sidebar-toggle").show();
 
-    if (isSidebarEnabled()) {
+    if (isSidebarEnabled() && !alwaysHide) {
         showSidebar(showSidebarSetting, 0);
     }
 
