@@ -1,6 +1,6 @@
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2018 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -25,12 +25,40 @@ $(document).ready(function () {
         if (!content)
             return;
 
-        $shape.popover({
+        var options = {
             title: title,
             content: content,
             placement: placement,
             container: "body",
             html: true
-        });
+        };
+
+        if (diagram.popoverTrigger) {
+            options.trigger = diagram.popoverTrigger;
+        };
+
+        if (diagram.popoverTimeout) {
+            options.delay = {
+                show: diagram.popoverTimeoutShow || undefined,
+                hide: diagram.popoverTimeoutHide || undefined
+            }
+        }
+
+        $shape.popover(options);
     });
+
+    if (diagram.popoverOutsideClick) {
+        $('div.svg').mouseup(function(e) {
+            $.each(diagram.shapes,
+                function(shapeId) {
+                    var $shape = $("#" + shapeId);
+                    if (!$shape.is(e.target) &&
+                        $shape.has(e.target).length === 0 &&
+                        $('.popover').has(e.target).length === 0) {
+                        (($shape.popover('hide').data('bs.popover') || {}).inState || {}).click = false; // fix for BS 3.3.7
+                    }
+                });
+        });
+    }
+
 });

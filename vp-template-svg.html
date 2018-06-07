@@ -1,4 +1,4 @@
-﻿{{#MarkOfTheWeb}}<!-- saved from url=(0014)about:internet -->
+{{#MarkOfTheWeb}}<!-- saved from url=(0014)about:internet -->
 {{/MarkOfTheWeb}}<!DOCTYPE html>
 <html class="vp">
 <head>
@@ -11,17 +11,17 @@
     <link href="{{UrlPrefix}}bootstrap-3.3.7.min.css" rel="stylesheet" />
     <script src="{{UrlPrefix}}bootstrap-3.3.7.min.js"></script>
     {{#EnableLayers}}
-    <link href="{{UrlPrefix}}bootstrap-switch-3.3.2.min.css" rel="stylesheet" />
-    <script src="{{UrlPrefix}}bootstrap-switch-3.3.2.min.js"></script>
+    <link href="{{UrlPrefix}}bootstrap-switch-3.3.4.min.css" rel="stylesheet" />
+    <script src="{{UrlPrefix}}bootstrap-switch-3.3.4.min.js"></script>
     {{/EnableLayers}}
     {{#EnableD3}}<script src="{{UrlPrefix}}d3-4.5.0.min.js"></script>{{/EnableD3}}
     {{#EnableMustache}}<script src="{{UrlPrefix}}mustache-2.3.0.min.js"></script>{{/EnableMustache}}
-    <link href="{{UrlPrefix}}vp-style-1.2.5.min.css" rel="stylesheet" />
+    <link href="{{UrlPrefix}}vp-style-1.2.9.min.css" rel="stylesheet" />
     <script>
         window.svgpublish = {{{Data}}}
         $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
     </script>
-    <script src="{{UrlPrefix}}vp-script-1.2.5.min.js"></script>
+    <script src="{{UrlPrefix}}vp-script-1.2.9.min.js"></script>
     {{#CSS}}<style>{{{CSS}}}</style>{{/CSS}}
 </head>
 <body>
@@ -154,7 +154,7 @@
                         <script src="https://unpkg.com/monaco-editor@0.8.3/min/vs/loader.js"></script>
                         <script>
                             require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.8.3/min/vs' } });
-                            window.MonacoEnvironment = { getWorkerUrl: () => proxy };
+                            window.MonacoEnvironment = { getWorkerUrl: function() { return proxy; } };
 
                             var proxy = URL.createObjectURL(
                                 new Blob([
