@@ -44,4 +44,19 @@ $(document).ready(function () {
 
         $shape.tooltip(options);
     });
+
+    if (diagram.tooltipOutsideClick) {
+        $('div.svg').mouseup(function(e) {
+            $.each(diagram.shapes,
+                function(shapeId) {
+                    var $shape = $("#" + shapeId);
+                    if (!$shape.is(e.target) &&
+                        $shape.has(e.target).length === 0 &&
+                        $('.tooltip').has(e.target).length === 0) {
+                        (($shape.tooltip('hide').data('bs.tooltip') || {}).inState || {}).click = false; // fix for BS 3.3.7
+                    }
+                });
+        });
+    }
+
 });
