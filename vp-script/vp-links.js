@@ -1,6 +1,6 @@
 ﻿
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2018 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ $(document).ready(function () {
             var targetPage = diagram.pages.filter(function (p) { return p.Id === linkPageId })[0];
             var curpath = location.pathname;
             var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
-            var href = document.location.origin + newpath;
+            var href = document.location.protocol + "//" + document.location.host + newpath;
 
             if (link.ShapeId) {
                 href += "#?shape=" + link.ShapeId;

@@ -1,6 +1,6 @@
 ﻿
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2018 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -9,19 +9,18 @@
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};
-    
+
     if (!diagram.layers || !diagram.enableLayers)
         return;
 
     $("#shape-layers").show();
 
-    function setLayerVisible(layerName, set) {
-
+    function getLayerIndex(layerName) {
         var layer = diagram.layers.filter(function (item) { return item.Name === layerName; })[0];
-        if (!layer)
-            return;
+        return layer ? layer.Index : -1;
+    }
 
-        var layerIndex = parseInt(layer.Index);
+    function setLayerVisibleByIndex(layerIndex, set) {
         $.each(diagram.shapes, function (shapeId, shape) {
 
             if (!shape.Layers || shape.Layers.indexOf(layerIndex) < 0)
@@ -35,24 +34,21 @@ $(document).ready(function () {
         });
     }
 
-    diagram.setLayerVisible = function (layerName, set) {
-        if (diagram.isLayerVisible(layerName) === set)
-            return;
-
-        $("#panel-layers")
-            .find("input[data-layer='" + layerName + "']")
-            .bootstrapSwitch('state', set);
+    function isLayerVisibleByIndex(layerIndex) {
+        return !!$("#panel-layers")
+            .find("input[data-layer='" + layerIndex + "']")
+            .bootstrapSwitch('state');
     }
 
     var $table = $("<table class='table borderless' />");
 
     $.each(diagram.layers, function (i, layer) {
 
-        var $check = $("<input type='checkbox' data-layer='" + layer.Name + "' checked><span style='margin-left:1em'>" + layer.Name + "</span></input>");
+        var $check = $("<input type='checkbox' data-layer='" + layer.Index + "' checked><span style='margin-left:1em'>" + layer.Name + "</span></input>");
 
         $check.on("change.bootstrapSwitch", function (e) {
-            var name = $(e.target).data("layer");
-            setLayerVisible(name, !diagram.isLayerVisible(name));
+            var layerIndex = $(e.target).data("layer");
+            setLayerVisibleByIndex(layerIndex, !isLayerVisibleByIndex(layerIndex));
         });
 
         $table
@@ -61,15 +57,26 @@ $(document).ready(function () {
             .append($check)));
     });
 
+    diagram.isLayerVisible = function(layerName) {
+        var layerIndex = getLayerIndex(layerName);
+        return (layerIndex >= 0) ? isLayerVisibleByIndex(layerIndex) : false;
+    }
+
+    diagram.setLayerVisible = function(layerName, set) {
+        var layerIndex = getLayerIndex(layerName);
+        if (layerIndex >= 0) {
+            if (isLayerVisibleByIndex(layerIndex) === set)
+                return;
+
+            setLayerVisibleByIndex(layerIndex, set);
+            $("#panel-layers")
+                .find("input[data-layer='" + layerIndex + "']")
+                .bootstrapSwitch('state', set);
+        }
+    }
+
     $("#panel-layers").html($table);
 
     $("#panel-layers").find("input")
         .bootstrapSwitch({ size: "small", labelWidth: 0 });
-
-    diagram.isLayerVisible = function (layerName) {
-        return !!$("#panel-layers")
-            .find("input[data-layer='" + layerName + "']")
-            .bootstrapSwitch('state');
-    }
-
 });

@@ -1,6 +1,6 @@
 ﻿
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2018 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ $(document).ready(function () {
 
             var curpath = location.pathname;
             var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), page.FileName);
-            var href = document.location.origin + newpath;
+            var href = document.location.protocol + "//" + document.location.host + newpath;
 
             var text = term ? page.Name.replace(re, "<span class='search-hilight'>$1</span>") : page.Name;
 
