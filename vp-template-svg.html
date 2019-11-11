@@ -130,77 +130,6 @@
             </div>
         </div>
         {{/EnableProps}}
-        {{#EnableCode}}
-        <div id="shape-code" class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <svg class="icon-sidebar">
-                        <symbol id="icon-list-ul" viewBox="0 0 28 28">
-                            <path d="M6 22c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM6 14c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM28 20.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5zM6 6c0 1.656-1.344 3-3 3s-3-1.344-3-3 1.344-3 3-3 3 1.344 3 3zM28 12.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5zM28 4.5v3c0 0.266-0.234 0.5-0.5 0.5h-19c-0.266 0-0.5-0.234-0.5-0.5v-3c0-0.266 0.234-0.5 0.5-0.5h19c0.266 0 0.5 0.234 0.5 0.5z"></path>
-                        </symbol>
-                        <use xlink:href="#icon-list-ul"></use>
-                    </svg>&nbsp;
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseCode">Code Editor</a>
-                </h4>
-            </div>
-            <div id="collapseCode" class="panel-collapse collapse in">
-                <div id="vp-panel-code" class="panel-body" style="max-height:90vh">
-                    <div>
-                        <div>
-                            <input type="button" class="btn btn-default" value="Run" onclick="onRun()" />
-                        </div>
-                        <div id="vp-code"></div>
-                        <div id="vp-terminal"></div>
-                        <script src="https://unpkg.com/monaco-editor@0.8.3/min/vs/loader.js"></script>
-                        <script>
-                            require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.8.3/min/vs' } });
-                            window.MonacoEnvironment = { getWorkerUrl: function() { return proxy; } };
-
-                            var proxy = URL.createObjectURL(
-                                new Blob([
-                                    "self.MonacoEnvironment = { baseUrl: 'https://unpkg.com/monaco-editor@0.8.3/min/' }; importScripts('https://unpkg.com/monaco-editor@0.8.3/min/vs/base/worker/workerMain.js');"
-                                ], { type: 'text/javascript' }));
-
-                            require(["vs/editor/editor.main"], function() {
-                                    $.get("https://raw.githubusercontent.com/nbelyh/svgpublish-templates/master/diagram.d.ts", function(d) {
-                                        monaco.languages.typescript.javascriptDefaults.addExtraLib(d, "diagram.d.ts");
-                                    });
-                                    {{#EnableD3}}
-                                    $.get("https://raw.githubusercontent.com/WeaveTeam/TodoApp/master/typings/d3/d3.d.ts", function(d) {
-                                        monaco.languages.typescript.javascriptDefaults.addExtraLib(d, "d3.d.ts");
-                                    });
-                                    {{/EnableD3}}
-
-                                  	window.editor = monaco.editor.create(document.getElementById('vp-code'), {
-										value: {{{CodeJS}}},
-                                        language: 'javascript',
-                                    	lineNumbers: 'off'
-                                    });
-                            });
-
-                            require(["vs/editor/editor.main"], function() {
-                                window.terminal = monaco.editor.create(document.getElementById('vp-terminal'), {
-                                    readOnly: true,
-                                    lineNumbers: 'off'
-                                });
-                                    var oldLog = console.log;
-                                    console.log = function (message) {
-                                    window.terminal.setValue(window.terminal.getValue() + message + "\n");
-                                        oldLog.apply(console, arguments);
-                                    };
-                            });
-
-                            function onRun() {
-                                if (window.editor) {
-                                    eval("(function (diagram) { " + window.editor.getValue() + "})(window.svgpublish);");
-                                }
-                            }
-                        </script>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{/EnableCode}}
     </div>
 </div>
 
@@ -237,6 +166,6 @@
             </filter>
         </defs>
     </svg>
-    {{^EnableCode}}{{#JS}}<script type="text/javascript">(function (diagram) { {{{JS}}} })(window.svgpublish);</script>{{/JS}}{{/EnableCode}}
+    {{#JS}}<script type="text/javascript">(function (diagram) { {{{JS}}} })(window.svgpublish);</script>{{/JS}}
 </body>
 </html>

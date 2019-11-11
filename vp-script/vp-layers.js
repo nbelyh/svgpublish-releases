@@ -15,16 +15,23 @@ $(document).ready(function () {
 
     $("#shape-layers").show();
 
-    function getLayerIndex(layerName) {
-        var layer = diagram.layers.filter(function (item) { return item.Name === layerName; })[0];
-        return layer ? layer.Index : -1;
+    function getLayerByIndex(layerIndex) {
+        return diagram.layers.filter(function (item) { return item.Index === layerIndex; })[0];
     }
 
-    function setLayerVisibleByIndex(layerIndex, set) {
+    function updateShapes() {
+
+        if (!diagram.layers || !diagram.layers.length)
+            return;
+
         $.each(diagram.shapes, function (shapeId, shape) {
 
-            if (!shape.Layers || shape.Layers.indexOf(layerIndex) < 0)
+            if (!shape.Layers || !shape.Layers.length)
                 return;
+
+            var set = diagram.layers.some(function (e) {
+                return e.Visible && shape.Layers.indexOf(e.Index) >= 0;
+            });
 
             var $shape = $("#" + shapeId);
             if (set)
@@ -34,46 +41,44 @@ $(document).ready(function () {
         });
     }
 
-    function isLayerVisibleByIndex(layerIndex) {
-        return !!$("#panel-layers")
-            .find("input[data-layer='" + layerIndex + "']")
-            .bootstrapSwitch('state');
-    }
-
     var $table = $("<table class='table borderless' />");
 
     $.each(diagram.layers, function (i, layer) {
 
-        var $check = $("<input type='checkbox' data-layer='" + layer.Index + "' checked><span style='margin-left:1em'>" + layer.Name + "</span></input>");
+        var $check = $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + layer.Name + "</span></input>");
 
         $check.on("change.bootstrapSwitch", function (e) {
             var layerIndex = $(e.target).data("layer");
-            setLayerVisibleByIndex(layerIndex, !isLayerVisibleByIndex(layerIndex));
+            var layer = getLayerByIndex(layerIndex);
+            layer.Visible = !layer.Visible;
+            updateShapes();
         });
 
         $table
             .append($("<tr>")
-            .append($("<td>")
-            .append($check)));
+                .append($("<td>")
+                    .append($check)));
     });
 
-    diagram.isLayerVisible = function(layerName) {
-        var layerIndex = getLayerIndex(layerName);
-        return (layerIndex >= 0) ? isLayerVisibleByIndex(layerIndex) : false;
+    function getLayerByName(layerName) {
+        return diagram.layers.filter(function (item) { return item.Name === layerName; })[0];
     }
 
-    diagram.setLayerVisible = function(layerName, set) {
-        var layerIndex = getLayerIndex(layerName);
-        if (layerIndex >= 0) {
-            if (isLayerVisibleByIndex(layerIndex) === set)
-                return;
+    diagram.isLayerVisible = function (layerName) {
+        var layer = getLayerByName(layerName);
+        return layer && layer.Visible;
+    };
 
-            setLayerVisibleByIndex(layerIndex, set);
+    diagram.setLayerVisible = function (layerName, set) {
+        var layer = getLayerByName(layerName);
+        if (layer) {
+            layer.Visible = set;
+            updateShapes();
             $("#panel-layers")
                 .find("input[data-layer='" + layerIndex + "']")
                 .bootstrapSwitch('state', set);
         }
-    }
+    };
 
     $("#panel-layers").html($table);
 
