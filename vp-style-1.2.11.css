@@ -161,25 +161,3 @@ div.svg.appear {
 .bootstrap-switch .bootstrap-switch-container {
     border-radius: 8px;
 }
-
-#vp-panel-code > div {
-    display: flex; 
-    flex-direction: column; 
-    overflow: hidden; 
-    height: 70vh; 
-    width: 100%
-}
-
-#vp-panel-code > div > div {
-    margin: 10px
-}
-
-#vp-code {
-    border: 1px solid #ccc; 
-    flex: 1
-}
-
-#vp-terminal {
-    border: 1px solid #ccc;
-    height: 20vh;
-}

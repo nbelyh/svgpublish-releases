@@ -82,6 +82,9 @@ $(document).ready(function () {
 
     $("#panel-layers").html($table);
 
+    var ontext = $("#panel-layers").data('ontext') || 'ON';
+    var offtext = $("#panel-layers").data('offtext') || 'OFF';
+
     $("#panel-layers").find("input")
-        .bootstrapSwitch({ size: "small", labelWidth: 0 });
+        .bootstrapSwitch({ size: "small", onText: ontext, offText: offtext, labelWidth: 0 });
 });

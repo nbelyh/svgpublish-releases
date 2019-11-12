@@ -57,7 +57,8 @@ $(document).ready(function () {
         
         var shape = diagram.shapes[shapeId];
 
-        var $html = $('<span>No Links</span>');
+        var labelnolinks = $("#panel-links").data('labelnolinks') || 'No Shape Links';
+        var $html = $('<span>' + labelnolinks + '</span>');
         
         if (shape) {
 

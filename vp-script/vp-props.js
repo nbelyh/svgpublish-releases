@@ -19,7 +19,8 @@ $(document).ready(function () {
 
         var shape = diagram.shapes[thisShapeId];
 
-        var $html = $('<span>No Shape Data</span>');
+        var labelnodata = $("#panel-props").data('labelnodata') || 'No Shape Data';
+        var $html = $('<span>' + labelnodata + '</span>');
 
         if (shape) {
 
@@ -28,9 +29,12 @@ $(document).ready(function () {
             var $thead = $html.append($('<thead />'));
             var $tbody = $html.append($('<tbody />'));
 
+            var labelproperty = $("#panel-props").data('labelproperty') || 'Property';
+            var labelvalue = $("#panel-props").data('labelvalue') || 'Value';
+
             $thead.append($('<tr />')
-                .append($('<th />').text('Property'))
-                .append($('<th />').text('Value'))
+                .append($('<th />').text(labelproperty))
+                .append($('<th />').text(labelvalue))
             );
 
             $.each(shape.Props, function(propName, propValue) {
