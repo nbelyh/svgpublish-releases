@@ -1,6 +1,4 @@
 # Visio SVG Publish templates and scripts
-This repository templates used in the SvgPublish Visio extension (starting from version 1.1)
-
 This repository contains the default built-in templates, that are used in the SvgPublish extension
 http://unmanagedvisio.com/products/svg-publish/
 
