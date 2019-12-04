@@ -16,12 +16,12 @@
     {{/EnableLayers}}
     {{#EnableD3}}<script src="{{UrlPrefix}}d3-4.5.0.min.js"></script>{{/EnableD3}}
     {{#EnableMustache}}<script src="{{UrlPrefix}}mustache-2.3.0.min.js"></script>{{/EnableMustache}}
-    <link href="{{UrlPrefix}}vp-style-1.2.11.min.css" rel="stylesheet" />
+    <link href="{{UrlPrefix}}vp-style-1.2.12.min.css" rel="stylesheet" />
     <script>
         window.svgpublish = {{{Data}}}
         $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
     </script>
-    <script src="{{UrlPrefix}}vp-script-1.2.11.min.js"></script>
+    <script src="{{UrlPrefix}}vp-script-1.2.12.min.js"></script>
     {{#CSS}}<style>{{{CSS}}}</style>{{/CSS}}
 </head>
 <body>
