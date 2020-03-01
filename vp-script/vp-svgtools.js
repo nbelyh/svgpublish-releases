@@ -95,7 +95,7 @@
             var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
             var results = regex.exec(location.hash);
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        };
+        }
 
         function fitInBox(width, height, maxWidth, maxHeight) {
 
@@ -134,7 +134,7 @@
             var maxWidth = $(elem).width();
             var maxHeight = $(elem).height();
 
-            if (typeof (svg.createSVGMatrix) != 'function')
+            if (typeof (svg.createSVGMatrix) !== 'function')
                 return;
 
             var m = svg.createSVGMatrix();
@@ -320,7 +320,7 @@
 
             setCTM(viewPort, viewPort.getCTM().multiply(k));
 
-            if (stateTf == null)
+            if (!stateTf)
                 stateTf = viewPort.getCTM().inverse();
 
             stateTf = stateTf.multiply(k.inverse());

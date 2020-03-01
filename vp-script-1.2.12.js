@@ -1,5 +1,96 @@
 
 //-----------------------------------------------------------------------
+// Copyright (c) 2017-2020 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Nikolay Belykh, nbelyh@gmail.com
+//-----------------------------------------------------------------------
+
+/*global jQuery, $, Mustache */
+
+$(document).ready(function () {
+
+    const NS = "http://www.w3.org/2000/svg";
+
+    var diagram = window.svgpublish || {};
+
+    if (!diagram.shapes || !diagram.enableContainerTip)
+        return;
+
+    const containers = [];
+    for (var shapeId in diagram.shapes) {
+        const shape = document.getElementById(shapeId);
+        const info = diagram.shapes[shapeId];
+        if (info.IsContainer)
+            containers.push({ shape: shape, info: info });
+    }
+
+    function updateContainerTips(evt) {
+        let html = "";
+        for (i = 0; i < containers.length; ++i) {
+            const container = containers[i];
+            const info = container.info;
+            if (info.ContainerCategories && info.ContainerText) {
+                const shape = container.shape;
+                const bbox = shape.getBoundingClientRect();
+                const x = evt.clientX;
+                const y = evt.clientY;
+                if (bbox.left <= x && x <= bbox.right && bbox.top <= y && y <= bbox.bottom) {
+                    html += "<div>" + info.ContainerCategories + ": <strong>" + info.ContainerText + "</strong></div>";
+                }
+            }
+        }
+        const tip = document.getElementById("container-tip");
+        if (tip)
+            tip.innerHTML = html;
+    }
+
+    let maxWidth = 0;
+    let maxHeight = 0;
+    for (i = 0; i < containers.length; ++i) {
+        const container = containers[i];
+        const bbox = container.shape.getBBox();
+        if (maxWidth < bbox.width)
+            maxWidth = bbox.width;
+        if (maxHeight < bbox.height)
+            maxHeight = bbox.height;
+    }
+
+    for (i = 0; i < containers.length; ++i) {
+        const container = containers[i];
+        const info = container.info;
+        const shape = container.shape;
+
+        const categories = info.ContainerCategories;
+        if (categories) {
+            if (categories === "Swimlane" || categories === "Phase") {
+                const bbox = shape.getBBox();
+                var rect = document.createElementNS(NS, "rect");
+                rect.setAttribute("x", bbox.x);
+                rect.setAttribute("y", bbox.y);
+
+                if (info.ContainerCategories === "Swimlane") {
+                    rect.setAttribute("height", maxWidth);
+                } else {
+                    rect.setAttribute("width", bbox.width);
+                }
+
+                if (info.ContainerCategories === "Phase") {
+                    rect.setAttribute("height", maxHeight);
+                } else {
+                    rect.setAttribute("height", bbox.height);
+                }
+                // rect.setAttribute('fill', '#ffffff00');
+                // rect.setAttribute('stroke', 'red');
+                shape.appendChild(rect);
+            }
+
+            shape.addEventListener('mousemove', updateContainerTips);
+            shape.addEventListener('mouseout', updateContainerTips);
+        }
+    }
+});
+
+
+//-----------------------------------------------------------------------
 // Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
@@ -574,14 +665,34 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableSelection)
         return;
 
-    diagram.setSelection = function(shapeId) {
-        
+    function findTargetShape(shapeId) {
+        let shape = document.getElementById(shapeId);
+
+        let info = diagram.shapes[shapeId];
+        if (!info || !info.IsContainer)
+            return shape;
+
+        if (!info.ContainerText)
+            return null;
+
+        for (var i = 0; i < shape.children.length; ++i) {
+            let child = shape.children[i];
+            if (child.textContent.indexOf(info.ContainerText) >= 0)
+                return child;
+        }
+    }
+
+    diagram.setSelection = function (shapeId) {
+
         if (diagram.selectedShapeId && diagram.selectedShapeId !== shapeId) {
 
-            if (haveSvgfilters)
-                $("#" + diagram.selectedShapeId).removeAttr('filter');
-            else
-                $("#" + diagram.selectedShapeId).css('opacity', 1);
+            let shape = findTargetShape(diagram.selectedShapeId);
+            if (shape) {
+                if (haveSvgfilters)
+                    shape.removeAttribute('filter');
+                else
+                    shape.style.opacity = 1;
+            }
 
             delete diagram.selectedShapeId;
         }
@@ -591,40 +702,43 @@ $(document).ready(function () {
             diagram.selectedShapeId = shapeId;
             diagram.selectionChanged.fire(shapeId);
 
-            if (haveSvgfilters)
-                $("#" + shapeId).attr('filter', 'url(#select)');
-            else
-                $("#" + shapeId).css('opacity', '0.5');
+            let shape = findTargetShape(shapeId);
+            if (shape) {
+                if (haveSvgfilters)
+                    shape.setAttribute('filter', 'url(#select)');
+                else
+                    shape.style.opacity = 0.5;
+            }
         }
-    }
+    };
 
     $("div.svg").on('click', function () {
-     	diagram.setSelection();
-   	});
+        diagram.setSelection();
+    });
 
     $.each(diagram.shapes, function (shapeId) {
 
-        var $shape = $("#" + shapeId);
+        let info = diagram.shapes[shapeId];
+        let shape = findTargetShape(shapeId);
+        if (!shape)
+            return;
 
-        $shape.css("cursor", 'pointer');
+        shape.style.cursor = 'pointer';
 
-        $shape.on('click', function (evt) {
+        shape.addEventListener('click', function (evt) {
             evt.stopPropagation();
-            var thisId = $(this).attr('id');
-            diagram.setSelection(thisId);
+            diagram.setSelection(shapeId);
         });
 
         // hover support
-        if (haveSvgfilters) {
-            $shape.on('mouseover', function () {
-                var thisId = $(this).attr('id');
-                if (diagram.selectedShapeId !== thisId && !diagram.shapes[thisId].DefaultLink)
-                    $(this).attr('filter', 'url(#hover)');
+        if (haveSvgfilters && !info.DefaultLink) {
+            shape.addEventListener('mouseover', function () {
+                if (diagram.selectedShapeId !== shapeId)
+                    shape.setAttribute('filter', 'url(#hover)');
             });
-            $shape.on('mouseout', function () {
-                var thisId = $(this).attr('id');
-                if (diagram.selectedShapeId !== thisId && !diagram.shapes[thisId].DefaultLink)
-                    $(this).removeAttr('filter');
+            shape.addEventListener('mouseout', function () {
+                if (diagram.selectedShapeId !== shapeId)
+                    shape.removeAttribute('filter');
             });
         }
     });
@@ -633,12 +747,12 @@ $(document).ready(function () {
         var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
         var results = regex.exec(location.hash);
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    };
+    }
 
     diagram.highlightShape = function (shapeId) {
         $("#" + shapeId).fadeTo(300, 0.3).fadeTo(300, 1).fadeTo(300, 0.3).fadeTo(300, 1);
         diagram.setSelection(shapeId);
-    }
+    };
 
     function processHash() {
         var shape = getUrlParameter('shape');
@@ -905,7 +1019,7 @@ $(document).ready(function () {
             var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
             var results = regex.exec(location.hash);
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        };
+        }
 
         function fitInBox(width, height, maxWidth, maxHeight) {
 
@@ -944,7 +1058,7 @@ $(document).ready(function () {
             var maxWidth = $(elem).width();
             var maxHeight = $(elem).height();
 
-            if (typeof (svg.createSVGMatrix) != 'function')
+            if (typeof (svg.createSVGMatrix) !== 'function')
                 return;
 
             var m = svg.createSVGMatrix();
@@ -1130,7 +1244,7 @@ $(document).ready(function () {
 
             setCTM(viewPort, viewPort.getCTM().multiply(k));
 
-            if (stateTf == null)
+            if (!stateTf)
                 stateTf = viewPort.getCTM().inverse();
 
             stateTf = stateTf.multiply(k.inverse());
