@@ -26,29 +26,13 @@
 </head>
 <body>
     {{#HTML}}{{{HTML}}}{{/HTML}}
-    {{#EnableTooltipHtml}}
-    <script id="tooltip-template" type="text/x-tmpl-mustache">
-        {{{TooltipHtml}}}
-    </script>
-    {{/EnableTooltipHtml}}
-    {{#EnablePopoverHtml}}
-    <script id="popover-title-template" type="text/x-tmpl-mustache">
-        {{{PopoverTitleHtml}}}
-    </script>
-    {{/EnablePopoverHtml}}
-    {{#EnablePopoverHtml}}
-    <script id="popover-content-template" type="text/x-tmpl-mustache">
-        {{{PopoverContentHtml}}}
-    </script>
-    {{/EnablePopoverHtml}}
+    {{#EnableTooltipHtml}}<script id="tooltip-template" type="text/x-tmpl-mustache">{{{TooltipHtml}}}</script>{{/EnableTooltipHtml}}
+    {{#EnablePopoverHtml}}<script id="popover-title-template" type="text/x-tmpl-mustache">{{{PopoverTitleHtml}}}</script>{{/EnablePopoverHtml}}
+    {{#EnablePopoverHtml}}<script id="popover-content-template" type="text/x-tmpl-mustache">{{{PopoverContentHtml}}}</script>{{/EnablePopoverHtml}}
     {{#EnableSidebar}}
-    {{#EnableSidebarHtml}}
-    <script id="sidebar-template" type="text/x-tmpl-mustache">
-        {{{SidebarHtml}}}
-    </script>
-    {{/EnableSidebarHtml}}
+    {{#EnableSidebarHtml}}<script id="sidebar-template" type="text/x-tmpl-mustache">{{{SidebarHtml}}}</script>{{/EnableSidebarHtml}}
     <div id="diagram-sidebar" style="display: none; position: absolute">
-        <div style="height: 100%; width: 100%; padding: 1em">
+		<div style="height: 100%; width: 100%; padding: 1em">
             {{#EnableSidbarTitle}}<h3 id="panel-caption">{{DiagramName}}</h3>{{/EnableSidbarTitle}}
             {{#EnableSidebarHtml}}<div id="sidebar-html"></div>{{/EnableSidebarHtml}}
             {{#EnableSearch}}
@@ -83,7 +67,7 @@
                         </svg>&nbsp;
                         <a data-toggle="collapse" data-parent="#accordion" href="#collapsePages">{{Localization.Pages}}</a>
                     </h4>
-                </div>
+				</div>
                 <div id="collapsePages" class="panel-collapse collapse in">
                     <div class="panel-body">
                         {{#EnablePageLookup}}<input type="text" id="search-page" class="form-control" value="" autocomplete="off" />{{/EnablePageLookup}}
@@ -188,8 +172,6 @@
             </filter>
         </defs>
     </svg>
-    {{#JS}}
-    <script type="text/javascript">(function (diagram) { {{{JS}}} })(window.svgpublish);</script>
-    {{/JS}}
+    {{#JS}}<script type="text/javascript">(function (diagram) { {{{JS}}} })(window.svgpublish);</script>{{/JS}}
 </body>
 </html>
