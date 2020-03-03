@@ -15,7 +15,7 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableContainerTip)
         return;
 
-    const containers = [];
+    var containers = [];
     for (var shapeId in diagram.shapes) {
         const shape = document.getElementById(shapeId);
         const info = diagram.shapes[shapeId];
