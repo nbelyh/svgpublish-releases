@@ -151,7 +151,10 @@
     <div id="svg" class="svg appear">
         {{{SVG}}}
     </div>
-    {{#EnableContainerTip}}<div id="container-tip" style="position:absolute;top:1em;right:1em;background-color:#ff85;border:1px solid #884;padding:0.5em;border-radius:0.5em"></div>{{/EnableContainerTip}}
+    {{#EnableContainerTip}}<div id="container-tip" style="position:absolute;top:1em;right:1em;background-color:#ff85;border:1px solid #884;padding:0.5em;border-radius:0.5em"
+                         data-labelswimlane="{{Localization.LabelSwimlane}}"
+                         data-labelphase="{{Localization.LabelPhase}}"
+                         data-labelcontaer="{{Localization.LabelContainer}}"></div>{{/EnableContainerTip}}
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <defs>
             <filter id="hover">

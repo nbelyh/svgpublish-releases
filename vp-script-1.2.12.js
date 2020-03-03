@@ -15,6 +15,21 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableContainerTip)
         return;
 
+    var tip = document.getElementById("container-tip");
+    var labelSwimlane = tip.dataset.labelswimlane || 'Swimlane';
+    var labelPhase = tip.dataset.labelphase || 'Phase';
+    var labelContainer = tip.dataset.labelcontainer || 'Swimlane';
+
+    function localize(category) {
+        if (category === 'Swimlane')
+            return labelSwimlane;
+        if (category === 'Phase')
+            return labelPhase;
+        if (category === 'Container')
+            return labelContainer;
+        return category;
+    }
+
     var containers = [];
     for (var shapeId in diagram.shapes) {
         const shape = document.getElementById(shapeId);
@@ -34,13 +49,11 @@ $(document).ready(function () {
                 const x = evt.clientX;
                 const y = evt.clientY;
                 if (bbox.left <= x && x <= bbox.right && bbox.top <= y && y <= bbox.bottom) {
-                    html += "<div>" + info.ContainerCategories + ": <strong>" + info.ContainerText + "</strong></div>";
+                    html += "<div>" + localize(info.ContainerCategories) + ": <strong>" + info.ContainerText + "</strong></div>";
                 }
             }
         }
-        const tip = document.getElementById("container-tip");
-        if (tip)
-            tip.innerHTML = html;
+        tip.innerHTML = html;
     }
 
     let maxWidth = 0;
