@@ -551,39 +551,49 @@ $(document).ready(function () {
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};
-    
+
     if (!diagram.shapes || !diagram.enableSearch)
         return;
 
     $("#shape-search").show();
 
     function processPage(term, pageId, $ul, external) {
-        $.each(diagram.searchIndex[pageId], function (shapeId, searchText) {
+        $.each(diagram.searchIndex[pageId], function (shapeId, searchInfos) {
 
             var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
 
-            if (!re.test(searchText))
+            let foundProperties = [];
+            let foundText = '';
+
+            for (var propName in searchInfos) {
+
+                let searchText = searchInfos[propName];
+                if (re.test(searchText)) {
+                    foundProperties.push(propName);
+                    foundText += searchText;
+                }
+            }
+
+            if (!foundProperties.length)
                 return;
+
+            let notes = foundProperties.join(', ');
 
             var $li = $('<li />');
 
-            var a = '';
-            a += '<a>';
+            var a = '<a>';
 
             if (external) {
-                var page = diagram.pages.filter(function (p) {
-                    return p.Id == pageId;
-                })[0];
-
-
-                a += '<div class="text-muted small">';
-                a += '(page ' + page.Name + ')';
-                a += '</div>';
+                var page = diagram.pages.filter(function (p) { return p.Id === pageId; })[0];
+                if (notes)
+                    notes += ' / ';
+                notes += page.Name;
             }
 
-            a += '<div>';
-            a += searchText.replace(re, "<span class='search-hilight'>$1</span>");
-            a += '</div>';
+            a += '<div>' + foundText.replace(re, "<span class='search-hilight'>$1</span>") + '</div>';
+
+            if (notes)
+                a += '<div class="text-muted small">' + notes + '</div>';
 
             a += '</a>';
 
@@ -592,7 +602,7 @@ $(document).ready(function () {
             var pageUrl = document.location.protocol + "//" + document.location.host + document.location.pathname;
 
             if (external) {
-                var targetPage = diagram.pages.filter(function (p) { return p.Id == pageId })[0];
+                var targetPage = diagram.pages.filter(function (p) { return p.Id === pageId; })[0];
                 var curpath = location.pathname;
                 var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
                 pageUrl = document.location.protocol + "//" + document.location.host + newpath;
@@ -610,28 +620,28 @@ $(document).ready(function () {
     function search(term) {
         var $html = $("<div />");
 
-        if (!term.length) {
-            
-        }
-        else if (term.length < 2) {
-            var $hint = $('<p class="text-muted">Please enter more than one character to search</p>');
-            $html.append("<hr/>");
-            $html.append($hint);
-        } else {
-            var $ul = $('<ul class="nav nav-stacked nav-pills"/>');
+        if (term.length) {
 
-            $html.append("<hr/>");
-            $html.append("<p>Results for <strong>" + term + "</strong>:</p>");
-            $html.append($ul);
+            if (term.length < 2) {
+                var $hint = $('<p class="text-muted">Please enter more than one character to search</p>');
+                $html.append("<hr/>");
+                $html.append($hint);
+            } else {
+                var $ul = $('<ul class="nav nav-stacked nav-pills"/>');
 
-            var currentPageId = diagram.currentPage.Id;
+                $html.append("<hr/>");
+                $html.append("<p>Results for <strong>" + term + "</strong>:</p>");
+                $html.append($ul);
 
-            processPage(term, currentPageId, $ul);
+                var currentPageId = +diagram.currentPage.Id;
 
-            $.each(diagram.searchIndex, function(pageId) {
-                if (pageId != currentPageId)
-                    processPage(term, pageId, $ul, true);
-            });
+                processPage(term, currentPageId, $ul);
+
+                $.each(diagram.searchIndex, function (pageId) {
+                    if (+pageId !== currentPageId)
+                        processPage(term, +pageId, $ul, true);
+                });
+            }
         }
 
         $("#panel-search-results")
@@ -648,7 +658,7 @@ $(document).ready(function () {
         var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
         var results = regex.exec(location.hash);
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    };
+    }
 
     var term = getUrlParameter('term');
     if (term) {
