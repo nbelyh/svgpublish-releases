@@ -17,6 +17,23 @@ $(document).ready(function () {
     
     $("#shape-links").show();
 
+    function findTargetShape(shapeId) {
+        let shape = document.getElementById(shapeId);
+
+        let info = diagram.shapes[shapeId];
+        if (!info || !info.IsContainer)
+            return shape;
+
+        if (!info.ContainerText)
+            return null;
+
+        for (var i = 0; i < shape.children.length; ++i) {
+            let child = shape.children[i];
+            if (child.textContent.indexOf(info.ContainerText) >= 0)
+                return child;
+        }
+    }
+
     function buildLinkTargetLocation(link) {
 
         if (link.Address)
@@ -95,7 +112,7 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId) {
 
-        var $shape = $("#" + shapeId);
+        var $shape = $(findTargetShape(shapeId));
 
         $shape.css("cursor", 'pointer');
 
