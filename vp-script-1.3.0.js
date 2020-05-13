@@ -868,6 +868,7 @@ $(document).ready(function () {
     var fnMouseUp = function (mouseUpEvt) {
 
         $("iframe").css("pointer-events", "auto");
+        $("body").css("user-select", null);
 
         $(document).off('mousemove', fnMouseMove);
         $(document).off('mouseup', fnMouseUp);
@@ -893,6 +894,7 @@ $(document).ready(function () {
             return;
 
         $("iframe").css("pointer-events", "none");
+        $("body").css("user-select", "none");
 
         dragClientX = moseDownEvt.clientX;
         dragWidth = $("#diagram-sidebar").width();
