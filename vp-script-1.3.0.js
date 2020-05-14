@@ -339,13 +339,15 @@ $(document).ready(function () {
         // hover support
         if (haveSvgfilters) {
             $shape.on('mouseover', function () {
-                var thisId = $(this).attr('id');
-                if (diagram.shapes[thisId].DefaultLink)
+                let thisId = $(this).attr('id');
+                let shape = diagram.shapes[thisId];
+                if (shape && shape.DefaultLink)
                     $(this).attr('filter', 'url(#hyperlink)');
             });
             $shape.on('mouseout', function () {
-                var thisId = $(this).attr('id');
-                if (diagram.shapes[thisId].DefaultLink)
+                let thisId = $(this).attr('id');
+                let shape = diagram.shapes[thisId];
+                if (shape && shape.DefaultLink)
                     $(this).removeAttr('filter');
             });
         }
@@ -455,8 +457,16 @@ $(document).ready(function () {
 
         var $shape = $("#" + shapeId);
 
-        var title = diagram.enablePopoverHtml ? Mustache.render($('#popover-title-template').html(), shape) : shape.Text;
-        var content = diagram.enablePopoverHtml ? Mustache.render($('#popover-content-template').html(), shape) : shape.Comment;
+        const popoverMarkdown = shape.PopoverMarkdown || shape.Comment || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || '';
+
+        const m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
+
+        const titleMarkdown = m && m[1] || '';
+        const contentMarkdown = m && m[2] || popoverMarkdown;
+
+        const title = marked(Mustache.render(titleMarkdown, shape));
+        const content = marked(Mustache.render(contentMarkdown, shape));
+
         var placement = diagram.popoverPlacement || "auto top";
 
         if (!content)
@@ -822,7 +832,7 @@ $(document).ready(function () {
 
     var right = diagram.rightSidebar;
     var alwaysHide = diagram.alwaysHideSidebar;
-    
+
     $("body").addClass(right ? "vp-sidebar-right" : "vp-sidebar-left");
 
     var sidebarWidth = 400;
@@ -912,25 +922,24 @@ $(document).ready(function () {
 
         if (show) {
             $("#diagram-sidebar")
-			.show()
-			.animate({
-			    width: (sidebarWidth) + 'px'
-			}, animationTime, function() {
-                if (window.editor && window.editor.layout)
-                    window.editor.layout();
+                .show()
+                .animate({
+                    width: (sidebarWidth) + 'px'
+                }, animationTime, function () {
+                    if (window.editor && window.editor.layout)
+                        window.editor.layout();
 
-                if (window.terminal && window.terminal.layout)
-                    window.terminal.layout();
+                    if (window.terminal && window.terminal.layout)
+                        window.terminal.layout();
 
-                if (diagram.enableSidebarHtml)
-                    showSidebarHtml();
-            });
+                    showSidebarMarkdown();
+                });
 
             $("#sidebar-toggle")
-			.addClass("rotated")
-			.animate(
-            right ? { right: (sidebarWidth - 2) + 'px' } : { left: (sidebarWidth - 2) + 'px' },
-            animationTime);
+                .addClass("rotated")
+                .animate(
+                    right ? { right: (sidebarWidth - 2) + 'px' } : { left: (sidebarWidth - 2) + 'px' },
+                    animationTime);
         } else {
             $("#diagram-sidebar").animate({
                 width: "0"
@@ -939,10 +948,10 @@ $(document).ready(function () {
             });
 
             $("#sidebar-toggle")
-			.removeClass("rotated")
-			.animate(
-            right ? { right: "0" } : { left: "0" },
-            animationTime);
+                .removeClass("rotated")
+                .animate(
+                    right ? { right: "0" } : { left: "0" },
+                    animationTime);
         }
 
         if (isSidebarEnabled() && storage) {
@@ -953,15 +962,15 @@ $(document).ready(function () {
 
     diagram.showSidebar = showSidebar;
 
-    function showSidebarHtml(thisShapeId) {
+    function showSidebarMarkdown(thisShapeId) {
 
-        var shape = thisShapeId ? diagram.shapes[thisShapeId] : {};
-        var $html = Mustache.render($('#sidebar-template').html(), shape);
-        $("#sidebar-html").html($html);
+        let shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
+        let sidebarMarkdown = shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
+        let html = marked(Mustache.render(sidebarMarkdown, shape));
+        $("#sidebar-html").html(html);
     }
 
-    if (diagram.enableSidebarHtml)
-        diagram.selectionChanged.add(showSidebarHtml);
+    diagram.selectionChanged.add(showSidebarMarkdown);
 });
 
 
@@ -1465,7 +1474,8 @@ $(document).ready(function () {
 
         var $shape = $("#" + shapeId);
 
-        var tip = diagram.enableTooltipHtml ? Mustache.render($('#tooltip-template').html(), shape) : shape.Comment;
+        var tooltipMarkdown = shape.TooltipMarkdown || shape.Comment || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || '';
+        var tip = marked(Mustache.render(tooltipMarkdown, shape));
         var placement = diagram.tooltipPlacement || "auto top";
 
         if (!tip)

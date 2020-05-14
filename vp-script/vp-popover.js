@@ -43,8 +43,16 @@ $(document).ready(function () {
 
         var $shape = $("#" + shapeId);
 
-        var title = diagram.enablePopoverHtml ? Mustache.render($('#popover-title-template').html(), shape) : shape.Text;
-        var content = diagram.enablePopoverHtml ? Mustache.render($('#popover-content-template').html(), shape) : shape.Comment;
+        const popoverMarkdown = shape.PopoverMarkdown || shape.Comment || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || '';
+
+        const m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
+
+        const titleMarkdown = m && m[1] || '';
+        const contentMarkdown = m && m[2] || popoverMarkdown;
+
+        const title = marked(Mustache.render(titleMarkdown, shape));
+        const content = marked(Mustache.render(contentMarkdown, shape));
+
         var placement = diagram.popoverPlacement || "auto top";
 
         if (!content)

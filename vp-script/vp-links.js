@@ -144,13 +144,15 @@ $(document).ready(function () {
         // hover support
         if (haveSvgfilters) {
             $shape.on('mouseover', function () {
-                var thisId = $(this).attr('id');
-                if (diagram.shapes[thisId].DefaultLink)
+                let thisId = $(this).attr('id');
+                let shape = diagram.shapes[thisId];
+                if (shape && shape.DefaultLink)
                     $(this).attr('filter', 'url(#hyperlink)');
             });
             $shape.on('mouseout', function () {
-                var thisId = $(this).attr('id');
-                if (diagram.shapes[thisId].DefaultLink)
+                let thisId = $(this).attr('id');
+                let shape = diagram.shapes[thisId];
+                if (shape && shape.DefaultLink)
                     $(this).removeAttr('filter');
             });
         }

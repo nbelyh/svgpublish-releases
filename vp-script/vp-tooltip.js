@@ -42,7 +42,8 @@ $(document).ready(function () {
 
         var $shape = $("#" + shapeId);
 
-        var tip = diagram.enableTooltipHtml ? Mustache.render($('#tooltip-template').html(), shape) : shape.Comment;
+        var tooltipMarkdown = shape.TooltipMarkdown || shape.Comment || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || '';
+        var tip = marked(Mustache.render(tooltipMarkdown, shape));
         var placement = diagram.tooltipPlacement || "auto top";
 
         if (!tip)

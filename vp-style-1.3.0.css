@@ -38,12 +38,12 @@ html.vp, .vp body, .vp .svg {
 
 .vp-sidebar-left #diagram-sidebar {
     left: 0;
-    border-right: 1px solid #777;
+    border-right: 1px solid #aaa;
 }
 
 .vp-sidebar-right #diagram-sidebar {
     right: 0;
-    border-left: 1px solid #777;
+    border-left: 1px solid #aaa;
 }
 
 #diagram-sidebar > div {
@@ -58,7 +58,7 @@ html.vp, .vp body, .vp .svg {
     padding: .5em;
     font-size: 1.2em;
     cursor: pointer;
-    border: 1px solid #777;
+    border: 1px solid #aaa;
     z-index: 1001;
 }
 
@@ -91,6 +91,7 @@ div.svg.appear {
 
 #sidebar-toggle svg {
 	transition: transform .4s ease;
+  color: #aaa;
 }
 
 #sidebar-toggle.rotated svg {
