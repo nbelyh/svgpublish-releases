@@ -18,16 +18,14 @@ $(document).ready(function () {
     var tip = document.getElementById("container-tip");
     var labelSwimlane = tip.dataset.labelswimlane || 'Swimlane';
     var labelPhase = tip.dataset.labelphase || 'Phase';
-    var labelContainer = tip.dataset.labelcontainer || 'Swimlane';
+    var labelContainer = tip.dataset.labelcontainer || 'Container';
 
     function localize(category) {
         if (category === 'Swimlane')
             return labelSwimlane;
         if (category === 'Phase')
             return labelPhase;
-        if (category === 'Container')
-            return labelContainer;
-        return category;
+        return labelContainer;
     }
 
     var containers = [];
@@ -203,7 +201,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
 
-    var diagram = window.svgpublish || {};
+        var diagram = window.svgpublish || {};
 
     var haveSvgfilters = SVGFEColorMatrixElement && SVGFEColorMatrixElement.SVG_FECOLORMATRIX_TYPE_SATURATE === 2;
 
@@ -212,6 +210,7 @@ $(document).ready(function () {
     
     $("#shape-links").show();
 
+    //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
         let shape = document.getElementById(shapeId);
 
@@ -305,9 +304,9 @@ $(document).ready(function () {
     if (!diagram.enableFollowHyperlinks)
         return;
 
-    $.each(diagram.shapes, function (shapeId) {
+    $.each(diagram.shapes, function (shapeId, shape) {
 
-        var $shape = $(findTargetShape(shapeId));
+        const $shape = $(findTargetShape(shapeId));
 
         $shape.css("cursor", 'pointer');
 
@@ -316,9 +315,6 @@ $(document).ready(function () {
 
             if (evt && evt.ctrlKey)
                 return;
-
-            var thisId = $(this).attr('id');
-            var shape = diagram.shapes[thisId];
 
             if (shape.DefaultLink) {
 
@@ -339,15 +335,11 @@ $(document).ready(function () {
         // hover support
         if (haveSvgfilters) {
             $shape.on('mouseover', function () {
-                let thisId = $(this).attr('id');
-                let shape = diagram.shapes[thisId];
-                if (shape && shape.DefaultLink)
+                if (shape.DefaultLink)
                     $(this).attr('filter', 'url(#hyperlink)');
             });
             $shape.on('mouseout', function () {
-                let thisId = $(this).attr('id');
-                let shape = diagram.shapes[thisId];
-                if (shape && shape.DefaultLink)
+                if (shape.DefaultLink)
                     $(this).removeAttr('filter');
             });
         }
@@ -453,9 +445,27 @@ $(document).ready(function () {
         };
     };
 
+    //TODO: consolidate when migrating from jQuery
+    function findTargetShape(shapeId) {
+        let shape = document.getElementById(shapeId);
+
+        let info = diagram.shapes[shapeId];
+        if (!info || !info.IsContainer)
+            return shape;
+
+        if (!info.ContainerText)
+            return null;
+
+        for (var i = 0; i < shape.children.length; ++i) {
+            let child = shape.children[i];
+            if (child.textContent.indexOf(info.ContainerText) >= 0)
+                return child;
+        }
+    }
+
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        var $shape = $("#" + shapeId);
+        const $shape = $(findTargetShape(shapeId));
 
         const popoverMarkdown = shape.PopoverMarkdown || shape.Comment || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || '';
 
@@ -491,7 +501,29 @@ $(document).ready(function () {
             }
         }
 
-        $shape.popover(options);
+        if (placement === 'mouse') {
+            const $span = $('<span style="position:absolute"/>');
+            $span.appendTo("body");
+
+            $span.popover(options);
+
+            let timeout;
+            $shape.on('mousemove', function (e) {
+                clearTimeout(timeout);
+                $span.css({ top: e.pageY, left: e.pageX });
+                timeout = setTimeout(function () {
+                    $span.popover('show');
+                }, 100);
+            });
+
+            $shape.on('mouseleave', function () {
+                clearTimeout(timeout);
+                $span.popover('hide');
+            });
+        } else {
+            options.placement = placement;
+            $shape.popover(options);
+        }
     });
 
     if (diagram.popoverOutsideClick) {
@@ -715,6 +747,7 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableSelection)
         return;
 
+    //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
         let shape = document.getElementById(shapeId);
 
@@ -1470,13 +1503,31 @@ $(document).ready(function () {
         };
     }
 
+    //TODO: consolidate when migrating from jQuery
+    function findTargetShape(shapeId) {
+        let shape = document.getElementById(shapeId);
+
+        let info = diagram.shapes[shapeId];
+        if (!info || !info.IsContainer)
+            return shape;
+
+        if (!info.ContainerText)
+            return null;
+
+        for (var i = 0; i < shape.children.length; ++i) {
+            let child = shape.children[i];
+            if (child.textContent.indexOf(info.ContainerText) >= 0)
+                return child;
+        }
+    }
+
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        var $shape = $("#" + shapeId);
+        const $shape = $(findTargetShape(shapeId));
 
-        var tooltipMarkdown = shape.TooltipMarkdown || shape.Comment || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || '';
-        var tip = marked(Mustache.render(tooltipMarkdown, shape));
-        var placement = diagram.tooltipPlacement || "auto top";
+        const tooltipMarkdown = shape.TooltipMarkdown || shape.Comment || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || '';
+        const tip = marked(Mustache.render(tooltipMarkdown, shape));
+        const placement = diagram.tooltipPlacement || "auto top";
 
         if (!tip)
             return;
@@ -1485,7 +1536,6 @@ $(document).ready(function () {
             container: "body",
             html: true,
             title: tip,
-            placement: placement
         };
 
         if (diagram.tooltipTrigger) {
@@ -1499,7 +1549,29 @@ $(document).ready(function () {
             }
         }
 
-        $shape.tooltip(options);
+        if (placement === 'mouse') {
+            const $span = $('<span style="position:absolute"/>');
+            $span.appendTo("body");
+
+            $span.tooltip(options);
+
+            let timeout;
+            $shape.on('mousemove', function (e) {
+                clearTimeout(timeout);
+                $span.css({ top: e.pageY, left: e.pageX });
+                timeout = setTimeout(function () {
+                    $span.tooltip('show');
+                }, 100);
+            });
+
+            $shape.on('mouseleave', function () {
+                clearTimeout(timeout);
+                $span.tooltip('hide');
+            });
+        } else {
+            options.placement = placement;
+            $shape.tooltip(options);
+        }
     });
 
     if (diagram.tooltipOutsideClick) {

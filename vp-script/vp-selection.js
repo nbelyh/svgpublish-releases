@@ -19,6 +19,7 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableSelection)
         return;
 
+    //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
         let shape = document.getElementById(shapeId);
 

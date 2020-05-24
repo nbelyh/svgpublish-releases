@@ -3,15 +3,26 @@
 <html class="vp">
 <head>
   <meta charset="utf-8">
-  {{#DiagramTitle}}<title>{{DiagramTitle}}</title>{{/DiagramTitle}}
-  {{#DiagramDescription}}<meta name="description" content="{{DiagramDescription}}">{{/DiagramDescription}}
+  {{#DiagramMetadata.Title}}
+  <title>{{DiagramMetadata.Title}}</title>
+  {{/DiagramMetadata.Title}}
+  {{#DiagramMetadata.Description}}
+  <meta name="description" content="{{DiagramMetadata.Description}}">
+  {{/DiagramMetadata.Description}}
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
-  {{#DiagramTitle}}<meta property="og:title" content="{{DiagramTitle}}" />{{/DiagramTitle}}
-  {{#DiagramDescription}}<meta property="og:description" content="{{DiagramDescription}}">{{/DiagramDescription}}
-  {{#DiagramWebLink}}<meta property="og:url" content="{{DiagramWebLink}}">{{/DiagramWebLink}}
-  {{#DiagramThumbnail}}<meta property="og:image" content="{{FileName}}.thumbnail.png">{{/DiagramThumbnail}}
+  {{#DiagramMetadata.Title}}
+  <meta property="og:title" content="{{DiagramMetadata.Title}}" />
+  {{/DiagramMetadata.Title}}
+  {{#DiagramMetadata.Description}}
+  <meta property="og:description" content="{{DiagramMetadata.Description}}">
+  {{/DiagramMetadata.Description}}
+  {{#DiagramMetadata.WebLink}}
+  <meta property="og:url" content="{{DiagramMetadata.WebLink}}">
+  {{/DiagramMetadata.WebLink}}
+  {{#DiagramMetadataImageUrl}}
+  <meta property="og:image" content="{{DiagramMetadataImageUrl}}">
+  {{/DiagramMetadataImageUrl}}
 
   {{#SafariFullscreen}}
   <meta name="apple-mobile-web-app-capable" content="yes" />
