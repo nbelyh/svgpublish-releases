@@ -36,6 +36,10 @@
     background-color: #f7f7f7;
 }
 
+  #diagram-sidebar .panel-body > input {
+    margin-bottom: 1em;
+  }
+
 .vp-sidebar-left #diagram-sidebar {
     left: 0;
     border-right: 1px solid #aaa;

@@ -51,6 +51,10 @@ $(document).ready(function () {
                 href += "#?shape=" + link.ShapeId;
             }
 
+            if (link.Zoom) {
+                href += (link.ShapeId ? "&" : "#?") + "zoom=" + link.Zoom;
+            }
+
             return href;
         }
 

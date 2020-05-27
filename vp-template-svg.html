@@ -97,7 +97,7 @@
         </div>
         <div id="collapsePages" class="panel-collapse collapse in">
           <div class="panel-body">
-            {{#EnablePageLookup}}<input type="text" id="search-page" class="form-control" value="" autocomplete="off" />{{/EnablePageLookup}}
+            {{#EnablePageLookup}}<input type="text" id="search-page" class="form-control" value="" autocomplete="off" placeholder="{{Localization.Search}} ({{Localization.Pages}})" />{{/EnablePageLookup}}
             <div id="panel-pages"></div>
           </div>
         </div>
@@ -116,7 +116,9 @@
           </h4>
         </div>
         <div id="collapseLayers" class="panel-collapse collapse in">
-          <div id="panel-layers" data-ontext="{{Localization.On}}" data-offtext="{{Localization.Off}}" class="panel-body">
+          <div class="panel-body">
+            {{#EnableLayerLookup}}<input type="text" id="search-layer" class="form-control" value="" autocomplete="off" placeholder="{{Localization.Search}} ({{Localization.Layers}})" />{{/EnableLayerLookup}}
+            <div id="panel-layers" data-ontext="{{Localization.On}}" data-offtext="{{Localization.Off}}"></div>
           </div>
         </div>
       </div>

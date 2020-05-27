@@ -41,24 +41,54 @@ $(document).ready(function () {
         });
     }
 
-    var $table = $("<table class='table borderless' />");
+    function numericSort(data) {
+        const collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        return data
+            .map(function (x) {
+                return x;
+            })
+            .sort(function (a, b) {
+            return collator.compare(a.Name, b.Name);
+        });
+    }
 
-    $.each(diagram.layers, function (i, layer) {
+    function filter(term) {
 
-        var $check = $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + layer.Name + "</span></input>");
+        var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
 
-        $check.on("change.bootstrapSwitch", function (e) {
-            var layerIndex = $(e.target).data("layer");
-            var layer = getLayerByIndex(layerIndex);
-            layer.Visible = !layer.Visible;
-            updateShapes();
+        var $table = $("<table class='table borderless' />");
+
+        var sortedLayers = diagram.enableLayerSort ? numericSort(diagram.layers) : diagram.layers;
+        $.each(sortedLayers, function (i, layer) {
+
+            if (term && !re.test(layer.Name))
+                return;
+
+            var text = term ? layer.Name.replace(re, "<span class='search-hilight'>$1</span>") : layer.Name;
+
+            var $check = $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + text + "</span></input>");
+
+            $check.on("change.bootstrapSwitch", function (e) {
+                var layerIndex = $(e.target).data("layer");
+                var layer = getLayerByIndex(layerIndex);
+                layer.Visible = !layer.Visible;
+                updateShapes();
+            });
+
+            $table
+                .append($("<tr>")
+                    .append($("<td>")
+                        .append($check)));
         });
 
-        $table
-            .append($("<tr>")
-                .append($("<td>")
-                    .append($check)));
-    });
+        $("#panel-layers").html($table);
+
+        var ontext = $("#panel-layers").data('ontext') || 'ON';
+        var offtext = $("#panel-layers").data('offtext') || 'OFF';
+
+        $("#panel-layers").find("input")
+            .bootstrapSwitch({ size: "small", onText: ontext, offText: offtext, labelWidth: 0 });
+    }
 
     function getLayerByName(layerName) {
         return diagram.layers.filter(function (item) { return item.Name === layerName; })[0];
@@ -80,11 +110,11 @@ $(document).ready(function () {
         }
     };
 
-    $("#panel-layers").html($table);
+    filter('');
 
-    var ontext = $("#panel-layers").data('ontext') || 'ON';
-    var offtext = $("#panel-layers").data('offtext') || 'OFF';
+    $("#search-layer").on("keyup", function () {
 
-    $("#panel-layers").find("input")
-        .bootstrapSwitch({ size: "small", onText: ontext, offText: offtext, labelWidth: 0 });
+        filter($("#search-layer").val());
+        return false;
+    });
 });
