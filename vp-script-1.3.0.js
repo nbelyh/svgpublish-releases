@@ -204,11 +204,15 @@ $(document).ready(function () {
     diagram.setLayerVisible = function (layerName, set) {
         var layer = getLayerByName(layerName);
         if (layer) {
-            layer.Visible = set;
-            updateShapes();
-            $("#panel-layers")
-                .find("input[data-layer='" + layerIndex + "']")
-                .bootstrapSwitch('state', set);
+            var $switch = $("#panel-layers").find("input[data-layer='" + layer.Index + "']");
+            if ($switch && $switch[0]) {
+                var state = $switch.bootstrapSwitch('state');
+                if (!!state !== !!set)
+                    $switch.bootstrapSwitch('toggleState');
+            } else {
+                layer.Visible = set;
+                updateShapes();
+            }
         }
     };
 
