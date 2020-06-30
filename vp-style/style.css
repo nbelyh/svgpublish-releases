@@ -36,18 +36,14 @@
     background-color: #f7f7f7;
 }
 
-  #diagram-sidebar .panel-body > input {
-    margin-bottom: 1em;
-  }
-
 .vp-sidebar-left #diagram-sidebar {
     left: 0;
-    border-right: 1px solid #aaa;
+    border-right: 1px solid #777;
 }
 
 .vp-sidebar-right #diagram-sidebar {
     right: 0;
-    border-left: 1px solid #aaa;
+    border-left: 1px solid #777;
 }
 
 #diagram-sidebar > div {
@@ -62,7 +58,7 @@
     padding: .5em;
     font-size: 1.2em;
     cursor: pointer;
-    border: 1px solid #aaa;
+    border: 1px solid #777;
     z-index: 1001;
 }
 
@@ -95,7 +91,6 @@ div.svg.appear {
 
 #sidebar-toggle svg {
 	transition: transform .4s ease;
-  color: #aaa;
 }
 
 #sidebar-toggle.rotated svg {

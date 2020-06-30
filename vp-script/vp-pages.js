@@ -15,22 +15,10 @@ $(document).ready(function () {
 
     $("#shape-pages").show();
 
-    function numericSort(data) {
-        const collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-        return data
-            .map(function (x) {
-                return x;
-            })
-            .sort(function (a, b) {
-                return collator.compare(a.Name, b.Name);
-            });
-    }
-
     function filter(term) {
         var $ul = $('<ul class="nav nav-stacked nav-pills"/>');
 
-        var sortedPages = diagram.enableLayerSort ? numericSort(diagram.pages) : diagram.pages;
-        $.each(sortedPages, function (index, page) {
+        $.each(diagram.pages, function (index, page) {
 
             var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
 

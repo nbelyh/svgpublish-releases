@@ -41,54 +41,24 @@ $(document).ready(function () {
         });
     }
 
-    function numericSort(data) {
-        const collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-        return data
-            .map(function (x) {
-                return x;
-            })
-            .sort(function (a, b) {
-            return collator.compare(a.Name, b.Name);
-        });
-    }
+    var $table = $("<table class='table borderless' />");
 
-    function filter(term) {
+    $.each(diagram.layers, function (i, layer) {
 
-        var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
+        var $check = $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + layer.Name + "</span></input>");
 
-        var $table = $("<table class='table borderless' />");
-
-        var sortedLayers = diagram.enableLayerSort ? numericSort(diagram.layers) : diagram.layers;
-        $.each(sortedLayers, function (i, layer) {
-
-            if (term && !re.test(layer.Name))
-                return;
-
-            var text = term ? layer.Name.replace(re, "<span class='search-hilight'>$1</span>") : layer.Name;
-
-            var $check = $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + text + "</span></input>");
-
-            $check.on("change.bootstrapSwitch", function (e) {
-                var layerIndex = $(e.target).data("layer");
-                var layer = getLayerByIndex(layerIndex);
-                layer.Visible = !layer.Visible;
-                updateShapes();
-            });
-
-            $table
-                .append($("<tr>")
-                    .append($("<td>")
-                        .append($check)));
+        $check.on("change.bootstrapSwitch", function (e) {
+            var layerIndex = $(e.target).data("layer");
+            var layer = getLayerByIndex(layerIndex);
+            layer.Visible = !layer.Visible;
+            updateShapes();
         });
 
-        $("#panel-layers").html($table);
-
-        var ontext = $("#panel-layers").data('ontext') || 'ON';
-        var offtext = $("#panel-layers").data('offtext') || 'OFF';
-
-        $("#panel-layers").find("input")
-            .bootstrapSwitch({ size: "small", onText: ontext, offText: offtext, labelWidth: 0 });
-    }
+        $table
+            .append($("<tr>")
+                .append($("<td>")
+                    .append($check)));
+    });
 
     function getLayerByName(layerName) {
         return diagram.layers.filter(function (item) { return item.Name === layerName; })[0];
@@ -102,19 +72,23 @@ $(document).ready(function () {
     diagram.setLayerVisible = function (layerName, set) {
         var layer = getLayerByName(layerName);
         if (layer) {
-            layer.Visible = set;
-            updateShapes();
-            $("#panel-layers")
-                .find("input[data-layer='" + layerIndex + "']")
-                .bootstrapSwitch('state', set);
+            var $switch = $("#panel-layers").find("input[data-layer='" + layer.Index + "']");
+            if ($switch && $switch[0]) {
+                var state = $switch.bootstrapSwitch('state');
+                if (!!state !== !!set)
+                    $switch.bootstrapSwitch('toggleState');
+            } else {
+                layer.Visible = set;
+                updateShapes();
+            }
         }
     };
 
-    filter('');
+    $("#panel-layers").html($table);
 
-    $("#search-layer").on("keyup", function () {
+    var ontext = $("#panel-layers").data('ontext') || 'ON';
+    var offtext = $("#panel-layers").data('offtext') || 'OFF';
 
-        filter($("#search-layer").val());
-        return false;
-    });
+    $("#panel-layers").find("input")
+        .bootstrapSwitch({ size: "small", onText: ontext, offText: offtext, labelWidth: 0 });
 });
