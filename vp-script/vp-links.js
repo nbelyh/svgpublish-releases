@@ -8,7 +8,7 @@
 
 $(document).ready(function () {
 
-        var diagram = window.svgpublish || {};
+    var diagram = window.svgpublish || {};
 
     var haveSvgfilters = SVGFEColorMatrixElement && SVGFEColorMatrixElement.SVG_FECOLORMATRIX_TYPE_SATURATE === 2;
 
@@ -17,7 +17,6 @@ $(document).ready(function () {
     
     $("#shape-links").show();
 
-    //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
         let shape = document.getElementById(shapeId);
 
@@ -49,10 +48,6 @@ $(document).ready(function () {
 
             if (link.ShapeId) {
                 href += "#?shape=" + link.ShapeId;
-            }
-
-            if (link.Zoom) {
-                href += (link.ShapeId ? "&" : "#?") + "zoom=" + link.Zoom;
             }
 
             return href;
@@ -115,9 +110,9 @@ $(document).ready(function () {
     if (!diagram.enableFollowHyperlinks)
         return;
 
-    $.each(diagram.shapes, function (shapeId, shape) {
+    $.each(diagram.shapes, function (shapeId) {
 
-        const $shape = $(findTargetShape(shapeId));
+        var $shape = $(findTargetShape(shapeId));
 
         $shape.css("cursor", 'pointer');
 
@@ -126,6 +121,9 @@ $(document).ready(function () {
 
             if (evt && evt.ctrlKey)
                 return;
+
+            var thisId = $(this).attr('id');
+            var shape = diagram.shapes[thisId];
 
             if (shape.DefaultLink) {
 
@@ -146,11 +144,13 @@ $(document).ready(function () {
         // hover support
         if (haveSvgfilters) {
             $shape.on('mouseover', function () {
-                if (shape.DefaultLink)
+                var thisId = $(this).attr('id');
+                if (diagram.shapes[thisId].DefaultLink)
                     $(this).attr('filter', 'url(#hyperlink)');
             });
             $shape.on('mouseout', function () {
-                if (shape.DefaultLink)
+                var thisId = $(this).attr('id');
+                if (diagram.shapes[thisId].DefaultLink)
                     $(this).removeAttr('filter');
             });
         }

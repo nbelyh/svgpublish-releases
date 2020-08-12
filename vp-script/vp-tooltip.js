@@ -38,31 +38,12 @@ $(document).ready(function () {
         };
     }
 
-    //TODO: consolidate when migrating from jQuery
-    function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
-
-        let info = diagram.shapes[shapeId];
-        if (!info || !info.IsContainer)
-            return shape;
-
-        if (!info.ContainerText)
-            return null;
-
-        for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
-            if (child.textContent.indexOf(info.ContainerText) >= 0)
-                return child;
-        }
-    }
-
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        const $shape = $(findTargetShape(shapeId));
+        var $shape = $("#" + shapeId);
 
-        const tooltipMarkdown = shape.TooltipMarkdown || shape.Comment || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || '';
-        const tip = marked(Mustache.render(tooltipMarkdown, shape));
-        const placement = diagram.tooltipPlacement || "auto top";
+        var tip = diagram.enableTooltipHtml ? Mustache.render($('#tooltip-template').html(), shape) : shape.Comment;
+        var placement = diagram.tooltipPlacement || "auto top";
 
         if (!tip)
             return;
@@ -71,6 +52,7 @@ $(document).ready(function () {
             container: "body",
             html: true,
             title: tip,
+            placement: placement
         };
 
         if (diagram.tooltipTrigger) {
@@ -84,29 +66,7 @@ $(document).ready(function () {
             }
         }
 
-        if (placement === 'mouse') {
-            const $span = $('<span style="position:absolute"/>');
-            $span.appendTo("body");
-
-            $span.tooltip(options);
-
-            let timeout;
-            $shape.on('mousemove', function (e) {
-                clearTimeout(timeout);
-                $span.css({ top: e.pageY, left: e.pageX });
-                timeout = setTimeout(function () {
-                    $span.tooltip('show');
-                }, 100);
-            });
-
-            $shape.on('mouseleave', function () {
-                clearTimeout(timeout);
-                $span.tooltip('hide');
-            });
-        } else {
-            options.placement = placement;
-            $shape.tooltip(options);
-        }
+        $shape.tooltip(options);
     });
 
     if (diagram.tooltipOutsideClick) {

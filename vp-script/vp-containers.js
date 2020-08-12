@@ -18,14 +18,16 @@ $(document).ready(function () {
     var tip = document.getElementById("container-tip");
     var labelSwimlane = tip.dataset.labelswimlane || 'Swimlane';
     var labelPhase = tip.dataset.labelphase || 'Phase';
-    var labelContainer = tip.dataset.labelcontainer || 'Container';
+    var labelContainer = tip.dataset.labelcontainer || 'Swimlane';
 
     function localize(category) {
         if (category === 'Swimlane')
             return labelSwimlane;
         if (category === 'Phase')
             return labelPhase;
-        return labelContainer;
+        if (category === 'Container')
+            return labelContainer;
+        return category;
     }
 
     var containers = [];

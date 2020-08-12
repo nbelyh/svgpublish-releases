@@ -39,38 +39,12 @@ $(document).ready(function () {
         };
     };
 
-    //TODO: consolidate when migrating from jQuery
-    function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
-
-        let info = diagram.shapes[shapeId];
-        if (!info || !info.IsContainer)
-            return shape;
-
-        if (!info.ContainerText)
-            return null;
-
-        for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
-            if (child.textContent.indexOf(info.ContainerText) >= 0)
-                return child;
-        }
-    }
-
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        const $shape = $(findTargetShape(shapeId));
+        var $shape = $("#" + shapeId);
 
-        const popoverMarkdown = shape.PopoverMarkdown || shape.Comment || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || '';
-
-        const m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
-
-        const titleMarkdown = m && m[1] || '';
-        const contentMarkdown = m && m[2] || popoverMarkdown;
-
-        const title = marked(Mustache.render(titleMarkdown, shape));
-        const content = marked(Mustache.render(contentMarkdown, shape));
-
+        var title = diagram.enablePopoverHtml ? Mustache.render($('#popover-title-template').html(), shape) : shape.Text;
+        var content = diagram.enablePopoverHtml ? Mustache.render($('#popover-content-template').html(), shape) : shape.Comment;
         var placement = diagram.popoverPlacement || "auto top";
 
         if (!content)
@@ -95,29 +69,7 @@ $(document).ready(function () {
             }
         }
 
-        if (placement === 'mouse') {
-            const $span = $('<span style="position:absolute"/>');
-            $span.appendTo("body");
-
-            $span.popover(options);
-
-            let timeout;
-            $shape.on('mousemove', function (e) {
-                clearTimeout(timeout);
-                $span.css({ top: e.pageY, left: e.pageX });
-                timeout = setTimeout(function () {
-                    $span.popover('show');
-                }, 100);
-            });
-
-            $shape.on('mouseleave', function () {
-                clearTimeout(timeout);
-                $span.popover('hide');
-            });
-        } else {
-            options.placement = placement;
-            $shape.popover(options);
-        }
+        $shape.popover(options);
     });
 
     if (diagram.popoverOutsideClick) {
