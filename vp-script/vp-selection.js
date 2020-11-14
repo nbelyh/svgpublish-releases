@@ -74,26 +74,20 @@ $(document).ready(function () {
     $.each(diagram.shapes, function (shapeId) {
 
         let info = diagram.shapes[shapeId];
-        let shape = findTargetShape(shapeId);
-        if (!shape)
-            return;
+        if (info.DefaultLink
+            || info.Props && info.Props.length
+            || info.Links && info.Links.length
+            || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
+        ) {
+            let shape = findTargetShape(shapeId);
+            if (!shape)
+                return;
 
-        shape.style.cursor = 'pointer';
+            shape.style.cursor = 'pointer';
 
-        shape.addEventListener('click', function (evt) {
-            evt.stopPropagation();
-            diagram.setSelection(shapeId);
-        });
-
-        // hover support
-        if (haveSvgfilters && !info.DefaultLink) {
-            shape.addEventListener('mouseover', function () {
-                if (diagram.selectedShapeId !== shapeId)
-                    shape.setAttribute('filter', 'url(#hover)');
-            });
-            shape.addEventListener('mouseout', function () {
-                if (diagram.selectedShapeId !== shapeId)
-                    shape.removeAttribute('filter');
+            shape.addEventListener('click', function (evt) {
+                evt.stopPropagation();
+                diagram.setSelection(shapeId);
             });
         }
     });

@@ -8,9 +8,7 @@
 
 $(document).ready(function () {
 
-        var diagram = window.svgpublish || {};
-
-    var haveSvgfilters = SVGFEColorMatrixElement && SVGFEColorMatrixElement.SVG_FECOLORMATRIX_TYPE_SATURATE === 2;
+    var diagram = window.svgpublish || {};
 
     if (!diagram.shapes)
         return;
@@ -142,18 +140,6 @@ $(document).ready(function () {
                     
             }
         });
-
-        // hover support
-        if (haveSvgfilters) {
-            $shape.on('mouseover', function () {
-                if (shape.DefaultLink)
-                    $(this).attr('filter', 'url(#hyperlink)');
-            });
-            $shape.on('mouseout', function () {
-                if (shape.DefaultLink)
-                    $(this).removeAttr('filter');
-            });
-        }
     });
 
 });

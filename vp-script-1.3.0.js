@@ -108,6 +108,72 @@ $(document).ready(function () {
 
 /*global jQuery, $, Mustache */
 
+(function (diagram) {
+    diagram.selectionChanged = $.Callbacks();
+})(window.svgpublish);
+
+$(document).ready(function () {
+
+    var diagram = window.svgpublish;
+
+    var haveSvgfilters = SVGFEColorMatrixElement && SVGFEColorMatrixElement.SVG_FECOLORMATRIX_TYPE_SATURATE === 2;
+
+    if (!diagram.shapes || !diagram.enableHover)
+        return;
+
+    //TODO: consolidate when migrating from jQuery
+    function findTargetShape(shapeId) {
+        let shape = document.getElementById(shapeId);
+
+        let info = diagram.shapes[shapeId];
+        if (!info || !info.IsContainer)
+            return shape;
+
+        if (!info.ContainerText)
+            return null;
+
+        for (var i = 0; i < shape.children.length; ++i) {
+            let child = shape.children[i];
+            if (child.textContent.indexOf(info.ContainerText) >= 0)
+                return child;
+        }
+    }
+
+    $.each(diagram.shapes, function (shapeId) {
+
+        let info = diagram.shapes[shapeId];
+        if (info.DefaultLink
+            || info.Props && info.Props.length
+            || info.Links && info.Links.length
+            || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
+        ) {
+            let shape = findTargetShape(shapeId);
+            if (!shape)
+                return;
+
+            // hover support
+            if (haveSvgfilters) {
+                shape.addEventListener('mouseover', function () {
+                    if (diagram.selectedShapeId !== shapeId)
+                        shape.setAttribute('filter', info.DefaultLink ? 'url(#hyperlink)' : 'url(#hover)');
+                });
+                shape.addEventListener('mouseout', function () {
+                    if (diagram.selectedShapeId !== shapeId)
+                        shape.removeAttribute('filter');
+                });
+            }
+        }
+    });
+});
+
+
+//-----------------------------------------------------------------------
+// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Nikolay Belykh, nbelyh@gmail.com
+//-----------------------------------------------------------------------
+
+/*global jQuery, $, Mustache */
+
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};
@@ -235,9 +301,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
 
-        var diagram = window.svgpublish || {};
-
-    var haveSvgfilters = SVGFEColorMatrixElement && SVGFEColorMatrixElement.SVG_FECOLORMATRIX_TYPE_SATURATE === 2;
+    var diagram = window.svgpublish || {};
 
     if (!diagram.shapes)
         return;
@@ -369,18 +433,6 @@ $(document).ready(function () {
                     
             }
         });
-
-        // hover support
-        if (haveSvgfilters) {
-            $shape.on('mouseover', function () {
-                if (shape.DefaultLink)
-                    $(this).attr('filter', 'url(#hyperlink)');
-            });
-            $shape.on('mouseout', function () {
-                if (shape.DefaultLink)
-                    $(this).removeAttr('filter');
-            });
-        }
     });
 
 });
@@ -533,11 +585,11 @@ $(document).ready(function () {
             return;
 
         var options = {
+            container: "body",
+            html: true,
             title: title,
             content: content,
-            placement: placement,
-            container: "body",
-            html: true
+            placement: placement
         };
 
         if (diagram.popoverTrigger) {
@@ -551,28 +603,66 @@ $(document).ready(function () {
             }
         }
 
-        if (placement === 'mouse') {
-            const $span = $('<span style="position:absolute"/>');
-            $span.appendTo("body");
+        $shape.popover(options);
 
-            $span.popover(options);
+        if (diagram.popoverUseMousePosition) {
 
-            let timeout;
+            var mouseEvent = {};
+            $.fn.popover.Constructor.prototype.update = function (e) {
+
+                mouseEvent.pageX = e.pageX;
+                mouseEvent.pageY = e.pageY;
+                var $tip = this.tip();
+
+                var pos = this.getPosition()
+                var actualWidth = $tip[0].offsetWidth
+                var actualHeight = $tip[0].offsetHeight
+
+                var placement = typeof this.options.placement == 'function' ?
+                    this.options.placement.call(this, $tip[0], this.$element[0]) :
+                    this.options.placement
+
+                var autoToken = /\s?auto?\s?/i
+                var autoPlace = autoToken.test(placement)
+                if (autoPlace) placement = placement.replace(autoToken, '') || 'top'
+
+                if (autoPlace) {
+                    var orgPlacement = placement
+                    var viewportDim = this.getPosition(this.$viewport)
+
+                    placement = placement == 'bottom' && pos.bottom + actualHeight > viewportDim.bottom ? 'top' :
+                    placement == 'top' && pos.top - actualHeight < viewportDim.top ? 'bottom' :
+                    placement == 'right' && pos.right + actualWidth > viewportDim.width ? 'left' :
+                    placement == 'left' && pos.left - actualWidth < viewportDim.left ? 'right' :
+                    placement
+
+                    $tip
+                        .removeClass(orgPlacement)
+                        .addClass(placement)
+                }
+
+                var calculatedOffset = this.getCalculatedOffset(placement, pos, actualWidth, actualHeight)
+
+                this.applyPlacement(calculatedOffset, placement)
+            }
+
+            var originalGetPosition = $.fn.popover.Constructor.prototype.getPosition;
+            $.fn.popover.Constructor.prototype.getPosition = function ($elem) {
+                if ($elem || typeof (mouseEvent.pageX) !== 'number' || typeof(mouseEvent.pageY) !== 'number') {
+                    return originalGetPosition.call(this, $elem);
+                } else {
+                    return {
+                        left: mouseEvent.pageX,
+                        top: mouseEvent.pageY,
+                        width: 1,
+                        height: 1
+                    };
+                }
+            };
+
             $shape.on('mousemove', function (e) {
-                clearTimeout(timeout);
-                $span.css({ top: e.pageY, left: e.pageX });
-                timeout = setTimeout(function () {
-                    $span.popover('show');
-                }, 100);
-            });
-
-            $shape.on('mouseleave', function () {
-                clearTimeout(timeout);
-                $span.popover('hide');
-            });
-        } else {
-            options.placement = placement;
-            $shape.popover(options);
+                $shape.data('bs.popover').update(e);
+            })
         }
     });
 
@@ -852,26 +942,20 @@ $(document).ready(function () {
     $.each(diagram.shapes, function (shapeId) {
 
         let info = diagram.shapes[shapeId];
-        let shape = findTargetShape(shapeId);
-        if (!shape)
-            return;
+        if (info.DefaultLink
+            || info.Props && info.Props.length
+            || info.Links && info.Links.length
+            || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
+        ) {
+            let shape = findTargetShape(shapeId);
+            if (!shape)
+                return;
 
-        shape.style.cursor = 'pointer';
+            shape.style.cursor = 'pointer';
 
-        shape.addEventListener('click', function (evt) {
-            evt.stopPropagation();
-            diagram.setSelection(shapeId);
-        });
-
-        // hover support
-        if (haveSvgfilters && !info.DefaultLink) {
-            shape.addEventListener('mouseover', function () {
-                if (diagram.selectedShapeId !== shapeId)
-                    shape.setAttribute('filter', 'url(#hover)');
-            });
-            shape.addEventListener('mouseout', function () {
-                if (diagram.selectedShapeId !== shapeId)
-                    shape.removeAttribute('filter');
+            shape.addEventListener('click', function (evt) {
+                evt.stopPropagation();
+                diagram.setSelection(shapeId);
             });
         }
     });
@@ -1586,6 +1670,7 @@ $(document).ready(function () {
             container: "body",
             html: true,
             title: tip,
+            placement: placement
         };
 
         if (diagram.tooltipTrigger) {
@@ -1599,28 +1684,66 @@ $(document).ready(function () {
             }
         }
 
-        if (placement === 'mouse') {
-            const $span = $('<span style="position:absolute"/>');
-            $span.appendTo("body");
+        $shape.tooltip(options);
 
-            $span.tooltip(options);
+        if (diagram.tooltipUseMousePosition) {
 
-            let timeout;
+            var mouseEvent = {};
+            $.fn.tooltip.Constructor.prototype.update = function (e) {
+
+                mouseEvent.pageX = e.pageX;
+                mouseEvent.pageY = e.pageY;
+                var $tip = this.tip();
+
+                var pos = this.getPosition()
+                var actualWidth = $tip[0].offsetWidth
+                var actualHeight = $tip[0].offsetHeight
+
+                var placement = typeof this.options.placement == 'function' ?
+                    this.options.placement.call(this, $tip[0], this.$element[0]) :
+                    this.options.placement
+
+                var autoToken = /\s?auto?\s?/i
+                var autoPlace = autoToken.test(placement)
+                if (autoPlace) placement = placement.replace(autoToken, '') || 'top'
+
+                if (autoPlace) {
+                    var orgPlacement = placement
+                    var viewportDim = this.getPosition(this.$viewport)
+
+                    placement = placement == 'bottom' && pos.bottom + actualHeight > viewportDim.bottom ? 'top' :
+                    placement == 'top' && pos.top - actualHeight < viewportDim.top ? 'bottom' :
+                    placement == 'right' && pos.right + actualWidth > viewportDim.width ? 'left' :
+                    placement == 'left' && pos.left - actualWidth < viewportDim.left ? 'right' :
+                    placement
+
+                    $tip
+                        .removeClass(orgPlacement)
+                        .addClass(placement)
+                }
+
+                var calculatedOffset = this.getCalculatedOffset(placement, pos, actualWidth, actualHeight)
+
+                this.applyPlacement(calculatedOffset, placement)
+            }
+
+            var originalGetPosition = $.fn.tooltip.Constructor.prototype.getPosition;
+            $.fn.tooltip.Constructor.prototype.getPosition = function ($elem) {
+                if ($elem || typeof (mouseEvent.pageX) !== 'number' || typeof(mouseEvent.pageY) !== 'number') {
+                    return originalGetPosition.call(this, $elem);
+                } else {
+                    return {
+                        left: mouseEvent.pageX,
+                        top: mouseEvent.pageY,
+                        width: 1,
+                        height: 1
+                    };
+                }
+            };
+
             $shape.on('mousemove', function (e) {
-                clearTimeout(timeout);
-                $span.css({ top: e.pageY, left: e.pageX });
-                timeout = setTimeout(function () {
-                    $span.tooltip('show');
-                }, 100);
-            });
-
-            $shape.on('mouseleave', function () {
-                clearTimeout(timeout);
-                $span.tooltip('hide');
-            });
-        } else {
-            options.placement = placement;
-            $shape.tooltip(options);
+                $shape.data('bs.tooltip').update(e);
+            })
         }
     });
 

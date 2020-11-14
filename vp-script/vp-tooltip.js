@@ -71,6 +71,7 @@ $(document).ready(function () {
             container: "body",
             html: true,
             title: tip,
+            placement: placement
         };
 
         if (diagram.tooltipTrigger) {
@@ -84,28 +85,66 @@ $(document).ready(function () {
             }
         }
 
-        if (placement === 'mouse') {
-            const $span = $('<span style="position:absolute"/>');
-            $span.appendTo("body");
+        $shape.tooltip(options);
 
-            $span.tooltip(options);
+        if (diagram.tooltipUseMousePosition) {
 
-            let timeout;
+            var mouseEvent = {};
+            $.fn.tooltip.Constructor.prototype.update = function (e) {
+
+                mouseEvent.pageX = e.pageX;
+                mouseEvent.pageY = e.pageY;
+                var $tip = this.tip();
+
+                var pos = this.getPosition()
+                var actualWidth = $tip[0].offsetWidth
+                var actualHeight = $tip[0].offsetHeight
+
+                var placement = typeof this.options.placement == 'function' ?
+                    this.options.placement.call(this, $tip[0], this.$element[0]) :
+                    this.options.placement
+
+                var autoToken = /\s?auto?\s?/i
+                var autoPlace = autoToken.test(placement)
+                if (autoPlace) placement = placement.replace(autoToken, '') || 'top'
+
+                if (autoPlace) {
+                    var orgPlacement = placement
+                    var viewportDim = this.getPosition(this.$viewport)
+
+                    placement = placement == 'bottom' && pos.bottom + actualHeight > viewportDim.bottom ? 'top' :
+                    placement == 'top' && pos.top - actualHeight < viewportDim.top ? 'bottom' :
+                    placement == 'right' && pos.right + actualWidth > viewportDim.width ? 'left' :
+                    placement == 'left' && pos.left - actualWidth < viewportDim.left ? 'right' :
+                    placement
+
+                    $tip
+                        .removeClass(orgPlacement)
+                        .addClass(placement)
+                }
+
+                var calculatedOffset = this.getCalculatedOffset(placement, pos, actualWidth, actualHeight)
+
+                this.applyPlacement(calculatedOffset, placement)
+            }
+
+            var originalGetPosition = $.fn.tooltip.Constructor.prototype.getPosition;
+            $.fn.tooltip.Constructor.prototype.getPosition = function ($elem) {
+                if ($elem || typeof (mouseEvent.pageX) !== 'number' || typeof(mouseEvent.pageY) !== 'number') {
+                    return originalGetPosition.call(this, $elem);
+                } else {
+                    return {
+                        left: mouseEvent.pageX,
+                        top: mouseEvent.pageY,
+                        width: 1,
+                        height: 1
+                    };
+                }
+            };
+
             $shape.on('mousemove', function (e) {
-                clearTimeout(timeout);
-                $span.css({ top: e.pageY, left: e.pageX });
-                timeout = setTimeout(function () {
-                    $span.tooltip('show');
-                }, 100);
-            });
-
-            $shape.on('mouseleave', function () {
-                clearTimeout(timeout);
-                $span.tooltip('hide');
-            });
-        } else {
-            options.placement = placement;
-            $shape.tooltip(options);
+                $shape.data('bs.tooltip').update(e);
+            })
         }
     });
 
