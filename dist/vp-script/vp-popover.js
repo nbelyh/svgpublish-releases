@@ -1,0 +1,175 @@
+
+//-----------------------------------------------------------------------
+// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Nikolay Belykh, nbelyh@gmail.com
+//-----------------------------------------------------------------------
+
+/*global jQuery, $, Mustache */
+
+$(document).ready(function () {
+
+    var diagram = window.svgpublish || {};
+    
+    if (!diagram.shapes || !diagram.enablePopovers) {
+        return;
+    }
+
+    if (diagram.popoverKeepOnHover) {
+
+        var originalLeave = $.fn.popover.Constructor.prototype.leave;
+        $.fn.popover.Constructor.prototype.leave = function(obj){
+            var self = obj instanceof this.constructor ?
+                obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type)
+            var container, timeout;
+
+            originalLeave.call(this, obj);
+
+            if(obj.currentTarget) {
+                container = $(obj.currentTarget).data("bs.popover").tip();
+                timeout = self.timeout;
+                container.one('mouseenter', function(){
+                    //We entered the actual popover – call off the dogs
+                    clearTimeout(timeout);
+                    //Let's monitor popover content instead
+                    container.one('mouseleave', function(){
+                        $.fn.popover.Constructor.prototype.leave.call(self, self);
+                    });
+                })
+            }
+        };
+    };
+
+    //TODO: consolidate when migrating from jQuery
+    function findTargetShape(shapeId) {
+        let shape = document.getElementById(shapeId);
+
+        let info = diagram.shapes[shapeId];
+        if (!info || !info.IsContainer)
+            return shape;
+
+        if (!info.ContainerText)
+            return null;
+
+        for (var i = 0; i < shape.children.length; ++i) {
+            let child = shape.children[i];
+            if (child.textContent.indexOf(info.ContainerText) >= 0)
+                return child;
+        }
+    }
+
+    $.each(diagram.shapes, function (shapeId, shape) {
+
+        const $shape = $(findTargetShape(shapeId));
+
+        const popoverMarkdown = shape.PopoverMarkdown || shape.Comment || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || '';
+
+        const m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
+
+        const titleMarkdown = m && m[1] || '';
+        const contentMarkdown = m && m[2] || popoverMarkdown;
+
+        const title = marked(Mustache.render(titleMarkdown, shape));
+        const content = marked(Mustache.render(contentMarkdown, shape));
+
+        var placement = diagram.popoverPlacement || "auto top";
+
+        if (!content)
+            return;
+
+        var options = {
+            container: "body",
+            html: true,
+            title: title,
+            content: content,
+            placement: placement
+        };
+
+        if (diagram.popoverTrigger) {
+            options.trigger = diagram.popoverTrigger;
+        };
+
+        if (diagram.popoverTimeout || diagram.popoverKeepOnHover) {
+            options.delay = {
+                show: diagram.popoverTimeoutShow || undefined,
+                hide: diagram.popoverTimeoutHide || diagram.popoverKeepOnHover ? 200 : undefined
+            }
+        }
+
+        $shape.popover(options);
+
+        if (diagram.popoverUseMousePosition) {
+
+            var mouseEvent = {};
+            $.fn.popover.Constructor.prototype.update = function (e) {
+
+                mouseEvent.pageX = e.pageX;
+                mouseEvent.pageY = e.pageY;
+                var $tip = this.tip();
+
+                var pos = this.getPosition()
+                var actualWidth = $tip[0].offsetWidth
+                var actualHeight = $tip[0].offsetHeight
+
+                var placement = typeof this.options.placement == 'function' ?
+                    this.options.placement.call(this, $tip[0], this.$element[0]) :
+                    this.options.placement
+
+                var autoToken = /\s?auto?\s?/i
+                var autoPlace = autoToken.test(placement)
+                if (autoPlace) placement = placement.replace(autoToken, '') || 'top'
+
+                if (autoPlace) {
+                    var orgPlacement = placement
+                    var viewportDim = this.getPosition(this.$viewport)
+
+                    placement = placement == 'bottom' && pos.bottom + actualHeight > viewportDim.bottom ? 'top' :
+                    placement == 'top' && pos.top - actualHeight < viewportDim.top ? 'bottom' :
+                    placement == 'right' && pos.right + actualWidth > viewportDim.width ? 'left' :
+                    placement == 'left' && pos.left - actualWidth < viewportDim.left ? 'right' :
+                    placement
+
+                    $tip
+                        .removeClass(orgPlacement)
+                        .addClass(placement)
+                }
+
+                var calculatedOffset = this.getCalculatedOffset(placement, pos, actualWidth, actualHeight)
+
+                this.applyPlacement(calculatedOffset, placement)
+            }
+
+            var originalGetPosition = $.fn.popover.Constructor.prototype.getPosition;
+            $.fn.popover.Constructor.prototype.getPosition = function ($elem) {
+                if ($elem || typeof (mouseEvent.pageX) !== 'number' || typeof(mouseEvent.pageY) !== 'number') {
+                    return originalGetPosition.call(this, $elem);
+                } else {
+                    return {
+                        left: mouseEvent.pageX,
+                        top: mouseEvent.pageY,
+                        width: 1,
+                        height: 1
+                    };
+                }
+            };
+
+            $shape.on('mousemove', function (e) {
+                $shape.data('bs.popover').update(e);
+            })
+        }
+    });
+
+    if (diagram.popoverOutsideClick) {
+        $('div.svg').mouseup(function(e) {
+            $.each(diagram.shapes,
+                function(shapeId) {
+                    var $shape = $("#" + shapeId);
+                    if (!$shape.is(e.target) &&
+                        $shape.has(e.target).length === 0 &&
+                        $('.popover').has(e.target).length === 0) {
+                        (($shape.popover('hide').data('bs.popover') || {}).inState || {}).click = false; // fix for BS 3.3.7
+                    }
+                });
+        });
+    }
+
+});
