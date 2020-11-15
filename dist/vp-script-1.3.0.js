@@ -143,7 +143,7 @@ $(document).ready(function () {
 
         let info = diagram.shapes[shapeId];
         if (info.DefaultLink
-            || info.Props && info.Props.length
+            || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
         ) {
@@ -943,7 +943,7 @@ $(document).ready(function () {
 
         let info = diagram.shapes[shapeId];
         if (info.DefaultLink
-            || info.Props && info.Props.length
+            || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
         ) {
