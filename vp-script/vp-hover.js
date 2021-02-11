@@ -14,10 +14,11 @@ $(document).ready(function () {
 
     var diagram = window.svgpublish;
 
-    var haveSvgfilters = SVGFEColorMatrixElement && SVGFEColorMatrixElement.SVG_FECOLORMATRIX_TYPE_SATURATE === 2;
-
     if (!diagram.shapes || !diagram.enableHover)
         return;
+
+    var haveSvgfilters = !diagram.enableBoxSelection;
+    var SVGNS = 'http://www.w3.org/2000/svg';
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
@@ -58,6 +59,38 @@ $(document).ready(function () {
                 shape.addEventListener('mouseout', function () {
                     if (diagram.selectedShapeId !== shapeId)
                         shape.removeAttribute('filter');
+                });
+
+            } else {
+
+                shape.addEventListener('mouseover', function () {
+                    if (diagram.selectedShapeId !== shapeId) {
+                        var rect = shape.getBBox();
+
+                        rect.x -= 5;
+                        rect.width += 10;
+                        rect.y -= 5;
+                        rect.height += 10;
+
+                        let box = document.createElementNS(SVGNS, "rect");
+                        box.id = "vp-hover-box";
+                        box.setAttribute("x", rect.x);
+                        box.setAttribute("y", rect.y);
+                        box.setAttribute("width", rect.width);
+                        box.setAttribute("height", rect.height);
+                        box.style.fill = "none";
+                        box.style.stroke = info.DefaultLink ? "rgba(255, 0, 255, 0.4)" : "rgba(255, 255, 0, 0.4)";
+                        box.style.strokeWidth = 5;
+                        shape.appendChild(box);
+                    }
+                });
+                shape.addEventListener('mouseout', function () {
+                    if (diagram.selectedShapeId !== shapeId) {
+                        let box = document.getElementById("vp-hover-box");
+                        if (box) {
+                            box.remove();
+                        }
+                    }
                 });
             }
         }

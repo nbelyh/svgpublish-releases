@@ -39,12 +39,21 @@ $(document).ready(function () {
 
             $.each(shape.Props, function(propName, propValue) {
 
-                if (propValue == null)
+                if (!propValue)
                     propValue = "";
 
+                if (propValue.indexOf("https://") >= 0 || propValue.indexOf("http://") >= 0) {
+                    var a = document.createElement("a");
+                    a.href = propValue;
+                    if (diagram.openHyperlinksInNewWindow)
+                        a.target = '_blank';
+                    a.textContent = propValue;
+                    propValue = a.outerHTML;
+                }
+  
                 $tbody.append($('<tr />')
                     .append($("<td />").text(propName))
-                    .append($("<td />").text(propValue))
+                    .append($("<td />").html(propValue))
                 );
             });
         }

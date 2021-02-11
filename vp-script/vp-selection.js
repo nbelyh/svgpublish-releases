@@ -14,10 +14,11 @@ $(document).ready(function () {
 
     var diagram = window.svgpublish;
 
-    var haveSvgfilters = SVGFEColorMatrixElement && SVGFEColorMatrixElement.SVG_FECOLORMATRIX_TYPE_SATURATE === 2;
-
     if (!diagram.shapes || !diagram.enableSelection)
         return;
+
+    var haveSvgfilters = !diagram.enableBoxSelection;
+    var SVGNS = 'http://www.w3.org/2000/svg';
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
@@ -45,8 +46,16 @@ $(document).ready(function () {
             if (shape) {
                 if (haveSvgfilters)
                     shape.removeAttribute('filter');
-                else
-                    shape.style.opacity = 1;
+                else {
+                    let selectionBox = document.getElementById("vp-selection-box");
+                    if (selectionBox) {
+                        selectionBox.remove();
+                    }
+                    let hoverBox = document.getElementById("vp-hover-box");
+                    if (hoverBox) {
+                        hoverBox.remove();
+                    }
+                }
             }
 
             delete diagram.selectedShapeId;
@@ -61,8 +70,35 @@ $(document).ready(function () {
             if (shape) {
                 if (haveSvgfilters)
                     shape.setAttribute('filter', 'url(#select)');
-                else
-                    shape.style.opacity = 0.5;
+                else {
+
+                    let hoverBox = document.getElementById("vp-hover-box");
+                    if (hoverBox) {
+                        hoverBox.remove();
+                    }
+                    let selectionBox = document.getElementById("vp-selection-box");
+                    if (selectionBox) {
+                        selectionBox.remove();
+                    }
+
+                    var rect = shape.getBBox();
+
+                    rect.x -= 5;
+                    rect.width += 10;
+                    rect.y -= 5;
+                    rect.height += 10;
+
+                    let box = document.createElementNS(SVGNS, "rect");
+                    box.id = "vp-selection-box";
+                    box.setAttribute("x", rect.x);
+                    box.setAttribute("y", rect.y);
+                    box.setAttribute("width", rect.width);
+                    box.setAttribute("height", rect.height);
+                    box.style.fill = "none";
+                    box.style.stroke = "rgba(255, 255, 0, 0.8)";
+                    box.style.strokeWidth = 5;
+                    shape.appendChild(box);
+                }
             }
         }
     };

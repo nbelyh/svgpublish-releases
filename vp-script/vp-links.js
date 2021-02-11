@@ -113,33 +113,33 @@ $(document).ready(function () {
     if (!diagram.enableFollowHyperlinks)
         return;
 
-    $.each(diagram.shapes, function (shapeId, shape) {
+    $.each(diagram.shapes, function (shapeId) {
 
-        const $shape = $(findTargetShape(shapeId));
+        let info = diagram.shapes[shapeId];
 
-        $shape.css("cursor", 'pointer');
+        var defaultlink = info.DefaultLink && info.Links[info.DefaultLink - 1];
+        var defaultHref = defaultlink && buildLinkTargetLocation(defaultlink);
 
-        $shape.on('click', function (evt) {
-            evt.stopPropagation();
+        if (defaultHref) {
 
-            if (evt && evt.ctrlKey)
+            let shape = findTargetShape(shapeId);
+            if (!shape)
                 return;
 
-            if (shape.DefaultLink) {
+            shape.style.cursor = 'pointer';
 
-                var defaultlink = shape.Links[shape.DefaultLink - 1];
-                var defaultHref = buildLinkTargetLocation(defaultlink);
+            shape.addEventListener('click', function (evt) {
+                evt.stopPropagation();
 
-                if (defaultHref) {
+                if (evt && evt.ctrlKey)
+                    return;
 
-                    if (defaultlink.Address && diagram.openHyperlinksInNewWindow || evt.shiftKey)
-                        window.open(defaultHref, "_blank");
-                    else
-                        document.location = defaultHref;
-                }
-                    
-            }
-        });
+                if (defaultlink.Address && diagram.openHyperlinksInNewWindow || evt.shiftKey)
+                    window.open(defaultHref, "_blank");
+                else
+                    document.location = defaultHref;
+            });
+        }
     });
 
 });
