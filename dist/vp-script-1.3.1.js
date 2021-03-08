@@ -267,9 +267,15 @@ $(document).ready(function () {
 
             var text = term ? layer.Name.replace(re, "<span class='search-hilight'>$1</span>") : layer.Name;
 
-            var $check = $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + text + "</span></input>");
+            var $check = diagram.enableBootstrapSwitch
+                ? $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + text + "</span></input>")
+                : $("<div class='checkbox' style='margin-bottom: 0'><label><input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + ">" + text + "</label></div>");
 
-            $check.on("change.bootstrapSwitch", function (e) {
+            var $input = diagram.enableBootstrapSwitch
+                ? $check
+                : $check.find("input");
+
+            $input.on(diagram.enableBootstrapSwitch ? 'change.bootstrapSwitch' : 'click', function (e) {
                 var layerIndex = $(e.target).data("layer");
                 var layer = getLayerByIndex(layerIndex);
                 layer.Visible = !layer.Visible;
@@ -284,11 +290,13 @@ $(document).ready(function () {
 
         $("#panel-layers").html($table);
 
-        var ontext = $("#panel-layers").data('ontext') || 'ON';
-        var offtext = $("#panel-layers").data('offtext') || 'OFF';
+        if (diagram.enableBootstrapSwitch) {
+            var ontext = $("#panel-layers").data('ontext') || 'ON';
+            var offtext = $("#panel-layers").data('offtext') || 'OFF';
 
-        $("#panel-layers").find("input")
-            .bootstrapSwitch({ size: "small", onText: ontext, offText: offtext, labelWidth: 0 });
+            $("#panel-layers").find("input")
+                .bootstrapSwitch({ size: "small", onText: ontext, offText: offtext, labelWidth: 0 });
+        }
     }
 
     function getLayerByName(layerName) {
@@ -304,10 +312,16 @@ $(document).ready(function () {
         var layer = getLayerByName(layerName);
         if (layer) {
             var $switch = $("#panel-layers").find("input[data-layer='" + layer.Index + "']");
-            if ($switch && $switch[0]) {
-                var state = $switch.bootstrapSwitch('state');
-                if (!!state !== !!set)
-                    $switch.bootstrapSwitch('toggleState');
+            if ($switch.length) {
+                if (diagram.enableBootstrapSwitch) {
+                    var state = $switch.bootstrapSwitch('state');
+                    if (!!state !== !!set)
+                        $switch.bootstrapSwitch('toggleState');
+                } else {
+                    $switch.prop('checked', set);
+                    layer.Visible = set;
+                    updateShapes();
+                }
             } else {
                 layer.Visible = set;
                 updateShapes();
