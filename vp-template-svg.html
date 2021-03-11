@@ -43,12 +43,12 @@
   {{#EnableMarked}}
   <script src="{{UrlPrefix}}marked-1.0.0.min.js"></script>
   {{/EnableMarked}}
-  <link href="{{UrlPrefix}}vp-style-1.3.1.min.css" rel="stylesheet" />
+  <link href="{{UrlPrefix}}vp-style-1.3.2.min.css" rel="stylesheet" />
   <script>
         window.svgpublish = {{{Data}}}
         $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
   </script>
-  <script src="{{UrlPrefix}}vp-script-1.3.1.min.js"></script>
+  <script src="{{UrlPrefix}}vp-script-1.3.2.min.js"></script>
   {{#CSS}}
   <style>
   {{{CSS}}}
