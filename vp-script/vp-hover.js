@@ -63,14 +63,26 @@ $(document).ready(function () {
 
             } else {
 
-                shape.addEventListener('mouseover', function () {
+                shape.addEventListener('mouseover', function (event) {
+                    var e = event.toElement || event.relatedTarget;
+                    if (e.parentNode === shape) {
+                        return;
+                    }
                     if (diagram.selectedShapeId !== shapeId) {
                         var rect = shape.getBBox();
 
-                        rect.x -= 5;
-                        rect.width += 10;
-                        rect.y -= 5;
-                        rect.height += 10;
+                        if (diagram.filter && diagram.filter.enableDilate) {
+
+                            var dilate = +diagram.filter.dilate || 4;
+
+                            rect.x -= dilate / 2;
+                            rect.width += dilate;
+                            rect.y -= dilate / 2;
+                            rect.height += dilate;
+                        }
+
+                        var hyperlinkColor = diagram.filter && diagram.filter.hyperlinkColor || "rgba(0, 0, 255, 0.2)";
+                        var hoverColor = diagram.filter && diagram.filter.hoverColor || "rgba(255, 255, 0, 0.2)";
 
                         let box = document.createElementNS(SVGNS, "rect");
                         box.id = "vp-hover-box";
@@ -78,13 +90,17 @@ $(document).ready(function () {
                         box.setAttribute("y", rect.y);
                         box.setAttribute("width", rect.width);
                         box.setAttribute("height", rect.height);
-                        box.style.fill = "none";
-                        box.style.stroke = info.DefaultLink ? "rgba(255, 0, 255, 0.4)" : "rgba(255, 255, 0, 0.4)";
-                        box.style.strokeWidth = 5;
+                        box.style.fill = info.DefaultLink ? hyperlinkColor : hoverColor;
+                        box.style.stroke = info.DefaultLink ? hyperlinkColor : hoverColor;
+                        box.style.strokeWidth = dilate || 0;
                         shape.appendChild(box);
                     }
                 });
-                shape.addEventListener('mouseout', function () {
+                shape.addEventListener('mouseout', function (event) {
+                    var e = event.toElement || event.relatedTarget;
+                    if (e.parentNode === shape) {
+                        return;
+                    }
                     if (diagram.selectedShapeId !== shapeId) {
                         let box = document.getElementById("vp-hover-box");
                         if (box) {

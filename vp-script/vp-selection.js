@@ -68,9 +68,9 @@ $(document).ready(function () {
 
             let shape = findTargetShape(shapeId);
             if (shape) {
-                if (haveSvgfilters)
+                if (haveSvgfilters) {
                     shape.setAttribute('filter', 'url(#select)');
-                else {
+                } else {
 
                     let hoverBox = document.getElementById("vp-hover-box");
                     if (hoverBox) {
@@ -83,10 +83,17 @@ $(document).ready(function () {
 
                     var rect = shape.getBBox();
 
-                    rect.x -= 5;
-                    rect.width += 10;
-                    rect.y -= 5;
-                    rect.height += 10;
+                    if (diagram.filter && diagram.filter.enableDilate) {
+
+                        var dilate = +diagram.filter.dilate || 4;
+
+                        rect.x -= dilate / 2;
+                        rect.width += dilate;
+                        rect.y -= dilate / 2;
+                        rect.height += dilate;
+                    }
+
+                    var selectColor = diagram.filter && diagram.filter.selectColor || "rgba(255, 255, 0, 0.4)";
 
                     let box = document.createElementNS(SVGNS, "rect");
                     box.id = "vp-selection-box";
@@ -94,9 +101,9 @@ $(document).ready(function () {
                     box.setAttribute("y", rect.y);
                     box.setAttribute("width", rect.width);
                     box.setAttribute("height", rect.height);
-                    box.style.fill = "none";
-                    box.style.stroke = "rgba(255, 255, 0, 0.8)";
-                    box.style.strokeWidth = 5;
+                    box.style.fill = selectColor;
+                    box.style.stroke = selectColor;
+                    box.style.strokeWidth = dilate || 0;
                     shape.appendChild(box);
                 }
             }
