@@ -52,9 +52,12 @@ $(document).ready(function () {
 
             // hover support
             if (haveSvgfilters) {
+
+                var filter = (diagram.enableFollowHyperlinks && info.DefaultLink) ? 'url(#hyperlink)' : 'url(#hover)';
+
                 shape.addEventListener('mouseover', function () {
                     if (diagram.selectedShapeId !== shapeId)
-                        shape.setAttribute('filter', info.DefaultLink ? 'url(#hyperlink)' : 'url(#hover)');
+                        shape.setAttribute('filter', filter);
                 });
                 shape.addEventListener('mouseout', function () {
                     if (diagram.selectedShapeId !== shapeId)
@@ -84,14 +87,16 @@ $(document).ready(function () {
                         var hyperlinkColor = diagram.filter && diagram.filter.hyperlinkColor || "rgba(0, 0, 255, 0.2)";
                         var hoverColor = diagram.filter && diagram.filter.hoverColor || "rgba(255, 255, 0, 0.2)";
 
+                        var color = (diagram.enableFollowHyperlinks && info.DefaultLink) ? hyperlinkColor : hoverColor;
+
                         let box = document.createElementNS(SVGNS, "rect");
                         box.id = "vp-hover-box";
                         box.setAttribute("x", rect.x);
                         box.setAttribute("y", rect.y);
                         box.setAttribute("width", rect.width);
                         box.setAttribute("height", rect.height);
-                        box.style.fill = info.DefaultLink ? hyperlinkColor : hoverColor;
-                        box.style.stroke = info.DefaultLink ? hyperlinkColor : hoverColor;
+                        box.style.fill = color;
+                        box.style.stroke = color;
                         box.style.strokeWidth = dilate || 0;
                         shape.appendChild(box);
                     }

@@ -14,11 +14,10 @@ $(document).ready(function () {
         return;
 
     var right = diagram.rightSidebar;
-    var alwaysHide = diagram.alwaysHideSidebar;
 
     $("body").addClass(right ? "vp-sidebar-right" : "vp-sidebar-left");
 
-    var sidebarWidth = 400;
+    var sidebarWidth = +diagram.sidebarDefaultWidth || 400;
 
     $("#sidebar-toggle").on("dragstart", function () {
         return false;
@@ -39,8 +38,9 @@ $(document).ready(function () {
 
     $("#sidebar-toggle").show();
 
-    if (isSidebarEnabled() && !alwaysHide) {
+    if (isSidebarEnabled() && !diagram.alwaysHideSidebar) {
         showSidebar(showSidebarSetting, 0);
+        showSidebarMarkdown(null, false);
     }
 
     var dragWidth;
@@ -108,15 +108,7 @@ $(document).ready(function () {
                 .show()
                 .animate({
                     width: (sidebarWidth) + 'px'
-                }, animationTime, function () {
-                    if (window.editor && window.editor.layout)
-                        window.editor.layout();
-
-                    if (window.terminal && window.terminal.layout)
-                        window.terminal.layout();
-
-                    showSidebarMarkdown();
-                });
+                }, animationTime);
 
             $("#sidebar-toggle")
                 .addClass("rotated")
@@ -145,13 +137,21 @@ $(document).ready(function () {
 
     diagram.showSidebar = showSidebar;
 
-    function showSidebarMarkdown(thisShapeId) {
+    function showSidebarMarkdown(thisShapeId, showAutomatically) {
 
         let shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
-        let sidebarMarkdown = shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
-        let html = marked(Mustache.render(sidebarMarkdown, shape));
+        let sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
+        let html = shape && marked(Mustache.render(sidebarMarkdown, shape)) || '';
         $("#sidebar-html").html(html);
+
+        if (showAutomatically) {
+            showSidebar(!!shape, 400);
+        }
     }
 
-    diagram.selectionChanged.add(showSidebarMarkdown);
+    function onSelectionChanged(thisShapeId) {
+        showSidebarMarkdown(thisShapeId, diagram.showSidebarOnSelection);
+    }
+
+    diagram.selectionChanged.add(onSelectionChanged);
 });

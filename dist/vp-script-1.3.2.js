@@ -154,9 +154,12 @@ $(document).ready(function () {
 
             // hover support
             if (haveSvgfilters) {
+
+                var filter = (diagram.enableFollowHyperlinks && info.DefaultLink) ? 'url(#hyperlink)' : 'url(#hover)';
+
                 shape.addEventListener('mouseover', function () {
                     if (diagram.selectedShapeId !== shapeId)
-                        shape.setAttribute('filter', info.DefaultLink ? 'url(#hyperlink)' : 'url(#hover)');
+                        shape.setAttribute('filter', filter);
                 });
                 shape.addEventListener('mouseout', function () {
                     if (diagram.selectedShapeId !== shapeId)
@@ -186,14 +189,16 @@ $(document).ready(function () {
                         var hyperlinkColor = diagram.filter && diagram.filter.hyperlinkColor || "rgba(0, 0, 255, 0.2)";
                         var hoverColor = diagram.filter && diagram.filter.hoverColor || "rgba(255, 255, 0, 0.2)";
 
+                        var color = (diagram.enableFollowHyperlinks && info.DefaultLink) ? hyperlinkColor : hoverColor;
+
                         let box = document.createElementNS(SVGNS, "rect");
                         box.id = "vp-hover-box";
                         box.setAttribute("x", rect.x);
                         box.setAttribute("y", rect.y);
                         box.setAttribute("width", rect.width);
                         box.setAttribute("height", rect.height);
-                        box.style.fill = info.DefaultLink ? hyperlinkColor : hoverColor;
-                        box.style.stroke = info.DefaultLink ? hyperlinkColor : hoverColor;
+                        box.style.fill = color;
+                        box.style.stroke = color;
                         box.style.strokeWidth = dilate || 0;
                         shape.appendChild(box);
                     }
@@ -213,6 +218,25 @@ $(document).ready(function () {
             }
         }
     });
+});
+
+
+// compatibility with version 0.x
+if (window.svgpublish)
+    window.svgpublish.diagramData = window.svgpublish.shapes;
+
+$(document).ready(function () {
+
+    var diagram = window.svgpublish || {};
+
+    if (diagram.enableAutoFrameHeight) {
+        var iframe = window.top.document.getElementById(window.name);
+        if (iframe) {
+            var wp = iframe.parentElement;
+            var rc = wp.getBoundingClientRect();
+            wp.style.height = 'calc(100vh - ' + rc.top + 'px)';
+        }
+    }
 });
 
 
@@ -811,14 +835,6 @@ $(document).ready(function () {
     diagram.selectionChanged.add(showShapeProperties);
 });
 
-
-//-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
-// Nikolay Belykh, nbelyh@gmail.com
-//-----------------------------------------------------------------------
-
-/*global jQuery, $, Mustache */
-
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};
@@ -826,33 +842,83 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableSearch)
         return;
 
+    function parseSearchTerm(term) {
+        return term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1");
+    }
+
     $("#shape-search").show();
 
-    function processPage(term, pageId, $ul, external) {
+    function buildPropFilter(propNames) {
+        let filter = document.createElement("select");
+        filter.className = 'selectpicker';
+        filter.setAttribute('multiple', 'multiple');
+        filter.setAttribute('title', 'Filter by property');
+
+        for (var propName of propNames) {
+            let option = document.createElement("option");
+            option.innerText = propName;
+            filter.appendChild(option);
+        }
+
+        return filter;
+    }
+
+    function findUsedPropNamesForPage(term, pageId, usedPropSet) {
+
+        let parsed = parseSearchTerm(term);
+        let searchRegex = new RegExp(parsed, 'i');
+
         $.each(diagram.searchIndex[pageId], function (shapeId, searchInfos) {
 
-            var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
+            for (var propName in searchInfos) {
+                let searchText = searchInfos[propName];
+                if (searchRegex.test(searchText)) {
+                    usedPropSet[propName] = 1;
+                }
+            }
+        })
+    }
+
+    function findUsedPropNames(term, usedPropSet) {
+        var currentPageId = +diagram.currentPage.Id;
+        findUsedPropNamesForPage(term, currentPageId, usedPropSet);
+        for (var pageId in diagram.searchIndex) {
+            if (+pageId !== +currentPageId)
+                findUsedPropNamesForPage(term, +pageId, usedPropSet);
+        }
+    }
+
+    function processPage(term, pageId, ul, external, usedPropNames) {
+
+        let parsed = parseSearchTerm(term);
+        let searchRegex = new RegExp(parsed, 'i');
+
+        const pageSearchIndex = diagram.searchIndex[pageId];
+        for (var shapeId in pageSearchIndex) {
+
+            var searchInfos = pageSearchIndex[shapeId];
 
             let foundProperties = [];
-            let foundText = '';
+            let foundTexts = [];
 
             for (var propName in searchInfos) {
-
-                let searchText = searchInfos[propName];
-                if (re.test(searchText)) {
-                    foundProperties.push(propName);
-                    foundText += searchText;
+                if (!usedPropNames.length || usedPropNames.indexOf(propName) >= 0) {
+                    let searchText = searchInfos[propName];
+                    if (searchRegex.test(searchText)) {
+                        foundTexts.push(searchText);
+                        foundProperties.push(propName);
+                    }
                 }
             }
 
-            if (!foundProperties.length)
-                return;
+            if (!foundTexts.length)
+                continue;
 
             let notes = foundProperties.join(', ');
 
-            var $li = $('<li />');
+            var li = document.createElement('li');
 
-            var a = '<a>';
+            var a = document.createElement('a');
 
             if (external) {
                 var page = diagram.pages.filter(function (p) { return p.Id === pageId; })[0];
@@ -861,14 +927,17 @@ $(document).ready(function () {
                 notes += page.Name;
             }
 
-            a += '<div>' + foundText.replace(re, "<span class='search-hilight'>$1</span>") + '</div>';
+            let replaceRegex = new RegExp("(" + parsed.value + ")", 'gi');
+            var divHead = document.createElement('div');
+            divHead.innerHTML = foundTexts.join(", ").replace(replaceRegex, "<span class='search-hilight'>$1</span>");
+            a.appendChild(divHead);
 
-            if (notes)
-                a += '<div class="text-muted small">' + notes + '</div>';
-
-            a += '</a>';
-
-            var $a = $(a);
+            if (notes) {
+                var divNotes = document.createElement('div');
+                divNotes.className = 'text-muted small';
+                divNotes.innerText = notes;
+                a.appendChild(divNotes);
+            }
 
             var pageUrl = document.location.protocol + "//" + document.location.host + document.location.pathname;
 
@@ -880,43 +949,71 @@ $(document).ready(function () {
             }
 
             var targetUrl = pageUrl + "#?shape=" + shapeId + "&term=" + encodeURIComponent(term);
-            $a.attr('href', targetUrl);
+            a.setAttribute('href', targetUrl);
 
-            $li.append($a);
-
-            $li.appendTo($ul);
-        });
+            li.appendChild(a);
+            ul.appendChild(li);
+        }
     }
 
+    function processPages(term, usedPropNames) {
+
+        var currentPageId = +diagram.currentPage.Id;
+
+        document.getElementById('panel-search-results').innerHTML = '';
+        var div = document.createElement("div");
+
+        var hr = document.createElement("hr");
+        div.appendChild(hr);
+        var p = document.createElement("p");
+        p.innerHTML = "<p>Results for <strong>" + term + "</strong>:</p>";
+        div.appendChild(p);
+        var ul = document.createElement("ul");
+        ul.className = "nav nav-stacked nav-pills";
+        div.appendChild(ul);
+
+        processPage(term, +currentPageId, ul, false, usedPropNames);
+        for (var pageId in diagram.searchIndex) {
+            if (+pageId !== +currentPageId)
+                processPage(term, +pageId, ul, true, usedPropNames);
+        };
+
+        document.getElementById('panel-search-results').appendChild(div);
+    };
+
     function search(term) {
-        var $html = $("<div />");
 
-        if (term.length) {
+        if (!term.length) {
 
-            if (term.length < 2) {
-                var $hint = $('<p class="text-muted">Please enter more than one character to search</p>');
-                $html.append("<hr/>");
-                $html.append($hint);
+            document.getElementById('panel-search-results').innerHTML = '';
+            document.getElementById('search-property-filter').innerHTML = '';
+
+        } else {
+
+            if (diagram.enablePropertySearchFilter) {
+
+                let usedPropSet = {};
+                findUsedPropNames(term, usedPropSet);
+
+                let filter = document.querySelector("#search-property-filter select");
+
+                if (!filter) {
+                    filter = buildPropFilter(Object.keys(usedPropSet));
+                    document.querySelector("#search-property-filter").appendChild(filter);
+                    $(filter).selectpicker();
+                    $(filter).on('changed.bs.select', function () {
+                        processPages(term, $(filter).val());
+                    })
+                }
+
+                processPages(term, $(filter).val());
+
             } else {
-                var $ul = $('<ul class="nav nav-stacked nav-pills"/>');
 
-                $html.append("<hr/>");
-                $html.append("<p>Results for <strong>" + term + "</strong>:</p>");
-                $html.append($ul);
+                processPages(term, []);
 
-                var currentPageId = +diagram.currentPage.Id;
-
-                processPage(term, currentPageId, $ul);
-
-                $.each(diagram.searchIndex, function (pageId) {
-                    if (+pageId !== currentPageId)
-                        processPage(term, +pageId, $ul, true);
-                });
             }
         }
-
-        $("#panel-search-results")
-            .html($html);
     }
 
     $("#search-term").on("keyup", function () {
@@ -1113,11 +1210,10 @@ $(document).ready(function () {
         return;
 
     var right = diagram.rightSidebar;
-    var alwaysHide = diagram.alwaysHideSidebar;
 
     $("body").addClass(right ? "vp-sidebar-right" : "vp-sidebar-left");
 
-    var sidebarWidth = 400;
+    var sidebarWidth = +diagram.sidebarDefaultWidth || 400;
 
     $("#sidebar-toggle").on("dragstart", function () {
         return false;
@@ -1138,8 +1234,9 @@ $(document).ready(function () {
 
     $("#sidebar-toggle").show();
 
-    if (isSidebarEnabled() && !alwaysHide) {
+    if (isSidebarEnabled() && !diagram.alwaysHideSidebar) {
         showSidebar(showSidebarSetting, 0);
+        showSidebarMarkdown(null, false);
     }
 
     var dragWidth;
@@ -1207,15 +1304,7 @@ $(document).ready(function () {
                 .show()
                 .animate({
                     width: (sidebarWidth) + 'px'
-                }, animationTime, function () {
-                    if (window.editor && window.editor.layout)
-                        window.editor.layout();
-
-                    if (window.terminal && window.terminal.layout)
-                        window.terminal.layout();
-
-                    showSidebarMarkdown();
-                });
+                }, animationTime);
 
             $("#sidebar-toggle")
                 .addClass("rotated")
@@ -1244,15 +1333,23 @@ $(document).ready(function () {
 
     diagram.showSidebar = showSidebar;
 
-    function showSidebarMarkdown(thisShapeId) {
+    function showSidebarMarkdown(thisShapeId, showAutomatically) {
 
         let shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
-        let sidebarMarkdown = shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
-        let html = marked(Mustache.render(sidebarMarkdown, shape));
+        let sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
+        let html = shape && marked(Mustache.render(sidebarMarkdown, shape)) || '';
         $("#sidebar-html").html(html);
+
+        if (showAutomatically) {
+            showSidebar(!!shape, 400);
+        }
     }
 
-    diagram.selectionChanged.add(showSidebarMarkdown);
+    function onSelectionChanged(thisShapeId) {
+        showSidebarMarkdown(thisShapeId, diagram.showSidebarOnSelection);
+    }
+
+    diagram.selectionChanged.add(onSelectionChanged);
 });
 
 
@@ -1877,6 +1974,3 @@ $(document).ready(function () {
     }
 
 });
-
-if (window.svgpublish)
-    window.svgpublish.diagramData = window.svgpublish.shapes;
