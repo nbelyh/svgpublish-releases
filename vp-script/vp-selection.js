@@ -101,7 +101,7 @@ $(document).ready(function () {
                     box.setAttribute("y", rect.y);
                     box.setAttribute("width", rect.width);
                     box.setAttribute("height", rect.height);
-                    box.style.fill = selectColor;
+                    box.style.fill = (diagram.filter && diagram.filter.mode === 'normal') ? 'none' : selectColor;
                     box.style.stroke = selectColor;
                     box.style.strokeWidth = dilate || 0;
                     shape.appendChild(box);

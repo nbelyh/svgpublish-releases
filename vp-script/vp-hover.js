@@ -95,7 +95,7 @@ $(document).ready(function () {
                         box.setAttribute("y", rect.y);
                         box.setAttribute("width", rect.width);
                         box.setAttribute("height", rect.height);
-                        box.style.fill = color;
+                        box.style.fill = (diagram.filter && diagram.filter.mode === 'normal') ? 'none' : color;
                         box.style.stroke = color;
                         box.style.strokeWidth = dilate || 0;
                         shape.appendChild(box);
