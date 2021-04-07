@@ -927,7 +927,7 @@ $(document).ready(function () {
                 notes += page.Name;
             }
 
-            let replaceRegex = new RegExp("(" + parsed.value + ")", 'gi');
+            let replaceRegex = new RegExp("(" + parsed + ")", 'gi');
             var divHead = document.createElement('div');
             divHead.innerHTML = foundTexts.join(", ").replace(replaceRegex, "<span class='search-hilight'>$1</span>");
             a.appendChild(divHead);
