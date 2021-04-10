@@ -307,15 +307,15 @@ $(document).ready(function () {
 
             var text = term ? layer.Name.replace(re, "<span class='search-hilight'>$1</span>") : layer.Name;
 
-            var $check = diagram.enableBootstrapSwitch
+            var $check = diagram.enableLayerToggles
                 ? $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + text + "</span></input>")
                 : $("<div class='checkbox' style='margin-bottom: 0'><label><input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + ">" + text + "</label></div>");
 
-            var $input = diagram.enableBootstrapSwitch
+            var $input = diagram.enableLayerToggles
                 ? $check
                 : $check.find("input");
 
-            $input.on(diagram.enableBootstrapSwitch ? 'change.bootstrapSwitch' : 'click', function (e) {
+            $input.on(diagram.enableLayerToggles ? 'change.bootstrapSwitch' : 'click', function (e) {
                 var layerIndex = $(e.target).data("layer");
                 var layer = getLayerByIndex(layerIndex);
                 layer.Visible = !layer.Visible;
@@ -330,7 +330,7 @@ $(document).ready(function () {
 
         $("#panel-layers").html($table);
 
-        if (diagram.enableBootstrapSwitch) {
+        if (diagram.enableLayerToggles) {
             var ontext = $("#panel-layers").data('ontext') || 'ON';
             var offtext = $("#panel-layers").data('offtext') || 'OFF';
 
@@ -353,7 +353,7 @@ $(document).ready(function () {
         if (layer) {
             var $switch = $("#panel-layers").find("input[data-layer='" + layer.Index + "']");
             if ($switch.length) {
-                if (diagram.enableBootstrapSwitch) {
+                if (diagram.enableLayerToggles) {
                     var state = $switch.bootstrapSwitch('state');
                     if (!!state !== !!set)
                         $switch.bootstrapSwitch('toggleState');
@@ -1337,7 +1337,7 @@ $(document).ready(function () {
 
         let shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
         let sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
-        let html = shape && marked(Mustache.render(sidebarMarkdown, shape)) || '';
+        let html = sidebarMarkdown && marked(Mustache.render(sidebarMarkdown, shape || {})) || '';
         $("#sidebar-html").html(html);
 
         if (showAutomatically) {

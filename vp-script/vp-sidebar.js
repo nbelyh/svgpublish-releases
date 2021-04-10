@@ -141,7 +141,7 @@ $(document).ready(function () {
 
         let shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
         let sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
-        let html = shape && marked(Mustache.render(sidebarMarkdown, shape)) || '';
+        let html = sidebarMarkdown && marked(Mustache.render(sidebarMarkdown, shape || {})) || '';
         $("#sidebar-html").html(html);
 
         if (showAutomatically) {
