@@ -60,8 +60,8 @@ $(document).ready(function () {
 
         const $shape = $(findTargetShape(shapeId));
 
-        const tooltipMarkdown = shape.TooltipMarkdown || shape.Comment || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || '';
-        const tip = marked(Mustache.render(tooltipMarkdown, shape));
+        const tooltipMarkdown = shape.TooltipMarkdown || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || shape.Comment || '';
+        const tip = tooltipMarkdown  && marked(Mustache.render(tooltipMarkdown, shape)).trim();
         const placement = diagram.tooltipPlacement || "auto top";
 
         if (!tip)
@@ -86,6 +86,13 @@ $(document).ready(function () {
         }
 
         $shape.tooltip(options);
+
+        if (diagram.processNested) {
+            // avoid double-tooltips
+            $shape.on('show.bs.tooltip', function () {
+                $shape.parents().tooltip('hide');
+            });
+        }
 
         if (diagram.tooltipUseMousePosition) {
 

@@ -67,10 +67,6 @@ $(document).ready(function () {
             } else {
 
                 shape.addEventListener('mouseover', function (event) {
-                    var e = event.toElement || event.relatedTarget;
-                    if (e.parentNode === shape) {
-                        return;
-                    }
                     if (diagram.selectedShapeId !== shapeId) {
                         var rect = shape.getBBox();
 
@@ -95,6 +91,7 @@ $(document).ready(function () {
                         box.setAttribute("y", rect.y);
                         box.setAttribute("width", rect.width);
                         box.setAttribute("height", rect.height);
+                        box.setAttribute("pointer-events", "none");
                         box.style.fill = (diagram.filter && diagram.filter.mode === 'normal') ? 'none' : color;
                         box.style.stroke = color;
                         box.style.strokeWidth = dilate || 0;
@@ -102,10 +99,6 @@ $(document).ready(function () {
                     }
                 });
                 shape.addEventListener('mouseout', function (event) {
-                    var e = event.toElement || event.relatedTarget;
-                    if (e.parentNode === shape) {
-                        return;
-                    }
                     if (diagram.selectedShapeId !== shapeId) {
                         let box = document.getElementById("vp-hover-box");
                         if (box) {

@@ -61,15 +61,15 @@ $(document).ready(function () {
 
         const $shape = $(findTargetShape(shapeId));
 
-        const popoverMarkdown = shape.PopoverMarkdown || shape.Comment || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || '';
+        const popoverMarkdown = shape.PopoverMarkdown || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || shape.Comment || '';
 
         const m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
 
         const titleMarkdown = m && m[1] || '';
         const contentMarkdown = m && m[2] || popoverMarkdown;
 
-        const title = marked(Mustache.render(titleMarkdown, shape));
-        const content = marked(Mustache.render(contentMarkdown, shape));
+        const title = titleMarkdown && marked(Mustache.render(titleMarkdown, shape)).trim() || '';
+        const content = contentMarkdown && marked(Mustache.render(contentMarkdown, shape)).trim() || '';
 
         var placement = diagram.popoverPlacement || "auto top";
 

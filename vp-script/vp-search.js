@@ -15,6 +15,9 @@
         let filter = document.createElement("select");
         filter.className = 'selectpicker';
         filter.setAttribute('multiple', 'multiple');
+        filter.setAttribute('data-container', 'body');
+        filter.setAttribute('data-live-search', true);
+        filter.setAttribute('data-width', "100%");
         filter.setAttribute('title', 'Filter by property');
 
         for (var propName of propNames) {
@@ -26,29 +29,25 @@
         return filter;
     }
 
-    function findUsedPropNamesForPage(term, pageId, usedPropSet) {
+    let propertyFilter = null;
+    if (diagram.enablePropertySearchFilter) {
 
-        let parsed = parseSearchTerm(term);
-        let searchRegex = new RegExp(parsed, 'i');
-
-        $.each(diagram.searchIndex[pageId], function (shapeId, searchInfos) {
-
-            for (var propName in searchInfos) {
-                let searchText = searchInfos[propName];
-                if (searchRegex.test(searchText)) {
+        let usedPropSet = {};
+        for (var pageId in diagram.searchIndex) {
+            const pageSearchIndex = diagram.searchIndex[pageId];
+            for (var shapeId in pageSearchIndex) {
+                for (var propName in pageSearchIndex[shapeId]) {
                     usedPropSet[propName] = 1;
                 }
             }
-        })
-    }
-
-    function findUsedPropNames(term, usedPropSet) {
-        var currentPageId = +diagram.currentPage.Id;
-        findUsedPropNamesForPage(term, currentPageId, usedPropSet);
-        for (var pageId in diagram.searchIndex) {
-            if (+pageId !== +currentPageId)
-                findUsedPropNamesForPage(term, +pageId, usedPropSet);
         }
+
+        propertyFilter = buildPropFilter(Object.keys(usedPropSet));
+        document.querySelector("#search-property-filter").appendChild(propertyFilter);
+        $(propertyFilter).selectpicker();
+        $(propertyFilter).on('changed.bs.select', function () {
+            search($("#search-term").val());
+        })
     }
 
     function processPage(term, pageId, ul, external, usedPropNames) {
@@ -119,70 +118,49 @@
         }
     }
 
-    function processPages(term, usedPropNames) {
-
-        var currentPageId = +diagram.currentPage.Id;
-
-        document.getElementById('panel-search-results').innerHTML = '';
-        var div = document.createElement("div");
-
-        var hr = document.createElement("hr");
-        div.appendChild(hr);
-        var p = document.createElement("p");
-        p.innerHTML = "<p>Results for <strong>" + term + "</strong>:</p>";
-        div.appendChild(p);
-        var ul = document.createElement("ul");
-        ul.className = "nav nav-stacked nav-pills";
-        div.appendChild(ul);
-
-        processPage(term, +currentPageId, ul, false, usedPropNames);
-        for (var pageId in diagram.searchIndex) {
-            if (+pageId !== +currentPageId)
-                processPage(term, +pageId, ul, true, usedPropNames);
-        };
-
-        document.getElementById('panel-search-results').appendChild(div);
-    };
-
     function search(term) {
 
-        if (!term.length) {
+        const usedPropNames = propertyFilter ? $(propertyFilter).val() : [];
 
-            document.getElementById('panel-search-results').innerHTML = '';
-            document.getElementById('search-property-filter').innerHTML = '';
+        var elem = document.getElementById('panel-search-results');
+        elem.innerHTML = '';
 
-        } else {
+        if (term || usedPropNames.length) {
+            
+            var hr = document.createElement("hr");
+            elem.appendChild(hr);
 
-            if (diagram.enablePropertySearchFilter) {
+            var p = document.createElement("p");
 
-                let usedPropSet = {};
-                findUsedPropNames(term, usedPropSet);
+            var label = document.createElement("span");
+            label.innerText = elem.getAttribute('data-searchresults');
+            p.appendChild(label);
 
-                let filter = document.querySelector("#search-property-filter select");
+            var strong = document.createElement("strong");
+            strong.innerText = " " + term + " ";
+            p.appendChild(strong);
 
-                if (!filter) {
-                    filter = buildPropFilter(Object.keys(usedPropSet));
-                    document.querySelector("#search-property-filter").appendChild(filter);
-                    $(filter).selectpicker();
-                    $(filter).on('changed.bs.select', function () {
-                        processPages(term, $(filter).val());
-                    })
-                }
+            var span = document.createElement("span");
+            span.innerText = usedPropNames.length ? " (" + usedPropNames.join(", ") + "):" : ":";
+            p.appendChild(span);
 
-                processPages(term, $(filter).val());
+            elem.appendChild(p);
 
-            } else {
+            var ul = document.createElement("ul");
+            ul.className = "nav nav-stacked nav-pills";
+            elem.appendChild(ul);
 
-                processPages(term, []);
-
-            }
+            var currentPageId = +diagram.currentPage.Id;
+            processPage(term, +currentPageId, ul, false, usedPropNames);
+            for (var pageId in diagram.searchIndex) {
+                if (+pageId !== +currentPageId)
+                    processPage(term, +pageId, ul, true, usedPropNames);
+            };
         }
-    }
+    };
 
     $("#search-term").on("keyup", function () {
-
         search($("#search-term").val());
-        return false;
     });
 
     function getUrlParameter(name) {
