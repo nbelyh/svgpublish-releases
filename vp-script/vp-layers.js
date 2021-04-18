@@ -15,6 +15,23 @@ $(document).ready(function () {
 
     $("#shape-layers").show();
 
+    var enableLayerToggles = diagram.layerView && diagram.layerView.enableLayerToggles;
+    var enableLayerShowAll = diagram.layerView && diagram.layerView.enableLayerShowAll;
+    var enableLayerSort = diagram.layerView && diagram.layerView.enableLayerSort;
+
+    if (enableLayerShowAll) {
+        $("#layer-show-all").on("click", function () {
+            diagram.layers && diagram.layers.forEach(function (layer) {
+                diagram.setLayerVisible(layer.Name, true);
+            });
+        });
+        $("#layer-hide-all").on("click", function () {
+            diagram.layers && diagram.layers.forEach(function (layer) {
+                diagram.setLayerVisible(layer.Name, false);
+            });
+        });
+    }
+
     function getLayerByIndex(layerIndex) {
         return diagram.layers.filter(function (item) { return item.Index === layerIndex; })[0];
     }
@@ -42,7 +59,7 @@ $(document).ready(function () {
     }
 
     function numericSort(data) {
-        const collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        var collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
         return data
             .map(function (x) {
                 return x;
@@ -54,11 +71,11 @@ $(document).ready(function () {
 
     function filter(term) {
 
-        var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
+        var re = new RegExp("(" + term.replace(/([\\.+*?[^\]$(){}=!<>|:])/g, "\\$1") + ")", 'gi');
 
         var $table = $("<table class='table borderless' />");
 
-        var sortedLayers = diagram.enableLayerSort ? numericSort(diagram.layers) : diagram.layers;
+        var sortedLayers = enableLayerSort ? numericSort(diagram.layers) : diagram.layers;
         $.each(sortedLayers, function (i, layer) {
 
             if (term && !re.test(layer.Name))
@@ -66,15 +83,15 @@ $(document).ready(function () {
 
             var text = term ? layer.Name.replace(re, "<span class='search-hilight'>$1</span>") : layer.Name;
 
-            var $check = diagram.enableLayerToggles
+            var $check = enableLayerToggles
                 ? $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + text + "</span></input>")
                 : $("<div class='checkbox' style='margin-bottom: 0'><label><input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + ">" + text + "</label></div>");
 
-            var $input = diagram.enableLayerToggles
+            var $input = enableLayerToggles
                 ? $check
                 : $check.find("input");
 
-            $input.on(diagram.enableLayerToggles ? 'change.bootstrapSwitch' : 'click', function (e) {
+            $input.on(enableLayerToggles ? 'change.bootstrapSwitch' : 'click', function (e) {
                 var layerIndex = $(e.target).data("layer");
                 var layer = getLayerByIndex(layerIndex);
                 layer.Visible = !layer.Visible;
@@ -89,7 +106,7 @@ $(document).ready(function () {
 
         $("#panel-layers").html($table);
 
-        if (diagram.enableLayerToggles) {
+        if (enableLayerToggles) {
             var ontext = $("#panel-layers").data('ontext') || 'ON';
             var offtext = $("#panel-layers").data('offtext') || 'OFF';
 
@@ -112,7 +129,7 @@ $(document).ready(function () {
         if (layer) {
             var $switch = $("#panel-layers").find("input[data-layer='" + layer.Index + "']");
             if ($switch.length) {
-                if (diagram.enableLayerToggles) {
+                if (enableLayerToggles) {
                     var state = $switch.bootstrapSwitch('state');
                     if (!!state !== !!set)
                         $switch.bootstrapSwitch('toggleState');

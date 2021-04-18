@@ -4,7 +4,7 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
-/*global jQuery, $, Mustache */
+/*global jQuery, $, Mustache, marked */
 
 $(document).ready(function () {
 
@@ -24,7 +24,11 @@ $(document).ready(function () {
     });
 
     var storage;
-    try { storage = window.localStorage; } catch (e) { }
+    try {
+        storage = window.localStorage;
+    } catch (e) {
+        console.warn('localStorage not available, sidebar width will not be saved');
+    }
 
     var defaultWidth = storage ? parseInt(storage.getItem("DiagramSidebarWidth")) : 0;
     if (defaultWidth > 0)
@@ -139,9 +143,9 @@ $(document).ready(function () {
 
     function showSidebarMarkdown(thisShapeId, showAutomatically) {
 
-        let shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
-        let sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
-        let html = sidebarMarkdown && marked(Mustache.render(sidebarMarkdown, shape || {})).trim() || '';
+        var shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
+        var sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
+        var html = sidebarMarkdown && marked(Mustache.render(sidebarMarkdown, shape || {})).trim() || '';
         $("#sidebar-html").html(html);
 
         if (showAutomatically) {

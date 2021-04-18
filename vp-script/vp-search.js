@@ -1,4 +1,7 @@
-﻿$(document).ready(function () {
+﻿
+/*global $ */
+
+$(document).ready(function () {
 
     var diagram = window.svgpublish || {};
 
@@ -6,13 +9,13 @@
         return;
 
     function parseSearchTerm(term) {
-        return term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1");
+        return term.replace(/([\\.+*?[^]$(){}=!<>|:])/g, "\\$1");
     }
 
     $("#shape-search").show();
 
     function buildPropFilter(propNames) {
-        let filter = document.createElement("select");
+        var filter = document.createElement("select");
         filter.className = 'selectpicker';
         filter.setAttribute('multiple', 'multiple');
         filter.setAttribute('data-container', 'body');
@@ -20,21 +23,21 @@
         filter.setAttribute('data-width', "100%");
         filter.setAttribute('title', 'Filter by property');
 
-        for (var propName of propNames) {
-            let option = document.createElement("option");
+        propNames.forEach(function (propName) {
+            var option = document.createElement("option");
             option.innerText = propName;
             filter.appendChild(option);
-        }
+        });
 
         return filter;
     }
 
-    let propertyFilter = null;
+    var propertyFilter = null;
     if (diagram.enablePropertySearchFilter) {
 
-        let usedPropSet = {};
+        var usedPropSet = {};
         for (var pageId in diagram.searchIndex) {
-            const pageSearchIndex = diagram.searchIndex[pageId];
+            var pageSearchIndex = diagram.searchIndex[pageId];
             for (var shapeId in pageSearchIndex) {
                 for (var propName in pageSearchIndex[shapeId]) {
                     usedPropSet[propName] = 1;
@@ -52,20 +55,24 @@
 
     function processPage(term, pageId, ul, external, usedPropNames) {
 
-        let parsed = parseSearchTerm(term);
-        let searchRegex = new RegExp(parsed, 'i');
+        var parsed = parseSearchTerm(term);
+        var searchRegex = new RegExp(parsed, 'i');
 
-        const pageSearchIndex = diagram.searchIndex[pageId];
+		function samePage(p) { 
+			return p.Id === pageId; 
+		}
+
+        var pageSearchIndex = diagram.searchIndex[pageId];
         for (var shapeId in pageSearchIndex) {
 
             var searchInfos = pageSearchIndex[shapeId];
 
-            let foundProperties = [];
-            let foundTexts = [];
+            var foundProperties = [];
+            var foundTexts = [];
 
             for (var propName in searchInfos) {
                 if (!usedPropNames.length || usedPropNames.indexOf(propName) >= 0) {
-                    let searchText = searchInfos[propName];
+                    var searchText = searchInfos[propName];
                     if (searchRegex.test(searchText)) {
                         foundTexts.push(searchText);
                         foundProperties.push(propName);
@@ -76,20 +83,20 @@
             if (!foundTexts.length)
                 continue;
 
-            let notes = foundProperties.join(', ');
+            var notes = foundProperties.join(', ');
 
             var li = document.createElement('li');
 
             var a = document.createElement('a');
 
             if (external) {
-                var page = diagram.pages.filter(function (p) { return p.Id === pageId; })[0];
+                var page = diagram.pages.filter(samePage)[0];
                 if (notes)
                     notes += ' / ';
                 notes += page.Name;
             }
 
-            let replaceRegex = new RegExp("(" + parsed + ")", 'gi');
+            var replaceRegex = new RegExp("(" + parsed + ")", 'gi');
             var divHead = document.createElement('div');
             divHead.innerHTML = foundTexts.join(", ").replace(replaceRegex, "<span class='search-hilight'>$1</span>");
             a.appendChild(divHead);
@@ -104,7 +111,7 @@
             var pageUrl = document.location.protocol + "//" + document.location.host + document.location.pathname;
 
             if (external) {
-                var targetPage = diagram.pages.filter(function (p) { return p.Id === pageId; })[0];
+                var targetPage = diagram.pages.filter(samePage)[0];
                 var curpath = location.pathname;
                 var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
                 pageUrl = document.location.protocol + "//" + document.location.host + newpath;
@@ -120,7 +127,7 @@
 
     function search(term) {
 
-        const usedPropNames = propertyFilter ? $(propertyFilter).val() : [];
+        var usedPropNames = propertyFilter ? $(propertyFilter).val() : [];
 
         var elem = document.getElementById('panel-search-results');
         elem.innerHTML = '';
@@ -155,9 +162,9 @@
             for (var pageId in diagram.searchIndex) {
                 if (+pageId !== +currentPageId)
                     processPage(term, +pageId, ul, true, usedPropNames);
-            };
+            }
         }
-    };
+    }
 
     $("#search-term").on("keyup", function () {
         search($("#search-term").val());

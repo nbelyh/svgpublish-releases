@@ -1,4 +1,6 @@
 
+/*global jQuery, $ */
+
 // compatibility with version 0.x
 if (window.svgpublish)
     window.svgpublish.diagramData = window.svgpublish.shapes;

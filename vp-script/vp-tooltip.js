@@ -4,7 +4,7 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
-/* globals: jQuery, $ */
+/*global jQuery, $, Mustache, marked */
 
 $(document).ready(function () {
 
@@ -40,9 +40,9 @@ $(document).ready(function () {
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -50,7 +50,7 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
         }
@@ -58,11 +58,11 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        const $shape = $(findTargetShape(shapeId));
+        var $shape = $(findTargetShape(shapeId));
 
-        const tooltipMarkdown = shape.TooltipMarkdown || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || shape.Comment || '';
-        const tip = tooltipMarkdown  && marked(Mustache.render(tooltipMarkdown, shape)).trim();
-        const placement = diagram.tooltipPlacement || "auto top";
+        var tooltipMarkdown = shape.TooltipMarkdown || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || shape.Comment || '';
+        var tip = tooltipMarkdown  && marked(Mustache.render(tooltipMarkdown, shape)).trim();
+        var placement = diagram.tooltipPlacement || "auto top";
 
         if (!tip)
             return;

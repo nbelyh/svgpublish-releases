@@ -4,6 +4,8 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
+/*global jQuery, $ */
+
 (function ($) {
 
     $.fn.extend({

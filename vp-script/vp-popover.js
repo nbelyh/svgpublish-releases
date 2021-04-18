@@ -4,7 +4,7 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
-/*global jQuery, $, Mustache */
+/*global jQuery, $, Mustache, marked */
 
 $(document).ready(function () {
 
@@ -37,13 +37,13 @@ $(document).ready(function () {
                 })
             }
         };
-    };
+    }
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -51,7 +51,7 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
         }
@@ -59,17 +59,17 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        const $shape = $(findTargetShape(shapeId));
+        var $shape = $(findTargetShape(shapeId));
 
-        const popoverMarkdown = shape.PopoverMarkdown || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || shape.Comment || '';
+        var popoverMarkdown = shape.PopoverMarkdown || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || shape.Comment || '';
 
-        const m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
+        var m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
 
-        const titleMarkdown = m && m[1] || '';
-        const contentMarkdown = m && m[2] || popoverMarkdown;
+        var titleMarkdown = m && m[1] || '';
+        var contentMarkdown = m && m[2] || popoverMarkdown;
 
-        const title = titleMarkdown && marked(Mustache.render(titleMarkdown, shape)).trim() || '';
-        const content = contentMarkdown && marked(Mustache.render(contentMarkdown, shape)).trim() || '';
+        var title = titleMarkdown && marked(Mustache.render(titleMarkdown, shape)).trim() || '';
+        var content = contentMarkdown && marked(Mustache.render(contentMarkdown, shape)).trim() || '';
 
         var placement = diagram.popoverPlacement || "auto top";
 
@@ -86,7 +86,7 @@ $(document).ready(function () {
 
         if (diagram.popoverTrigger) {
             options.trigger = diagram.popoverTrigger;
-        };
+        }
 
         if (diagram.popoverTimeout || diagram.popoverKeepOnHover) {
             options.delay = {

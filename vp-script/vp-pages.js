@@ -16,7 +16,7 @@ $(document).ready(function () {
     $("#shape-pages").show();
 
     function numericSort(data) {
-        const collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        var collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
         return data
             .map(function (x) {
                 return x;
@@ -32,7 +32,7 @@ $(document).ready(function () {
         var sortedPages = diagram.enableLayerSort ? numericSort(diagram.pages) : diagram.pages;
         $.each(sortedPages, function (index, page) {
 
-            var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
+            var re = new RegExp("(" + term.replace(/([\\.+*?[^]$(){}=!<>|:])/g, "\\$1") + ")", 'gi');
 
             if (term && !re.test(page.Name))
                 return;

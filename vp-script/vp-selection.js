@@ -17,14 +17,14 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableSelection)
         return;
 
-    var haveSvgfilters = !diagram.enableBoxSelection;
+    var enableBoxSelection = diagram.selectionView && diagram.selectionView.enableBoxSelection;
     var SVGNS = 'http://www.w3.org/2000/svg';
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -32,9 +32,20 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
+        }
+    }
+
+    function deselectBox() {
+        var hoverBox = document.getElementById("vp-hover-box");
+        if (hoverBox) {
+            hoverBox.parentNode.removeChild(hoverBox);
+        }
+        var selectionBox = document.getElementById("vp-selection-box");
+        if (selectionBox) {
+            selectionBox.parentNode.removeChild(selectionBox);
         }
     }
 
@@ -42,19 +53,12 @@ $(document).ready(function () {
 
         if (diagram.selectedShapeId && diagram.selectedShapeId !== shapeId) {
 
-            let shape = findTargetShape(diagram.selectedShapeId);
-            if (shape) {
-                if (haveSvgfilters)
-                    shape.removeAttribute('filter');
-                else {
-                    let selectionBox = document.getElementById("vp-selection-box");
-                    if (selectionBox) {
-                        selectionBox.remove();
-                    }
-                    let hoverBox = document.getElementById("vp-hover-box");
-                    if (hoverBox) {
-                        hoverBox.remove();
-                    }
+            var selectedShape = findTargetShape(diagram.selectedShapeId);
+            if (selectedShape) {
+                if (enableBoxSelection) {
+					deselectBox();
+                } else {
+                    selectedShape.removeAttribute('filter');
                 }
             }
 
@@ -66,45 +70,42 @@ $(document).ready(function () {
             diagram.selectedShapeId = shapeId;
             diagram.selectionChanged.fire(shapeId);
 
-            let shape = findTargetShape(shapeId);
-            if (shape) {
-                if (haveSvgfilters) {
-                    shape.setAttribute('filter', 'url(#select)');
-                } else {
+            var shapeToSelect = findTargetShape(shapeId);
+            if (shapeToSelect) {
+                if (enableBoxSelection) {
 
-                    let hoverBox = document.getElementById("vp-hover-box");
-                    if (hoverBox) {
-                        hoverBox.remove();
-                    }
-                    let selectionBox = document.getElementById("vp-selection-box");
-                    if (selectionBox) {
-                        selectionBox.remove();
-                    }
+                    deselectBox();
 
-                    var rect = shape.getBBox();
+                    var rect = shapeToSelect.getBBox();
+                    var x = rect.x;
+                    var y = rect.y;
+                    var width = rect.width;
+                    var height = rect.height;
 
-                    if (diagram.filter && diagram.filter.enableDilate) {
+                    if (diagram.selectionView && diagram.selectionView.enableDilate) {
 
-                        var dilate = +diagram.filter.dilate || 4;
+                        var dilate = +diagram.selectionView.dilate || 4;
 
-                        rect.x -= dilate / 2;
-                        rect.width += dilate;
-                        rect.y -= dilate / 2;
-                        rect.height += dilate;
+                        x -= dilate / 2;
+                        width += dilate;
+                        y -= dilate / 2;
+                        height += dilate;
                     }
 
-                    var selectColor = diagram.filter && diagram.filter.selectColor || "rgba(255, 255, 0, 0.4)";
+                    var selectColor = diagram.selectionView && diagram.selectionView.selectColor || "rgba(255, 255, 0, 0.4)";
 
-                    let box = document.createElementNS(SVGNS, "rect");
+                    var box = document.createElementNS(SVGNS, "rect");
                     box.id = "vp-selection-box";
-                    box.setAttribute("x", rect.x);
-                    box.setAttribute("y", rect.y);
-                    box.setAttribute("width", rect.width);
-                    box.setAttribute("height", rect.height);
-                    box.style.fill = (diagram.filter && diagram.filter.mode === 'normal') ? 'none' : selectColor;
+                    box.setAttribute("x", x);
+                    box.setAttribute("y", y);
+                    box.setAttribute("width", width);
+                    box.setAttribute("height", height);
+                    box.style.fill = (diagram.selectionView && diagram.selectionView.mode === 'normal') ? 'none' : selectColor;
                     box.style.stroke = selectColor;
                     box.style.strokeWidth = dilate || 0;
-                    shape.appendChild(box);
+                    shapeToSelect.appendChild(box);
+                } else {
+                    shapeToSelect.setAttribute('filter', 'url(#select)');
                 }
             }
         }
@@ -116,13 +117,13 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId) {
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (info.DefaultLink
             || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
         ) {
-            let shape = findTargetShape(shapeId);
+            var shape = findTargetShape(shapeId);
             if (!shape)
                 return;
 

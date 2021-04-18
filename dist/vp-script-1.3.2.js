@@ -4,11 +4,11 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
-/*global jQuery, $, Mustache */
+/*global jQuery, $ */
 
 $(document).ready(function () {
 
-    const NS = "http://www.w3.org/2000/svg";
+    var NS = "http://www.w3.org/2000/svg";
 
     var diagram = window.svgpublish || {};
 
@@ -30,22 +30,22 @@ $(document).ready(function () {
 
     var containers = [];
     for (var shapeId in diagram.shapes) {
-        const shape = document.getElementById(shapeId);
-        const info = diagram.shapes[shapeId];
+        var shape = document.getElementById(shapeId);
+        var info = diagram.shapes[shapeId];
         if (info.IsContainer)
             containers.push({ shape: shape, info: info });
     }
 
     function updateContainerTips(evt) {
-        let html = "";
-        for (i = 0; i < containers.length; ++i) {
-            const container = containers[i];
-            const info = container.info;
+        var html = "";
+        for (var i = 0; i < containers.length; ++i) {
+            var container = containers[i];
+            var info = container.info;
             if (info.ContainerCategories && info.ContainerText) {
-                const shape = container.shape;
-                const bbox = shape.getBoundingClientRect();
-                const x = evt.clientX;
-                const y = evt.clientY;
+                var shape = container.shape;
+                var bbox = shape.getBoundingClientRect();
+                var x = evt.clientX;
+                var y = evt.clientY;
                 if (bbox.left <= x && x <= bbox.right && bbox.top <= y && y <= bbox.bottom) {
                     html += "<div>" + localize(info.ContainerCategories) + ": <strong>" + info.ContainerText + "</strong></div>";
                 }
@@ -54,26 +54,24 @@ $(document).ready(function () {
         tip.innerHTML = html;
     }
 
-    let maxWidth = 0;
-    let maxHeight = 0;
-    for (i = 0; i < containers.length; ++i) {
-        const container = containers[i];
-        const bbox = container.shape.getBBox();
+    var maxWidth = 0;
+    var maxHeight = 0;
+	containers.forEach(function(container) {
+        var bbox = container.shape.getBBox();
         if (maxWidth < bbox.width)
             maxWidth = bbox.width;
         if (maxHeight < bbox.height)
             maxHeight = bbox.height;
-    }
+    });
 
-    for (i = 0; i < containers.length; ++i) {
-        const container = containers[i];
-        const info = container.info;
-        const shape = container.shape;
+	containers.forEach(function(container) {
+        var info = container.info;
+        var shape = container.shape;
 
-        const categories = info.ContainerCategories;
+        var categories = info.ContainerCategories;
         if (categories) {
             if (categories === "Swimlane" || categories === "Phase") {
-                const bbox = shape.getBBox();
+                var bbox = shape.getBBox();
                 var rect = document.createElementNS(NS, "rect");
                 rect.setAttribute("x", bbox.x);
                 rect.setAttribute("y", bbox.y);
@@ -97,7 +95,7 @@ $(document).ready(function () {
             shape.addEventListener('mousemove', updateContainerTips);
             shape.addEventListener('mouseout', updateContainerTips);
         }
-    }
+    });
 });
 
 
@@ -119,14 +117,14 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableHover)
         return;
 
-    var haveSvgfilters = !diagram.enableBoxSelection;
+    var enableBoxSelection = diagram.selectionView && diagram.selectionView.enableBoxSelection;
     var SVGNS = 'http://www.w3.org/2000/svg';
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -134,7 +132,7 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
         }
@@ -142,18 +140,65 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId) {
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (info.DefaultLink
             || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
         ) {
-            let shape = findTargetShape(shapeId);
+            var shape = findTargetShape(shapeId);
             if (!shape)
                 return;
 
             // hover support
-            if (haveSvgfilters) {
+            if (enableBoxSelection) {
+
+                shape.addEventListener('mouseover', function (event) {
+                    if (diagram.selectedShapeId !== shapeId) {
+
+                        var rect = shape.getBBox();
+                        var x = rect.x;
+                        var y = rect.y;
+                        var width = rect.width;
+                        var height = rect.height;
+
+                        if (diagram.selectionView && diagram.selectionView.enableDilate) {
+
+                            var dilate = +diagram.selectionView.dilate || 4;
+
+                            x -= dilate / 2;
+                            width += dilate;
+                            y -= dilate / 2;
+                            height += dilate;
+                        }
+
+                        var hyperlinkColor = diagram.selectionView && diagram.selectionView.hyperlinkColor || "rgba(0, 0, 255, 0.2)";
+                        var hoverColor = diagram.selectionView && diagram.selectionView.hoverColor || "rgba(255, 255, 0, 0.2)";
+
+                        var color = (diagram.enableFollowHyperlinks && info.DefaultLink) ? hyperlinkColor : hoverColor;
+
+                        var box = document.createElementNS(SVGNS, "rect");
+                        box.id = "vp-hover-box";
+                        box.setAttribute("x", x);
+                        box.setAttribute("y", y);
+                        box.setAttribute("width", width);
+                        box.setAttribute("height", height);
+                        box.setAttribute("pointer-events", "none");
+                        box.style.fill = (diagram.selectionView && diagram.selectionView.mode === 'normal') ? 'none' : color;
+                        box.style.stroke = color;
+                        box.style.strokeWidth = dilate || 0;
+                        shape.appendChild(box);
+                    }
+                });
+                shape.addEventListener('mouseout', function (event) {
+                    if (diagram.selectedShapeId !== shapeId) {
+                        var box = document.getElementById("vp-hover-box");
+                        if (box) {
+                            box.parentNode.removeChild(box);
+                        }
+                    }
+                });
+            } else {
 
                 var filter = (diagram.enableFollowHyperlinks && info.DefaultLink) ? 'url(#hyperlink)' : 'url(#hover)';
 
@@ -166,53 +211,13 @@ $(document).ready(function () {
                         shape.removeAttribute('filter');
                 });
 
-            } else {
-
-                shape.addEventListener('mouseover', function (event) {
-                    if (diagram.selectedShapeId !== shapeId) {
-                        var rect = shape.getBBox();
-
-                        if (diagram.filter && diagram.filter.enableDilate) {
-
-                            var dilate = +diagram.filter.dilate || 4;
-
-                            rect.x -= dilate / 2;
-                            rect.width += dilate;
-                            rect.y -= dilate / 2;
-                            rect.height += dilate;
-                        }
-
-                        var hyperlinkColor = diagram.filter && diagram.filter.hyperlinkColor || "rgba(0, 0, 255, 0.2)";
-                        var hoverColor = diagram.filter && diagram.filter.hoverColor || "rgba(255, 255, 0, 0.2)";
-
-                        var color = (diagram.enableFollowHyperlinks && info.DefaultLink) ? hyperlinkColor : hoverColor;
-
-                        let box = document.createElementNS(SVGNS, "rect");
-                        box.id = "vp-hover-box";
-                        box.setAttribute("x", rect.x);
-                        box.setAttribute("y", rect.y);
-                        box.setAttribute("width", rect.width);
-                        box.setAttribute("height", rect.height);
-                        box.setAttribute("pointer-events", "none");
-                        box.style.fill = (diagram.filter && diagram.filter.mode === 'normal') ? 'none' : color;
-                        box.style.stroke = color;
-                        box.style.strokeWidth = dilate || 0;
-                        shape.appendChild(box);
-                    }
-                });
-                shape.addEventListener('mouseout', function (event) {
-                    if (diagram.selectedShapeId !== shapeId) {
-                        let box = document.getElementById("vp-hover-box");
-                        if (box) {
-                            box.remove();
-                        }
-                    }
-                });
             }
         }
     });
 });
 
+
+/*global jQuery, $ */
 
 // compatibility with version 0.x
 if (window.svgpublish)
@@ -249,6 +254,23 @@ $(document).ready(function () {
 
     $("#shape-layers").show();
 
+    var enableLayerToggles = diagram.layerView && diagram.layerView.enableLayerToggles;
+    var enableLayerShowAll = diagram.layerView && diagram.layerView.enableLayerShowAll;
+    var enableLayerSort = diagram.layerView && diagram.layerView.enableLayerSort;
+
+    if (enableLayerShowAll) {
+        $("#layer-show-all").on("click", function () {
+            diagram.layers && diagram.layers.forEach(function (layer) {
+                diagram.setLayerVisible(layer.Name, true);
+            });
+        });
+        $("#layer-hide-all").on("click", function () {
+            diagram.layers && diagram.layers.forEach(function (layer) {
+                diagram.setLayerVisible(layer.Name, false);
+            });
+        });
+    }
+
     function getLayerByIndex(layerIndex) {
         return diagram.layers.filter(function (item) { return item.Index === layerIndex; })[0];
     }
@@ -276,7 +298,7 @@ $(document).ready(function () {
     }
 
     function numericSort(data) {
-        const collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        var collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
         return data
             .map(function (x) {
                 return x;
@@ -288,11 +310,11 @@ $(document).ready(function () {
 
     function filter(term) {
 
-        var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
+        var re = new RegExp("(" + term.replace(/([\\.+*?[^\]$(){}=!<>|:])/g, "\\$1") + ")", 'gi');
 
         var $table = $("<table class='table borderless' />");
 
-        var sortedLayers = diagram.enableLayerSort ? numericSort(diagram.layers) : diagram.layers;
+        var sortedLayers = enableLayerSort ? numericSort(diagram.layers) : diagram.layers;
         $.each(sortedLayers, function (i, layer) {
 
             if (term && !re.test(layer.Name))
@@ -300,15 +322,15 @@ $(document).ready(function () {
 
             var text = term ? layer.Name.replace(re, "<span class='search-hilight'>$1</span>") : layer.Name;
 
-            var $check = diagram.enableLayerToggles
+            var $check = enableLayerToggles
                 ? $("<input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + "><span style='margin-left:1em'>" + text + "</span></input>")
                 : $("<div class='checkbox' style='margin-bottom: 0'><label><input type='checkbox' data-layer='" + layer.Index + "' " + (layer.Visible ? 'checked' : '') + ">" + text + "</label></div>");
 
-            var $input = diagram.enableLayerToggles
+            var $input = enableLayerToggles
                 ? $check
                 : $check.find("input");
 
-            $input.on(diagram.enableLayerToggles ? 'change.bootstrapSwitch' : 'click', function (e) {
+            $input.on(enableLayerToggles ? 'change.bootstrapSwitch' : 'click', function (e) {
                 var layerIndex = $(e.target).data("layer");
                 var layer = getLayerByIndex(layerIndex);
                 layer.Visible = !layer.Visible;
@@ -323,7 +345,7 @@ $(document).ready(function () {
 
         $("#panel-layers").html($table);
 
-        if (diagram.enableLayerToggles) {
+        if (enableLayerToggles) {
             var ontext = $("#panel-layers").data('ontext') || 'ON';
             var offtext = $("#panel-layers").data('offtext') || 'OFF';
 
@@ -346,7 +368,7 @@ $(document).ready(function () {
         if (layer) {
             var $switch = $("#panel-layers").find("input[data-layer='" + layer.Index + "']");
             if ($switch.length) {
-                if (diagram.enableLayerToggles) {
+                if (enableLayerToggles) {
                     var state = $switch.bootstrapSwitch('state');
                     if (!!state !== !!set)
                         $switch.bootstrapSwitch('toggleState');
@@ -390,9 +412,9 @@ $(document).ready(function () {
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -400,7 +422,7 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
         }
@@ -488,14 +510,14 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId) {
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
 
         var defaultlink = info.DefaultLink && info.Links[info.DefaultLink - 1];
         var defaultHref = defaultlink && buildLinkTargetLocation(defaultlink);
 
         if (defaultHref) {
 
-            let shape = findTargetShape(shapeId);
+            var shape = findTargetShape(shapeId);
             if (!shape)
                 return;
 
@@ -535,7 +557,7 @@ $(document).ready(function () {
     $("#shape-pages").show();
 
     function numericSort(data) {
-        const collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        var collator = Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
         return data
             .map(function (x) {
                 return x;
@@ -551,7 +573,7 @@ $(document).ready(function () {
         var sortedPages = diagram.enableLayerSort ? numericSort(diagram.pages) : diagram.pages;
         $.each(sortedPages, function (index, page) {
 
-            var re = new RegExp("(" + term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1") + ")", 'gi');
+            var re = new RegExp("(" + term.replace(/([\\.+*?[^]$(){}=!<>|:])/g, "\\$1") + ")", 'gi');
 
             if (term && !re.test(page.Name))
                 return;
@@ -592,7 +614,7 @@ $(document).ready(function () {
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
-/*global jQuery, $, Mustache */
+/*global jQuery, $, Mustache, marked */
 
 $(document).ready(function () {
 
@@ -625,13 +647,13 @@ $(document).ready(function () {
                 })
             }
         };
-    };
+    }
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -639,7 +661,7 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
         }
@@ -647,17 +669,17 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        const $shape = $(findTargetShape(shapeId));
+        var $shape = $(findTargetShape(shapeId));
 
-        const popoverMarkdown = shape.PopoverMarkdown || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || shape.Comment || '';
+        var popoverMarkdown = shape.PopoverMarkdown || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || shape.Comment || '';
 
-        const m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
+        var m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
 
-        const titleMarkdown = m && m[1] || '';
-        const contentMarkdown = m && m[2] || popoverMarkdown;
+        var titleMarkdown = m && m[1] || '';
+        var contentMarkdown = m && m[2] || popoverMarkdown;
 
-        const title = titleMarkdown && marked(Mustache.render(titleMarkdown, shape)).trim() || '';
-        const content = contentMarkdown && marked(Mustache.render(contentMarkdown, shape)).trim() || '';
+        var title = titleMarkdown && marked(Mustache.render(titleMarkdown, shape)).trim() || '';
+        var content = contentMarkdown && marked(Mustache.render(contentMarkdown, shape)).trim() || '';
 
         var placement = diagram.popoverPlacement || "auto top";
 
@@ -674,7 +696,7 @@ $(document).ready(function () {
 
         if (diagram.popoverTrigger) {
             options.trigger = diagram.popoverTrigger;
-        };
+        }
 
         if (diagram.popoverTimeout || diagram.popoverKeepOnHover) {
             options.delay = {
@@ -828,6 +850,9 @@ $(document).ready(function () {
     diagram.selectionChanged.add(showShapeProperties);
 });
 
+
+/*global $ */
+
 $(document).ready(function () {
 
     var diagram = window.svgpublish || {};
@@ -836,13 +861,13 @@ $(document).ready(function () {
         return;
 
     function parseSearchTerm(term) {
-        return term.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1");
+        return term.replace(/([\\.+*?[^]$(){}=!<>|:])/g, "\\$1");
     }
 
     $("#shape-search").show();
 
     function buildPropFilter(propNames) {
-        let filter = document.createElement("select");
+        var filter = document.createElement("select");
         filter.className = 'selectpicker';
         filter.setAttribute('multiple', 'multiple');
         filter.setAttribute('data-container', 'body');
@@ -850,21 +875,21 @@ $(document).ready(function () {
         filter.setAttribute('data-width', "100%");
         filter.setAttribute('title', 'Filter by property');
 
-        for (var propName of propNames) {
-            let option = document.createElement("option");
+        propNames.forEach(function (propName) {
+            var option = document.createElement("option");
             option.innerText = propName;
             filter.appendChild(option);
-        }
+        });
 
         return filter;
     }
 
-    let propertyFilter = null;
+    var propertyFilter = null;
     if (diagram.enablePropertySearchFilter) {
 
-        let usedPropSet = {};
+        var usedPropSet = {};
         for (var pageId in diagram.searchIndex) {
-            const pageSearchIndex = diagram.searchIndex[pageId];
+            var pageSearchIndex = diagram.searchIndex[pageId];
             for (var shapeId in pageSearchIndex) {
                 for (var propName in pageSearchIndex[shapeId]) {
                     usedPropSet[propName] = 1;
@@ -882,20 +907,24 @@ $(document).ready(function () {
 
     function processPage(term, pageId, ul, external, usedPropNames) {
 
-        let parsed = parseSearchTerm(term);
-        let searchRegex = new RegExp(parsed, 'i');
+        var parsed = parseSearchTerm(term);
+        var searchRegex = new RegExp(parsed, 'i');
 
-        const pageSearchIndex = diagram.searchIndex[pageId];
+		function samePage(p) { 
+			return p.Id === pageId; 
+		}
+
+        var pageSearchIndex = diagram.searchIndex[pageId];
         for (var shapeId in pageSearchIndex) {
 
             var searchInfos = pageSearchIndex[shapeId];
 
-            let foundProperties = [];
-            let foundTexts = [];
+            var foundProperties = [];
+            var foundTexts = [];
 
             for (var propName in searchInfos) {
                 if (!usedPropNames.length || usedPropNames.indexOf(propName) >= 0) {
-                    let searchText = searchInfos[propName];
+                    var searchText = searchInfos[propName];
                     if (searchRegex.test(searchText)) {
                         foundTexts.push(searchText);
                         foundProperties.push(propName);
@@ -906,20 +935,20 @@ $(document).ready(function () {
             if (!foundTexts.length)
                 continue;
 
-            let notes = foundProperties.join(', ');
+            var notes = foundProperties.join(', ');
 
             var li = document.createElement('li');
 
             var a = document.createElement('a');
 
             if (external) {
-                var page = diagram.pages.filter(function (p) { return p.Id === pageId; })[0];
+                var page = diagram.pages.filter(samePage)[0];
                 if (notes)
                     notes += ' / ';
                 notes += page.Name;
             }
 
-            let replaceRegex = new RegExp("(" + parsed + ")", 'gi');
+            var replaceRegex = new RegExp("(" + parsed + ")", 'gi');
             var divHead = document.createElement('div');
             divHead.innerHTML = foundTexts.join(", ").replace(replaceRegex, "<span class='search-hilight'>$1</span>");
             a.appendChild(divHead);
@@ -934,7 +963,7 @@ $(document).ready(function () {
             var pageUrl = document.location.protocol + "//" + document.location.host + document.location.pathname;
 
             if (external) {
-                var targetPage = diagram.pages.filter(function (p) { return p.Id === pageId; })[0];
+                var targetPage = diagram.pages.filter(samePage)[0];
                 var curpath = location.pathname;
                 var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
                 pageUrl = document.location.protocol + "//" + document.location.host + newpath;
@@ -950,7 +979,7 @@ $(document).ready(function () {
 
     function search(term) {
 
-        const usedPropNames = propertyFilter ? $(propertyFilter).val() : [];
+        var usedPropNames = propertyFilter ? $(propertyFilter).val() : [];
 
         var elem = document.getElementById('panel-search-results');
         elem.innerHTML = '';
@@ -985,9 +1014,9 @@ $(document).ready(function () {
             for (var pageId in diagram.searchIndex) {
                 if (+pageId !== +currentPageId)
                     processPage(term, +pageId, ul, true, usedPropNames);
-            };
+            }
         }
-    };
+    }
 
     $("#search-term").on("keyup", function () {
         search($("#search-term").val());
@@ -1025,14 +1054,14 @@ $(document).ready(function () {
     if (!diagram.shapes || !diagram.enableSelection)
         return;
 
-    var haveSvgfilters = !diagram.enableBoxSelection;
+    var enableBoxSelection = diagram.selectionView && diagram.selectionView.enableBoxSelection;
     var SVGNS = 'http://www.w3.org/2000/svg';
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -1040,9 +1069,20 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
+        }
+    }
+
+    function deselectBox() {
+        var hoverBox = document.getElementById("vp-hover-box");
+        if (hoverBox) {
+            hoverBox.parentNode.removeChild(hoverBox);
+        }
+        var selectionBox = document.getElementById("vp-selection-box");
+        if (selectionBox) {
+            selectionBox.parentNode.removeChild(selectionBox);
         }
     }
 
@@ -1050,19 +1090,12 @@ $(document).ready(function () {
 
         if (diagram.selectedShapeId && diagram.selectedShapeId !== shapeId) {
 
-            let shape = findTargetShape(diagram.selectedShapeId);
-            if (shape) {
-                if (haveSvgfilters)
-                    shape.removeAttribute('filter');
-                else {
-                    let selectionBox = document.getElementById("vp-selection-box");
-                    if (selectionBox) {
-                        selectionBox.remove();
-                    }
-                    let hoverBox = document.getElementById("vp-hover-box");
-                    if (hoverBox) {
-                        hoverBox.remove();
-                    }
+            var selectedShape = findTargetShape(diagram.selectedShapeId);
+            if (selectedShape) {
+                if (enableBoxSelection) {
+					deselectBox();
+                } else {
+                    selectedShape.removeAttribute('filter');
                 }
             }
 
@@ -1074,45 +1107,42 @@ $(document).ready(function () {
             diagram.selectedShapeId = shapeId;
             diagram.selectionChanged.fire(shapeId);
 
-            let shape = findTargetShape(shapeId);
-            if (shape) {
-                if (haveSvgfilters) {
-                    shape.setAttribute('filter', 'url(#select)');
-                } else {
+            var shapeToSelect = findTargetShape(shapeId);
+            if (shapeToSelect) {
+                if (enableBoxSelection) {
 
-                    let hoverBox = document.getElementById("vp-hover-box");
-                    if (hoverBox) {
-                        hoverBox.remove();
-                    }
-                    let selectionBox = document.getElementById("vp-selection-box");
-                    if (selectionBox) {
-                        selectionBox.remove();
-                    }
+                    deselectBox();
 
-                    var rect = shape.getBBox();
+                    var rect = shapeToSelect.getBBox();
+                    var x = rect.x;
+                    var y = rect.y;
+                    var width = rect.width;
+                    var height = rect.height;
 
-                    if (diagram.filter && diagram.filter.enableDilate) {
+                    if (diagram.selectionView && diagram.selectionView.enableDilate) {
 
-                        var dilate = +diagram.filter.dilate || 4;
+                        var dilate = +diagram.selectionView.dilate || 4;
 
-                        rect.x -= dilate / 2;
-                        rect.width += dilate;
-                        rect.y -= dilate / 2;
-                        rect.height += dilate;
+                        x -= dilate / 2;
+                        width += dilate;
+                        y -= dilate / 2;
+                        height += dilate;
                     }
 
-                    var selectColor = diagram.filter && diagram.filter.selectColor || "rgba(255, 255, 0, 0.4)";
+                    var selectColor = diagram.selectionView && diagram.selectionView.selectColor || "rgba(255, 255, 0, 0.4)";
 
-                    let box = document.createElementNS(SVGNS, "rect");
+                    var box = document.createElementNS(SVGNS, "rect");
                     box.id = "vp-selection-box";
-                    box.setAttribute("x", rect.x);
-                    box.setAttribute("y", rect.y);
-                    box.setAttribute("width", rect.width);
-                    box.setAttribute("height", rect.height);
-                    box.style.fill = (diagram.filter && diagram.filter.mode === 'normal') ? 'none' : selectColor;
+                    box.setAttribute("x", x);
+                    box.setAttribute("y", y);
+                    box.setAttribute("width", width);
+                    box.setAttribute("height", height);
+                    box.style.fill = (diagram.selectionView && diagram.selectionView.mode === 'normal') ? 'none' : selectColor;
                     box.style.stroke = selectColor;
                     box.style.strokeWidth = dilate || 0;
-                    shape.appendChild(box);
+                    shapeToSelect.appendChild(box);
+                } else {
+                    shapeToSelect.setAttribute('filter', 'url(#select)');
                 }
             }
         }
@@ -1124,13 +1154,13 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId) {
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (info.DefaultLink
             || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
         ) {
-            let shape = findTargetShape(shapeId);
+            var shape = findTargetShape(shapeId);
             if (!shape)
                 return;
 
@@ -1171,7 +1201,7 @@ $(document).ready(function () {
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
-/*global jQuery, $, Mustache */
+/*global jQuery, $, Mustache, marked */
 
 $(document).ready(function () {
 
@@ -1191,7 +1221,11 @@ $(document).ready(function () {
     });
 
     var storage;
-    try { storage = window.localStorage; } catch (e) { }
+    try {
+        storage = window.localStorage;
+    } catch (e) {
+        console.warn('localStorage not available, sidebar width will not be saved');
+    }
 
     var defaultWidth = storage ? parseInt(storage.getItem("DiagramSidebarWidth")) : 0;
     if (defaultWidth > 0)
@@ -1306,9 +1340,9 @@ $(document).ready(function () {
 
     function showSidebarMarkdown(thisShapeId, showAutomatically) {
 
-        let shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
-        let sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
-        let html = sidebarMarkdown && marked(Mustache.render(sidebarMarkdown, shape || {})).trim() || '';
+        var shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
+        var sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
+        var html = sidebarMarkdown && marked(Mustache.render(sidebarMarkdown, shape || {})).trim() || '';
         $("#sidebar-html").html(html);
 
         if (showAutomatically) {
@@ -1328,6 +1362,8 @@ $(document).ready(function () {
 // Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
+
+/*global jQuery, $ */
 
 (function ($) {
 
@@ -1786,7 +1822,7 @@ $(document).ready(function () {
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
-/* globals: jQuery, $ */
+/*global jQuery, $, Mustache, marked */
 
 $(document).ready(function () {
 
@@ -1822,9 +1858,9 @@ $(document).ready(function () {
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -1832,7 +1868,7 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
         }
@@ -1840,11 +1876,11 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId, shape) {
 
-        const $shape = $(findTargetShape(shapeId));
+        var $shape = $(findTargetShape(shapeId));
 
-        const tooltipMarkdown = shape.TooltipMarkdown || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || shape.Comment || '';
-        const tip = tooltipMarkdown  && marked(Mustache.render(tooltipMarkdown, shape)).trim();
-        const placement = diagram.tooltipPlacement || "auto top";
+        var tooltipMarkdown = shape.TooltipMarkdown || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || shape.Comment || '';
+        var tip = tooltipMarkdown  && marked(Mustache.render(tooltipMarkdown, shape)).trim();
+        var placement = diagram.tooltipPlacement || "auto top";
 
         if (!tip)
             return;

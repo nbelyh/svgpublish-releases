@@ -4,11 +4,11 @@
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
-/*global jQuery, $, Mustache */
+/*global jQuery, $ */
 
 $(document).ready(function () {
 
-    const NS = "http://www.w3.org/2000/svg";
+    var NS = "http://www.w3.org/2000/svg";
 
     var diagram = window.svgpublish || {};
 
@@ -30,22 +30,22 @@ $(document).ready(function () {
 
     var containers = [];
     for (var shapeId in diagram.shapes) {
-        const shape = document.getElementById(shapeId);
-        const info = diagram.shapes[shapeId];
+        var shape = document.getElementById(shapeId);
+        var info = diagram.shapes[shapeId];
         if (info.IsContainer)
             containers.push({ shape: shape, info: info });
     }
 
     function updateContainerTips(evt) {
-        let html = "";
-        for (i = 0; i < containers.length; ++i) {
-            const container = containers[i];
-            const info = container.info;
+        var html = "";
+        for (var i = 0; i < containers.length; ++i) {
+            var container = containers[i];
+            var info = container.info;
             if (info.ContainerCategories && info.ContainerText) {
-                const shape = container.shape;
-                const bbox = shape.getBoundingClientRect();
-                const x = evt.clientX;
-                const y = evt.clientY;
+                var shape = container.shape;
+                var bbox = shape.getBoundingClientRect();
+                var x = evt.clientX;
+                var y = evt.clientY;
                 if (bbox.left <= x && x <= bbox.right && bbox.top <= y && y <= bbox.bottom) {
                     html += "<div>" + localize(info.ContainerCategories) + ": <strong>" + info.ContainerText + "</strong></div>";
                 }
@@ -54,26 +54,24 @@ $(document).ready(function () {
         tip.innerHTML = html;
     }
 
-    let maxWidth = 0;
-    let maxHeight = 0;
-    for (i = 0; i < containers.length; ++i) {
-        const container = containers[i];
-        const bbox = container.shape.getBBox();
+    var maxWidth = 0;
+    var maxHeight = 0;
+	containers.forEach(function(container) {
+        var bbox = container.shape.getBBox();
         if (maxWidth < bbox.width)
             maxWidth = bbox.width;
         if (maxHeight < bbox.height)
             maxHeight = bbox.height;
-    }
+    });
 
-    for (i = 0; i < containers.length; ++i) {
-        const container = containers[i];
-        const info = container.info;
-        const shape = container.shape;
+	containers.forEach(function(container) {
+        var info = container.info;
+        var shape = container.shape;
 
-        const categories = info.ContainerCategories;
+        var categories = info.ContainerCategories;
         if (categories) {
             if (categories === "Swimlane" || categories === "Phase") {
-                const bbox = shape.getBBox();
+                var bbox = shape.getBBox();
                 var rect = document.createElementNS(NS, "rect");
                 rect.setAttribute("x", bbox.x);
                 rect.setAttribute("y", bbox.y);
@@ -97,5 +95,5 @@ $(document).ready(function () {
             shape.addEventListener('mousemove', updateContainerTips);
             shape.addEventListener('mouseout', updateContainerTips);
         }
-    }
+    });
 });

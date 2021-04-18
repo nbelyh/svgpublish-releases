@@ -17,9 +17,9 @@ $(document).ready(function () {
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        let shape = document.getElementById(shapeId);
+        var shape = document.getElementById(shapeId);
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
@@ -27,7 +27,7 @@ $(document).ready(function () {
             return null;
 
         for (var i = 0; i < shape.children.length; ++i) {
-            let child = shape.children[i];
+            var child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
         }
@@ -115,14 +115,14 @@ $(document).ready(function () {
 
     $.each(diagram.shapes, function (shapeId) {
 
-        let info = diagram.shapes[shapeId];
+        var info = diagram.shapes[shapeId];
 
         var defaultlink = info.DefaultLink && info.Links[info.DefaultLink - 1];
         var defaultHref = defaultlink && buildLinkTargetLocation(defaultlink);
 
         if (defaultHref) {
 
-            let shape = findTargetShape(shapeId);
+            var shape = findTargetShape(shapeId);
             if (!shape)
                 return;
 

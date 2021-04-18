@@ -30,10 +30,10 @@
   <script src="{{UrlPrefix}}jquery-3.1.1.min.js"></script>
   <link href="{{UrlPrefix}}bootstrap-3.3.7.min.css" rel="stylesheet" />
   <script src="{{UrlPrefix}}bootstrap-3.3.7.min.js"></script>
-  {{#EnableLayerToggles}}{{#EnableBootstrapSwitch}}
+  {{#LayerView.EnableLayerToggles}}{{#EnableBootstrapSwitch}}
   <link href="{{UrlPrefix}}bootstrap-switch-3.3.4.min.css" rel="stylesheet" />
   <script src="{{UrlPrefix}}bootstrap-switch-3.3.4.min.js"></script>
-  {{/EnableBootstrapSwitch}}{{/EnableLayerToggles}}
+  {{/EnableBootstrapSwitch}}{{/LayerView.EnableLayerToggles}}
   {{#EnablePropertySearchFilter}}{{#EnableBootstrapSelect}}
   <link href="{{UrlPrefix}}bootstrap-select-1.13.18.min.css" rel="stylesheet" />
   <script src="{{UrlPrefix}}bootstrap-select-1.13.18.min.js"></script>
@@ -122,7 +122,17 @@
         </div>
         <div id="collapseLayers" class="panel-collapse collapse in">
           <div class="panel-body">
-            {{#EnableLayerLookup}}<input type="text" id="search-layer" class="form-control" value="" autocomplete="off" placeholder="{{Localization.Search}} ({{Localization.Layers}})" />{{/EnableLayerLookup}}
+            {{#LayerView.EnableLayerLookup}}
+            <div style="margin: 0.5em 0em">
+              <input type="text" id="search-layer" class="form-control" value="" autocomplete="off" placeholder="{{Localization.Search}} ({{Localization.Layers}})" />
+            </div>
+            {{/LayerView.EnableLayerLookup}}
+            {{#LayerView.EnableLayerShowAll}}
+            <div style="margin: 0.5em 0em">
+              <input type="button" id="layer-show-all" class="btn btn-default btn-sm" value="{{Localization.LayerShowAll}}" />
+              <input type="button" id="layer-hide-all" class="btn btn-default btn-sm" value="{{Localization.LayerHideAll}}" />
+            </div>
+            {{/LayerView.EnableLayerShowAll}}
             <div id="panel-layers" data-ontext="{{Localization.On}}" data-offtext="{{Localization.Off}}"></div>
           </div>
         </div>
@@ -192,35 +202,35 @@
   <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
       <filter id="hover">
-        {{#Filter.EnableDilate}}<feMorphology operator="dilate" radius="{{Filter.Dilate}}"></feMorphology>{{/Filter.EnableDilate}}
-	      {{#Filter.EnableBlur}}<feGaussianBlur stdDeviation="{{Filter.Blur}}" />{{/Filter.EnableBlur}}
+        {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
+	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
-                       {{filter.HoverColor.R}} {{filter.HoverColor.R}} {{filter.HoverColor.R}} {{filter.HoverColor.R}} {{filter.HoverColor.R}}
-                       {{filter.HoverColor.G}} {{filter.HoverColor.G}} {{filter.HoverColor.G}} {{filter.HoverColor.G}} {{filter.HoverColor.G}}
-                       {{filter.HoverColor.B}} {{filter.HoverColor.B}} {{filter.HoverColor.B}} {{filter.HoverColor.B}} {{filter.HoverColor.B}}
-                       0 0 0 {{filter.HoverColor.A}} 0" result="matrix" />
-        <feBlend in="SourceGraphic" in2="matrix" mode="{{Filter.Mode}}" />
+                       {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}}
+                       {{SelectionView.HoverColor.G}} {{SelectionView.HoverColor.G}} {{SelectionView.HoverColor.G}} {{SelectionView.HoverColor.G}} {{SelectionView.HoverColor.G}}
+                       {{SelectionView.HoverColor.B}} {{SelectionView.HoverColor.B}} {{SelectionView.HoverColor.B}} {{SelectionView.HoverColor.B}} {{SelectionView.HoverColor.B}}
+                       0 0 0 {{SelectionView.HoverColor.A}} 0" result="matrix" />
+        <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
       </filter>
 
       <filter id="select">
-        {{#Filter.EnableDilate}}<feMorphology operator="dilate" radius="{{Filter.Dilate}}"></feMorphology>{{/Filter.EnableDilate}}
-	      {{#Filter.EnableBlur}}<feGaussianBlur stdDeviation="{{Filter.Blur}}" />{{/Filter.EnableBlur}}
+        {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
+	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
-                       {{Filter.SelectColor.R}} {{Filter.SelectColor.R}} {{Filter.SelectColor.R}} {{Filter.SelectColor.R}} {{Filter.SelectColor.R}}
-                       {{Filter.SelectColor.G}} {{Filter.SelectColor.G}} {{Filter.SelectColor.G}} {{Filter.SelectColor.G}} {{Filter.SelectColor.G}}
-                       {{Filter.SelectColor.B}} {{Filter.SelectColor.B}} {{Filter.SelectColor.B}} {{Filter.SelectColor.B}} {{Filter.SelectColor.B}}
-                       0 0 0 {{filter.SelectColor.A}} 0" result="matrix" />
-        <feBlend in="SourceGraphic" in2="matrix" mode="{{Filter.Mode}}" />
+                       {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}}
+                       {{SelectionView.SelectColor.G}} {{SelectionView.SelectColor.G}} {{SelectionView.SelectColor.G}} {{SelectionView.SelectColor.G}} {{SelectionView.SelectColor.G}}
+                       {{SelectionView.SelectColor.B}} {{SelectionView.SelectColor.B}} {{SelectionView.SelectColor.B}} {{SelectionView.SelectColor.B}} {{SelectionView.SelectColor.B}}
+                       0 0 0 {{SelectionView.SelectColor.A}} 0" result="matrix" />
+        <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
       </filter>
       <filter id="hyperlink">
-        {{#Filter.EnableDilate}}<feMorphology operator="dilate" radius="{{Filter.Dilate}}"></feMorphology>{{/Filter.EnableDilate}}
-	      {{#Filter.EnableBlur}}<feGaussianBlur stdDeviation="{{Filter.Blur}}" />{{/Filter.EnableBlur}}
+        {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
+	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
-                       {{filter.HyperlinkColor.R}} {{filter.HyperlinkColor.R}} {{filter.HyperlinkColor.R}} {{filter.HyperlinkColor.R}} {{filter.HyperlinkColor.R}}
-                       {{filter.HyperlinkColor.G}} {{filter.HyperlinkColor.G}} {{filter.HyperlinkColor.G}} {{filter.HyperlinkColor.G}} {{filter.HyperlinkColor.G}}
-                       {{filter.HyperlinkColor.B}} {{filter.HyperlinkColor.B}} {{filter.HyperlinkColor.B}} {{filter.HyperlinkColor.B}} {{filter.HyperlinkColor.B}}
-                       0 0 0 {{filter.HyperlinkColor.A}} 0" result="matrix" />
-        <feBlend in="SourceGraphic" in2="matrix" mode="{{Filter.Mode}}" />
+                       {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}}
+                       {{SelectionView.HyperlinkColor.G}} {{SelectionView.HyperlinkColor.G}} {{SelectionView.HyperlinkColor.G}} {{SelectionView.HyperlinkColor.G}} {{SelectionView.HyperlinkColor.G}}
+                       {{SelectionView.HyperlinkColor.B}} {{SelectionView.HyperlinkColor.B}} {{SelectionView.HyperlinkColor.B}} {{SelectionView.HyperlinkColor.B}} {{SelectionView.HyperlinkColor.B}}
+                       0 0 0 {{SelectionView.HyperlinkColor.A}} 0" result="matrix" />
+        <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
       </filter>
     </defs>
   </svg>
