@@ -828,7 +828,7 @@ $(document).ready(function () {
                 if (!propValue)
                     propValue = "";
 
-                if (propValue.indexOf("https://") >= 0 || propValue.indexOf("http://") >= 0) {
+                if (typeof (propValue) === "string" && propValue.indexOf("https://") >= 0 || propValue.indexOf("http://") >= 0) {
                     var a = document.createElement("a");
                     a.href = propValue;
                     if (diagram.openHyperlinksInNewWindow)
