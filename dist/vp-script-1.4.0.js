@@ -1,6 +1,6 @@
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2020 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -158,7 +158,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -297,7 +297,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -453,7 +453,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -599,7 +599,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -668,7 +668,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -844,7 +844,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -1095,7 +1095,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -1255,7 +1255,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -1417,7 +1417,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
@@ -1876,7 +1876,7 @@ $(document).ready(function () {
 
 
 //-----------------------------------------------------------------------
-// Copyright (c) 2017-2019 Nikolay Belykh unmanagedvisio.com All rights reserved.
+// Copyright (c) 2017-2022 Nikolay Belykh unmanagedvisio.com All rights reserved.
 // Nikolay Belykh, nbelyh@gmail.com
 //-----------------------------------------------------------------------
 
