@@ -68,8 +68,8 @@ $(document).ready(function () {
         var titleMarkdown = m && m[1] || '';
         var contentMarkdown = m && m[2] || popoverMarkdown;
 
-        var title = titleMarkdown && marked(Mustache.render(titleMarkdown, shape)).trim() || '';
-        var content = contentMarkdown && marked(Mustache.render(contentMarkdown, shape)).trim() || '';
+        var title = titleMarkdown && marked.parse(Mustache.render(titleMarkdown, shape)).trim() || '';
+        var content = contentMarkdown && marked.parse(Mustache.render(contentMarkdown, shape)).trim() || '';
 
         var placement = diagram.popoverPlacement || "auto top";
 

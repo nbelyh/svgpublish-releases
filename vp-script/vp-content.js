@@ -34,7 +34,7 @@ $(document).ready(function () {
         var node = findTargetShape(shapeId);
 
         var contentMarkdown = shape.ContentMarkdown || (diagram.enableContentMarkdown && diagram.contentMarkdown) || '';
-        var content = contentMarkdown && marked(Mustache.render(contentMarkdown, shape)).trim();
+        var content = contentMarkdown && marked.parseInline(Mustache.render(contentMarkdown, shape)).trim();
 
         if (!content)
             return;

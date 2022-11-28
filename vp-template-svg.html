@@ -45,14 +45,14 @@
   <script src="{{UrlPrefix}}mustache-2.3.0.min.js"></script>
   {{/EnableMustache}}
   {{#EnableMarked}}
-  <script src="{{UrlPrefix}}marked-1.0.0.min.js"></script>
+  <script src="{{UrlPrefix}}marked-4.1.1.min.js"></script>
   {{/EnableMarked}}
-  <link href="{{UrlPrefix}}vp-style-1.4.0.{{^SkipMinification}}min.{{/SkipMinification}}css" rel="stylesheet" />
+  <link href="{{UrlPrefix}}vp-style-1.5.0.{{^SkipMinification}}min.{{/SkipMinification}}css" rel="stylesheet" />
   <script>
         window.svgpublish = {{{Data}}}
         $(document).ready(function () { $("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear"); });
   </script>
-  <script src="{{UrlPrefix}}vp-script-1.4.0.{{^SkipMinification}}min.{{/SkipMinification}}js"></script>
+  <script src="{{UrlPrefix}}vp-script-1.5.0.{{^SkipMinification}}min.{{/SkipMinification}}js"></script>
   {{#CSS}}
   <style>
   {{{CSS}}}
@@ -202,7 +202,7 @@
   <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
       <filter id="hover">
-        {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
+          {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
 	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
                        {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}}
@@ -213,7 +213,7 @@
       </filter>
 
       <filter id="select">
-        {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
+          {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
 	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
                        {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}}
@@ -223,7 +223,7 @@
         <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
       </filter>
       <filter id="hyperlink">
-        {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
+          {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
 	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
                        {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}}

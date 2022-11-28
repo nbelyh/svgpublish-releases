@@ -61,7 +61,7 @@ $(document).ready(function () {
         var $shape = $(findTargetShape(shapeId));
 
         var tooltipMarkdown = shape.TooltipMarkdown || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || shape.Comment || '';
-        var tip = tooltipMarkdown  && marked(Mustache.render(tooltipMarkdown, shape)).trim();
+        var tip = tooltipMarkdown && marked.parse(Mustache.render(tooltipMarkdown, shape)).trim();
         var placement = diagram.tooltipPlacement || "auto top";
 
         if (!tip)
