@@ -205,9 +205,9 @@
           {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
 	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
-                       {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}} {{SelectionView.HoverColor.R}}
-                       {{SelectionView.HoverColor.G}} {{SelectionView.HoverColor.G}} {{SelectionView.HoverColor.G}} {{SelectionView.HoverColor.G}} {{SelectionView.HoverColor.G}}
-                       {{SelectionView.HoverColor.B}} {{SelectionView.HoverColor.B}} {{SelectionView.HoverColor.B}} {{SelectionView.HoverColor.B}} {{SelectionView.HoverColor.B}}
+                       0 0 0 0 {{SelectionView.HoverColor.R}}
+                       0 0 0 0 {{SelectionView.HoverColor.G}}
+                       0 0 0 0 {{SelectionView.HoverColor.B}}
                        0 0 0 {{SelectionView.HoverColor.A}} 0" result="matrix" />
         <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
       </filter>
@@ -216,9 +216,9 @@
           {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
 	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
-                       {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}} {{SelectionView.SelectColor.R}}
-                       {{SelectionView.SelectColor.G}} {{SelectionView.SelectColor.G}} {{SelectionView.SelectColor.G}} {{SelectionView.SelectColor.G}} {{SelectionView.SelectColor.G}}
-                       {{SelectionView.SelectColor.B}} {{SelectionView.SelectColor.B}} {{SelectionView.SelectColor.B}} {{SelectionView.SelectColor.B}} {{SelectionView.SelectColor.B}}
+                       0 0 0 0 {{SelectionView.SelectColor.R}}
+                       0 0 0 0 {{SelectionView.SelectColor.G}}
+                       0 0 0 0 {{SelectionView.SelectColor.B}}
                        0 0 0 {{SelectionView.SelectColor.A}} 0" result="matrix" />
         <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
       </filter>
@@ -226,9 +226,9 @@
           {{#SelectionView.EnableDilate}}<feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>{{/SelectionView.EnableDilate}}
 	      {{#SelectionView.EnableBlur}}<feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />{{/SelectionView.EnableBlur}}
         <feColorMatrix type="matrix" values="
-                       {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}} {{SelectionView.HyperlinkColor.R}}
-                       {{SelectionView.HyperlinkColor.G}} {{SelectionView.HyperlinkColor.G}} {{SelectionView.HyperlinkColor.G}} {{SelectionView.HyperlinkColor.G}} {{SelectionView.HyperlinkColor.G}}
-                       {{SelectionView.HyperlinkColor.B}} {{SelectionView.HyperlinkColor.B}} {{SelectionView.HyperlinkColor.B}} {{SelectionView.HyperlinkColor.B}} {{SelectionView.HyperlinkColor.B}}
+                       0 0 0 0 {{SelectionView.HyperlinkColor.R}}
+                       0 0 0 0 {{SelectionView.HyperlinkColor.G}}
+                       0 0 0 0 {{SelectionView.HyperlinkColor.B}}
                        0 0 0 {{SelectionView.HyperlinkColor.A}} 0" result="matrix" />
         <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
       </filter>
