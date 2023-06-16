@@ -1,7 +1,11 @@
 # SVG Publish Visio add-in
 
 This repository contains the releases of the SvgPublish Visio add-in, including the default built-in template
+
+Add-In page:
 http://unmanagedvisio.com/products/svg-publish
+
+Examples page:
 https://unmanagedvisio.com/products/svg-publish/html-export-demo
 
 The script/style files are for reference and also hosted from this repository using cdnjs
