@@ -42,7 +42,7 @@ $(document).ready(function () {
 
         var info = diagram.shapes[shapeId];
         if (info.DefaultLink
-            || info.Props && Object.keys(info.Props).length
+            || info.Props && Object.keys(info.Props).length && diagram.enableSidebar
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
         ) {
