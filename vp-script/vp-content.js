@@ -5,7 +5,7 @@
 if (window.svgpublish)
     window.svgpublish.diagramData = window.svgpublish.shapes;
 
-$(document).ready(function () {
+(function (diagram) {
 
     var SVGNS = 'http://www.w3.org/2000/svg';
 
@@ -26,8 +26,6 @@ $(document).ready(function () {
                 return child;
         }
     }
-
-    var diagram = window.svgpublish || {};
 
     $.each(diagram.shapes, function (shapeId, shape) {
 
@@ -54,4 +52,4 @@ $(document).ready(function () {
 
         box.innerHTML = content;
     });
-});
+})(window.svgpublish);

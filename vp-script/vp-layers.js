@@ -6,9 +6,7 @@
 
 /*global jQuery, $, Mustache */
 
-$(document).ready(function () {
-
-    var diagram = window.svgpublish || {};
+(function (diagram) {
 
     if (!diagram.layers || !diagram.enableLayers)
         return;
@@ -152,4 +150,4 @@ $(document).ready(function () {
         filter($("#search-layer").val());
         return false;
     });
-});
+})(window.svgpublish);

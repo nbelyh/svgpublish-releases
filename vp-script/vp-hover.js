@@ -10,9 +10,7 @@
     diagram.selectionChanged = $.Callbacks();
 })(window.svgpublish);
 
-$(document).ready(function () {
-
-    var diagram = window.svgpublish;
+(function (diagram) {
 
     if (!diagram.shapes || !diagram.enableHover)
         return;
@@ -114,4 +112,4 @@ $(document).ready(function () {
             }
         }
     });
-});
+})(window.svgpublish);

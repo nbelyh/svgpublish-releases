@@ -5,9 +5,7 @@
 if (window.svgpublish)
     window.svgpublish.diagramData = window.svgpublish.shapes;
 
-$(document).ready(function () {
-
-    var diagram = window.svgpublish || {};
+(function (diagram) {
 
     if (diagram.enableAutoFrameHeight) {
         var iframe = window.top.document.getElementById(window.name);
@@ -17,4 +15,4 @@ $(document).ready(function () {
             wp.style.height = 'calc(100vh - ' + rc.top + 'px)';
         }
     }
-});
+})(window.svgpublish);

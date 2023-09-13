@@ -6,10 +6,8 @@
 
 /*global jQuery, $, Mustache */
 
-$(document).ready(function () {
+(function (diagram) {
 
-    var diagram = window.svgpublish || {};
-    
     if (!diagram.pages || !diagram.enablePages)
         return;
 
@@ -65,4 +63,4 @@ $(document).ready(function () {
         filter($("#search-page").val());
         return false;
     });
-});
+})(window.svgpublish);

@@ -5,12 +5,9 @@
 //-----------------------------------------------------------------------
 
 /*global jQuery, $ */
-
-$(document).ready(function () {
+(function (diagram) {
 
     var NS = "http://www.w3.org/2000/svg";
-
-    var diagram = window.svgpublish || {};
 
     if (!diagram.shapes || !diagram.enableContainerTip)
         return;
@@ -96,4 +93,4 @@ $(document).ready(function () {
             shape.addEventListener('mouseout', updateContainerTips);
         }
     });
-});
+})(window.svgpublish);

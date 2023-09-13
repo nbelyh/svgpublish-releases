@@ -6,10 +6,8 @@
 
 /*global jQuery, $, Mustache */
 
-$(document).ready(function () {
+(function (diagram) {
 
-    var diagram = window.svgpublish || {};
-    
     if (!diagram.shapes || !diagram.enableProps)
         return;
     
@@ -62,4 +60,4 @@ $(document).ready(function () {
     }
 
     diagram.selectionChanged.add(showShapeProperties);
-});
+})(window.svgpublish);

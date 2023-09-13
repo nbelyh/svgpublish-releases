@@ -6,7 +6,7 @@
 
 /*global jQuery, $, Mustache, marked */
 
-$(document).ready(function () {
+(function () {
 
     var diagram = window.svgpublish || {};
     
@@ -168,5 +168,4 @@ $(document).ready(function () {
                 });
         });
     }
-
-});
+})(window.svgpublish);

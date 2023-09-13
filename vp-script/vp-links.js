@@ -6,9 +6,7 @@
 
 /*global jQuery, $, Mustache */
 
-$(document).ready(function () {
-
-    var diagram = window.svgpublish || {};
+(function (diagram) {
 
     if (!diagram.shapes)
         return;
@@ -142,4 +140,4 @@ $(document).ready(function () {
         }
     });
 
-});
+})(window.svgpublish);

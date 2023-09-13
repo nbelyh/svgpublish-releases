@@ -10,9 +10,7 @@
     diagram.selectionChanged = $.Callbacks();
 })(window.svgpublish);
 
-$(document).ready(function () {
-
-    var diagram = window.svgpublish;
+(function (diagram) {
 
     if (!diagram.shapes || !diagram.enableSelection)
         return;
@@ -156,4 +154,4 @@ $(document).ready(function () {
 
     processHash();
     $(window).on('hashchange', processHash);
-});
+})(window.svgpublish);

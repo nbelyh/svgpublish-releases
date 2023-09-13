@@ -1,9 +1,7 @@
 ﻿
 /*global $ */
 
-$(document).ready(function () {
-
-    var diagram = window.svgpublish || {};
+(function (diagram) {
 
     if (!diagram.shapes || !diagram.enableSearch)
         return;
@@ -181,4 +179,4 @@ $(document).ready(function () {
         $('#search-term').val(term);
         search(term);
     }
-});
+})(window.svgpublish);

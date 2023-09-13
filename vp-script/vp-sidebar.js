@@ -6,9 +6,7 @@
 
 /*global jQuery, $, Mustache, marked */
 
-$(document).ready(function () {
-
-    var diagram = window.svgpublish || {};
+(function (diagram) {
 
     if (!diagram.enableSidebar)
         return;
@@ -158,4 +156,4 @@ $(document).ready(function () {
     }
 
     diagram.selectionChanged.add(onSelectionChanged);
-});
+})(window.svgpublish);

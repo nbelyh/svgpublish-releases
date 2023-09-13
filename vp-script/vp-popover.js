@@ -6,10 +6,8 @@
 
 /*global jQuery, $, Mustache, marked */
 
-$(document).ready(function () {
+(function (diagram) {
 
-    var diagram = window.svgpublish || {};
-    
     if (!diagram.shapes || !diagram.enablePopovers) {
         return;
     }
@@ -172,4 +170,4 @@ $(document).ready(function () {
         });
     }
 
-});
+})(window.svgpublish);
