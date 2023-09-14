@@ -52,6 +52,7 @@
             box.style.fill = (diagram.selectionView && diagram.selectionView.mode === 'normal') ? 'none' : selectColor;
             box.style.stroke = selectColor;
             box.style.strokeWidth = dilate || 0;
+            box.style.pointerEvents = 'none';
             shape.appendChild(box);
         } else {
             shape.setAttribute('filter', filter);
