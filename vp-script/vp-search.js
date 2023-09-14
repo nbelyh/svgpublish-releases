@@ -110,9 +110,11 @@
 
             if (external) {
                 var targetPage = diagram.pages.filter(samePage)[0];
-                var curpath = location.pathname;
-                var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
-                pageUrl = document.location.protocol + "//" + document.location.host + newpath;
+                if (targetPage) {
+                    var curpath = location.pathname;
+                    var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
+                    pageUrl = document.location.protocol + "//" + document.location.host + newpath;
+                }
             }
 
             var targetUrl = pageUrl + "#?shape=" + shapeId + "&term=" + encodeURIComponent(term);

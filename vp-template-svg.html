@@ -34,7 +34,7 @@
     {{#EnablePropertySearchFilter}}{{#EnableBootstrapSelect}}
     <link href="{{UrlPrefix}}bootstrap-select-1.13.18.min.css" rel="stylesheet" />
     {{/EnableBootstrapSelect}}{{/EnablePropertySearchFilter}}
-    <link href="{{UrlPrefix}}vp-style-1.6.25608.{{^SkipMinification}}min.{{/SkipMinification}}css" rel="stylesheet" />
+    <link href="{{UrlPrefix}}vp-style-1.6.25609.{{^SkipMinification}}min.{{/SkipMinification}}css" rel="stylesheet" />
     {{#CSS}}
     <style>
   {{{CSS}}}
@@ -226,6 +226,34 @@
                        0 0 0 {{SelectionView.HyperlinkColor.A}} 0" result="matrix" />
                 <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
             </filter>
+            <filter id="next">
+                {{#SelectionView.EnableDilate}}
+                <feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>
+                {{/SelectionView.EnableDilate}}
+                {{#SelectionView.EnableBlur}}
+                <feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />
+                {{/SelectionView.EnableBlur}}
+                <feColorMatrix type="matrix" values="
+                       0 0 0 0 {{SelectionView.NextShapeColor.R}}
+                       0 0 0 0 {{SelectionView.NextShapeColor.G}}
+                       0 0 0 0 {{SelectionView.NextShapeColor.B}}
+                       0 0 0 {{SelectionView.NextShapeColor.A}} 0" result="matrix" />
+                <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
+            </filter>
+            <filter id="prev">
+                {{#SelectionView.EnableDilate}}
+                <feMorphology operator="dilate" radius="{{SelectionView.Dilate}}"></feMorphology>
+                {{/SelectionView.EnableDilate}}
+                {{#SelectionView.EnableBlur}}
+                <feGaussianBlur stdDeviation="{{SelectionView.Blur}}" />
+                {{/SelectionView.EnableBlur}}
+                <feColorMatrix type="matrix" values="
+                       0 0 0 0 {{SelectionView.PrevShapeColor.R}}
+                       0 0 0 0 {{SelectionView.PrevShapeColor.G}}
+                       0 0 0 0 {{SelectionView.PrevShapeColor.B}}
+                       0 0 0 {{SelectionView.PrevShapeColor.A}} 0" result="matrix" />
+                <feBlend in="SourceGraphic" in2="matrix" mode="{{SelectionView.Mode}}" />
+            </filter>
         </defs>
     </svg>
     <script src="{{UrlPrefix}}jquery-3.1.1.min.js"></script>
@@ -246,7 +274,7 @@
     <script src="{{UrlPrefix}}marked-4.1.1.min.js"></script>
     {{/EnableMarked}}
     <script>window.svgpublish = {{{Data}}}</script>
-    <script src="{{UrlPrefix}}vp-script-1.6.25608.{{^SkipMinification}}min.{{/SkipMinification}}js"></script>
+    <script src="{{UrlPrefix}}vp-script-1.6.25609.{{^SkipMinification}}min.{{/SkipMinification}}js"></script>
     <script>$("div.svg").panzoom({ svg: $("div.svg > svg").get(0), viewBox: "{{ViewBox}}" }).removeClass("appear");</script>
     {{#JS}}
     <script type="text/javascript">(function (diagram) { {{{JS}}} })(window.svgpublish);</script>

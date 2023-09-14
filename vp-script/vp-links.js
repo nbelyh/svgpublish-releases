@@ -39,19 +39,21 @@
         var linkPageId = link.PageId;
         if (linkPageId >= 0 && diagram.pages) {
             var targetPage = diagram.pages.filter(function (p) { return p.Id === linkPageId })[0];
-            var curpath = location.pathname;
-            var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
-            var href = document.location.protocol + "//" + document.location.host + newpath;
+            if (targetPage) {
+                var curpath = location.pathname;
+                var newpath = curpath.replace(curpath.substring(curpath.lastIndexOf('/') + 1), targetPage.FileName);
+                var href = document.location.protocol + "//" + document.location.host + newpath;
 
-            if (link.ShapeId) {
-                href += "#?shape=" + link.ShapeId;
+                if (link.ShapeId) {
+                    href += "#?shape=" + link.ShapeId;
+                }
+
+                if (link.Zoom) {
+                    href += (link.ShapeId ? "&" : "#?") + "zoom=" + link.Zoom;
+                }
+
+                return href;
             }
-
-            if (link.Zoom) {
-                href += (link.ShapeId ? "&" : "#?") + "zoom=" + link.Zoom;
-            }
-
-            return href;
         }
 
         return "#";

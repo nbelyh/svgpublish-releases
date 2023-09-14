@@ -7,16 +7,9 @@
 /*global jQuery, $, Mustache */
 
 (function (diagram) {
-    diagram.selectionChanged = $.Callbacks();
-})(window.svgpublish);
-
-(function (diagram) {
 
     if (!diagram.shapes || !diagram.enableHover)
         return;
-
-    var enableBoxSelection = diagram.selectionView && diagram.selectionView.enableBoxSelection;
-    var SVGNS = 'http://www.w3.org/2000/svg';
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
@@ -49,67 +42,22 @@
                 return;
 
             // hover support
-            if (enableBoxSelection) {
+            var filter = (diagram.enableFollowHyperlinks && info.DefaultLink) ? 'url(#hyperlink)' : 'url(#hover)';
 
-                shape.addEventListener('mouseover', function (event) {
-                    if (diagram.selectedShapeId !== shapeId) {
+            shape.addEventListener('mouseover', function (event) {
+                if (!diagram.highlightedShapeIds[shapeId]) {
+                    var hyperlinkColor = diagram.selectionView && diagram.selectionView.hyperlinkColor || "rgba(0, 0, 255, 0.2)";
+                    var hoverColor = diagram.selectionView && diagram.selectionView.hoverColor || "rgba(255, 255, 0, 0.2)";
+                    var color = (diagram.enableFollowHyperlinks && info.DefaultLink) ? hyperlinkColor : hoverColor;
+                    diagram.setShapeHighlight(shape, filter, color);
+                }
+            });
 
-                        var rect = shape.getBBox();
-                        var x = rect.x;
-                        var y = rect.y;
-                        var width = rect.width;
-                        var height = rect.height;
-
-                        if (diagram.selectionView && diagram.selectionView.enableDilate) {
-
-                            var dilate = +diagram.selectionView.dilate || 4;
-
-                            x -= dilate / 2;
-                            width += dilate;
-                            y -= dilate / 2;
-                            height += dilate;
-                        }
-
-                        var hyperlinkColor = diagram.selectionView && diagram.selectionView.hyperlinkColor || "rgba(0, 0, 255, 0.2)";
-                        var hoverColor = diagram.selectionView && diagram.selectionView.hoverColor || "rgba(255, 255, 0, 0.2)";
-
-                        var color = (diagram.enableFollowHyperlinks && info.DefaultLink) ? hyperlinkColor : hoverColor;
-
-                        var box = document.createElementNS(SVGNS, "rect");
-                        box.id = "vp-hover-box";
-                        box.setAttribute("x", x);
-                        box.setAttribute("y", y);
-                        box.setAttribute("width", width);
-                        box.setAttribute("height", height);
-                        box.setAttribute("pointer-events", "none");
-                        box.style.fill = (diagram.selectionView && diagram.selectionView.mode === 'normal') ? 'none' : color;
-                        box.style.stroke = color;
-                        box.style.strokeWidth = dilate || 0;
-                        shape.appendChild(box);
-                    }
-                });
-                shape.addEventListener('mouseout', function (event) {
-                    if (diagram.selectedShapeId !== shapeId) {
-                        var box = document.getElementById("vp-hover-box");
-                        if (box) {
-                            box.parentNode.removeChild(box);
-                        }
-                    }
-                });
-            } else {
-
-                var filter = (diagram.enableFollowHyperlinks && info.DefaultLink) ? 'url(#hyperlink)' : 'url(#hover)';
-
-                shape.addEventListener('mouseover', function () {
-                    if (diagram.selectedShapeId !== shapeId)
-                        shape.setAttribute('filter', filter);
-                });
-                shape.addEventListener('mouseout', function () {
-                    if (diagram.selectedShapeId !== shapeId)
-                        shape.removeAttribute('filter');
-                });
-
-            }
+            shape.addEventListener('mouseout', function () {
+                if (!diagram.highlightedShapeIds[shapeId]) {
+                    diagram.removeShapeHighlight(shape, false);
+                }
+            });
         }
     });
 })(window.svgpublish);

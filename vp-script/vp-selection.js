@@ -7,16 +7,11 @@
 /*global jQuery, $, Mustache */
 
 (function (diagram) {
-    diagram.selectionChanged = $.Callbacks();
-})(window.svgpublish);
-
-(function (diagram) {
 
     if (!diagram.shapes || !diagram.enableSelection)
         return;
 
-    var enableBoxSelection = diagram.selectionView && diagram.selectionView.enableBoxSelection;
-    var SVGNS = 'http://www.w3.org/2000/svg';
+    diagram.highlightedShapeIds= {};
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
@@ -36,27 +31,30 @@
         }
     }
 
-    function deselectBox() {
-        var hoverBox = document.getElementById("vp-hover-box");
-        if (hoverBox) {
-            hoverBox.parentNode.removeChild(hoverBox);
-        }
-        var selectionBox = document.getElementById("vp-selection-box");
-        if (selectionBox) {
-            selectionBox.parentNode.removeChild(selectionBox);
-        }
-    }
-
     diagram.setSelection = function (shapeId) {
 
         if (diagram.selectedShapeId && diagram.selectedShapeId !== shapeId) {
 
             var selectedShape = findTargetShape(diagram.selectedShapeId);
             if (selectedShape) {
-                if (enableBoxSelection) {
-					deselectBox();
-                } else {
-                    selectedShape.removeAttribute('filter');
+                diagram.removeShapeHighlight(selectedShape);
+                delete diagram.highlightedShapeIds[shapeId];
+                var info = diagram.shapes[diagram.selectedShapeId];
+
+                if (diagram.selectionView && diagram.selectionView.enableNextShapeColor && info.ConnectedTo) {
+                    info.ConnectedTo.forEach(function (item) {
+                        var itemToSelect = findTargetShape(item);
+                        diagram.removeShapeHighlight(itemToSelect);
+                        delete diagram.highlightedShapeIds[shapeId];
+                    });
+                }
+
+                if (diagram.selectionView && diagram.selectionView.enablePrevShapeColor && info.ConnectedFrom) {
+                    info.ConnectedFrom.forEach(function (item) {
+                        var itemToSelect = findTargetShape(item);
+                        diagram.removeShapeHighlight(itemToSelect);
+                        delete diagram.highlightedShapeIds[shapeId];
+                    });
                 }
             }
 
@@ -66,45 +64,34 @@
         if (!diagram.selectedShapeId || diagram.selectedShapeId !== shapeId) {
 
             diagram.selectedShapeId = shapeId;
+            diagram.highlightedShapeIds = {};
             diagram.selectionChanged.fire(shapeId);
 
             var shapeToSelect = findTargetShape(shapeId);
             if (shapeToSelect) {
-                if (enableBoxSelection) {
+                var info = diagram.shapes[shapeId];
 
-                    deselectBox();
-
-                    var rect = shapeToSelect.getBBox();
-                    var x = rect.x;
-                    var y = rect.y;
-                    var width = rect.width;
-                    var height = rect.height;
-
-                    if (diagram.selectionView && diagram.selectionView.enableDilate) {
-
-                        var dilate = +diagram.selectionView.dilate || 4;
-
-                        x -= dilate / 2;
-                        width += dilate;
-                        y -= dilate / 2;
-                        height += dilate;
-                    }
-
-                    var selectColor = diagram.selectionView && diagram.selectionView.selectColor || "rgba(255, 255, 0, 0.4)";
-
-                    var box = document.createElementNS(SVGNS, "rect");
-                    box.id = "vp-selection-box";
-                    box.setAttribute("x", x);
-                    box.setAttribute("y", y);
-                    box.setAttribute("width", width);
-                    box.setAttribute("height", height);
-                    box.style.fill = (diagram.selectionView && diagram.selectionView.mode === 'normal') ? 'none' : selectColor;
-                    box.style.stroke = selectColor;
-                    box.style.strokeWidth = dilate || 0;
-                    shapeToSelect.appendChild(box);
-                } else {
-                    shapeToSelect.setAttribute('filter', 'url(#select)');
+                if (diagram.selectionView && diagram.selectionView.enableNextShapeColor && info.ConnectedTo) {
+                    info.ConnectedTo.forEach(function (itemId) {
+                        var itemToSelect = findTargetShape(itemId);
+                        var nextColor = diagram.selectionView && diagram.selectionView.nextShapeColor || "rgba(255, 255, 0, 0.4)";
+                        diagram.setShapeHighlight(itemToSelect, 'url(#next)', nextColor);
+                        diagram.highlightedShapeIds[itemId] = true;
+                    });
                 }
+
+                if (diagram.selectionView && diagram.selectionView.enablePrevShapeColor && info.ConnectedFrom) {
+                    info.ConnectedFrom.forEach(function (itemId) {
+                        var itemToSelect = findTargetShape(itemId);
+                        var prevColor = diagram.selectionView && diagram.selectionView.prevShapeColor || "rgba(255, 255, 0, 0.4)";
+                        diagram.setShapeHighlight(itemToSelect, 'url(#prev)', prevColor);
+                        diagram.highlightedShapeIds[itemId] = true;
+                    });
+                }
+
+                var selectColor = diagram.selectionView && diagram.selectionView.selectColor || "rgba(255, 255, 0, 0.4)";
+                diagram.setShapeHighlight(shapeToSelect, 'url(#select)', selectColor);
+                diagram.highlightedShapeIds[shapeId] = true;
             }
         }
     };
@@ -120,6 +107,8 @@
             || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
+            || diagram.selectionView && diagram.selectionView.enableNextShapeColor && info.ConnectedTo
+            || diagram.selectionView && diagram.selectionView.enablePrevShapeColor && info.ConnectedFrom
         ) {
             var shape = findTargetShape(shapeId);
             if (!shape)
