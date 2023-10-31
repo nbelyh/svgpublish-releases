@@ -33,7 +33,7 @@
 
         var info = diagram.shapes[shapeId];
         if (info.DefaultLink
-            || info.Props && Object.keys(info.Props).length && diagram.enableSidebar
+            || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
         ) {
