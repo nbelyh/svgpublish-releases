@@ -14,6 +14,10 @@
         return;
     }
 
+    if (diagram.suppressMobileTip && Math.min(window.screen.width, window.screen.height) < 768) {
+        return;
+    }
+
     if (diagram.tooltipKeepOnHover) {
         var originalLeave = $.fn.tooltip.Constructor.prototype.leave;
         $.fn.tooltip.Constructor.prototype.leave = function(obj) {

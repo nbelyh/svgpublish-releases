@@ -10,7 +10,9 @@
 
     if (!diagram.shapes || !diagram.enableProps)
         return;
-    
+
+    var selectedProps = diagram.selectedProps && diagram.selectedProps.split(',') || [];
+
     $("#shape-props").show();
 
     function showShapeProperties(thisShapeId) {
@@ -35,10 +37,13 @@
                 .append($('<th />').text(labelvalue))
             );
 
-            $.each(shape.Props, function(propName, propValue) {
+            for (var propName in shape.Props) {
 
-                if (!propValue)
-                    propValue = "";
+                if (selectedProps.length > 0 && selectedProps.indexOf(propName) < 0) {
+                    continue;
+                }
+
+                var propValue = shape.Props[propName] || "";
 
                 if (typeof (propValue) === "string" && (propValue.indexOf("https://") >= 0 || propValue.indexOf("http://") >= 0)) {
                     var a = document.createElement("a");
@@ -48,12 +53,12 @@
                     a.textContent = propValue;
                     propValue = a.outerHTML;
                 }
-  
+
                 $tbody.append($('<tr />')
                     .append($("<td />").text(propName))
                     .append($("<td />").html(propValue))
                 );
-            });
+            }
         }
 
         $("#panel-props").html($html);
