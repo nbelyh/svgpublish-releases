@@ -15,17 +15,17 @@
 
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
-        var shape = document.getElementById(shapeId);
+        const shape = document.getElementById(shapeId);
 
-        var info = diagram.shapes[shapeId];
+        const info = diagram.shapes[shapeId];
         if (!info || !info.IsContainer)
             return shape;
 
         if (!info.ContainerText)
             return null;
 
-        for (var i = 0; i < shape.children.length; ++i) {
-            var child = shape.children[i];
+        for (let i = 0; i < shape.children.length; ++i) {
+            const child = shape.children[i];
             if (child.textContent.indexOf(info.ContainerText) >= 0)
                 return child;
         }
@@ -35,26 +35,44 @@
 
         if (diagram.selectedShapeId && diagram.selectedShapeId !== shapeId) {
 
-            var selectedShape = findTargetShape(diagram.selectedShapeId);
+            const selectedShape = findTargetShape(diagram.selectedShapeId);
             if (selectedShape) {
                 diagram.removeShapeHighlight(selectedShape);
-                delete diagram.highlightedShapeIds[shapeId];
-                var info = diagram.shapes[diagram.selectedShapeId];
+                delete diagram.highlightedShapeIds[diagram.selectedShapeId];
+                const info = diagram.shapes[diagram.selectedShapeId];
 
-                if (diagram.selectionView && diagram.selectionView.enableNextShapeColor && info.ConnectedTo) {
-                    info.ConnectedTo.forEach(function (item) {
-                        var itemToSelect = findTargetShape(item);
-                        diagram.removeShapeHighlight(itemToSelect);
-                        delete diagram.highlightedShapeIds[shapeId];
-                    });
+                if (diagram.selectionView && (diagram.selectionView.enableNextShapeColor || diagram.selectionView.enableNextConnColor) && info.ConnectedTo) {
+                    for (let item of info.ConnectedTo) {
+                        if (diagram.selectionView.enableNextShapeColor) {
+                            const sid = findTargetShape(item.sid);
+                            diagram.removeShapeHighlight(sid);
+                            delete diagram.highlightedShapeIds[item.sid];
+                        }
+
+                        if (diagram.selectionView.enableNextConnColor) {
+                            const cid = findTargetShape(item.cid);
+                            diagram.removeConnHighlight(cid);
+                            delete diagram.highlightedShapeIds[item.cid];
+                        }
+
+                        
+                    }
                 }
 
-                if (diagram.selectionView && diagram.selectionView.enablePrevShapeColor && info.ConnectedFrom) {
-                    info.ConnectedFrom.forEach(function (item) {
-                        var itemToSelect = findTargetShape(item);
-                        diagram.removeShapeHighlight(itemToSelect);
-                        delete diagram.highlightedShapeIds[shapeId];
-                    });
+                if (diagram.selectionView && (diagram.selectionView.enablePrevShapeColor || diagram.selectionView.enablePrevConnColor) && info.ConnectedFrom) {
+                    for (let item of info.ConnectedFrom) {
+                        if (diagram.selectionView.enablePrevShapeColor) {
+                            const sid = findTargetShape(item.sid);
+                            diagram.removeShapeHighlight(sid);
+                            delete diagram.highlightedShapeIds[item.sid];
+                        }
+
+                        if (diagram.selectionView.enablePrevConnColor) {
+                            const cid = findTargetShape(item.cid);
+                            diagram.removeConnHighlight(cid);
+                            delete diagram.highlightedShapeIds[item.cid];
+                        }
+                    }
                 }
             }
 
@@ -67,42 +85,62 @@
             diagram.highlightedShapeIds = {};
             diagram.selectionChanged.fire(shapeId);
 
-            var shapeToSelect = findTargetShape(shapeId);
+            const shapeToSelect = findTargetShape(shapeId);
             if (shapeToSelect) {
-                var info = diagram.shapes[shapeId];
+                const info = diagram.shapes[shapeId];
 
-                if (diagram.selectionView && diagram.selectionView.enableNextShapeColor && info.ConnectedTo) {
-                    info.ConnectedTo.forEach(function (itemId) {
-                        var itemToSelect = findTargetShape(itemId);
-                        var nextColor = diagram.selectionView && diagram.selectionView.nextShapeColor || "rgba(255, 255, 0, 0.4)";
-                        diagram.setShapeHighlight(itemToSelect, 'url(#next)', nextColor);
-                        diagram.highlightedShapeIds[itemId] = true;
-                    });
+                if (diagram.selectionView && (diagram.selectionView.enableNextShapeColor || diagram.selectionView.enableNextConnColor) && info.ConnectedTo) {
+                    for (const item of info.ConnectedTo) {
+                        if (diagram.selectionView.enableNextShapeColor) {
+                            const nextColor = diagram.selectionView.nextShapeColor || "rgba(255, 255, 0, 0.4)";
+                            const sid = findTargetShape(item.sid);
+                            diagram.setShapeHighlight(sid, 'url(#next)', nextColor);
+                            diagram.highlightedShapeIds[item.sid] = true;
+                        }
+
+                        if (diagram.selectionView.enableNextConnColor) {
+                            const connColor = diagram.selectionView.nextConnColor || "rgba(255, 0, 0, 1)";
+                            const cid = findTargetShape(item.cid);
+                            diagram.setConnHighlight(cid, connColor);
+                            diagram.highlightedShapeIds[item.cid] = true;
+                        }
+                    }
                 }
 
-                if (diagram.selectionView && diagram.selectionView.enablePrevShapeColor && info.ConnectedFrom) {
-                    info.ConnectedFrom.forEach(function (itemId) {
-                        var itemToSelect = findTargetShape(itemId);
-                        var prevColor = diagram.selectionView && diagram.selectionView.prevShapeColor || "rgba(255, 255, 0, 0.4)";
-                        diagram.setShapeHighlight(itemToSelect, 'url(#prev)', prevColor);
-                        diagram.highlightedShapeIds[itemId] = true;
-                    });
+                if (diagram.selectionView && (diagram.selectionView.enablePrevShapeColor || diagram.selectionView.enablePrevConnColor) && info.ConnectedFrom) {
+                    for (const item of info.ConnectedFrom) {
+
+                        if (diagram.selectionView.enablePrevShapeColor) {
+                            const prevColor = diagram.selectionView && diagram.selectionView.prevShapeColor || "rgba(255, 255, 0, 0.4)";
+                            const sid = findTargetShape(item.sid);
+                            diagram.setShapeHighlight(sid, 'url(#prev)', prevColor);
+                            diagram.highlightedShapeIds[item.sid] = true;
+                        }
+
+                        if (diagram.selectionView.enablePrevConnColor) {
+                            const connColor = diagram.selectionView && diagram.selectionView.prevConnColor || "rgba(255, 0, 0, 1)";
+                            const cid = findTargetShape(item.cid);
+                            diagram.setConnHighlight(cid, connColor);
+                            diagram.highlightedShapeIds[item.cid] = true;
+                        }
+                    }
                 }
 
-                var selectColor = diagram.selectionView && diagram.selectionView.selectColor || "rgba(255, 255, 0, 0.4)";
+                const selectColor = diagram.selectionView && diagram.selectionView.selectColor || "rgba(255, 255, 0, 0.4)";
                 diagram.setShapeHighlight(shapeToSelect, 'url(#select)', selectColor);
                 diagram.highlightedShapeIds[shapeId] = true;
             }
         }
     };
 
-    $("div.svg").on('click', function () {
+    document.querySelector("div.svg").addEventListener('click', function () {
         diagram.setSelection();
     });
 
-    $.each(diagram.shapes, function (shapeId) {
+    for (const shapeId in diagram.shapes) {
 
-        var info = diagram.shapes[shapeId];
+        const info = diagram.shapes[shapeId];
+
         if (info.DefaultLink
             || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
@@ -110,7 +148,7 @@
             || diagram.selectionView && diagram.selectionView.enableNextShapeColor && info.ConnectedTo
             || diagram.selectionView && diagram.selectionView.enablePrevShapeColor && info.ConnectedFrom
         ) {
-            var shape = findTargetShape(shapeId);
+            const shape = findTargetShape(shapeId);
             if (!shape)
                 return;
 
@@ -121,11 +159,11 @@
                 diagram.setSelection(shapeId);
             });
         }
-    });
+    }
 
     function getUrlParameter(name) {
-        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-        var results = regex.exec(location.hash);
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.hash);
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
 
@@ -135,7 +173,7 @@
     };
 
     function processHash() {
-        var shape = getUrlParameter('shape');
+        const shape = getUrlParameter('shape');
         if (shape) {
             diagram.highlightShape(shape);
         }
