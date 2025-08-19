@@ -281,9 +281,9 @@
 
             var diagram = window.svgpublish;
 
-            if (diagram && diagram.enableZoomCtrl && !evt.ctrlKey)
+            if (diagram && diagram.settings && diagram.settings.enableZoomCtrl && !evt.ctrlKey)
                 return;
-            if (diagram && diagram.enableZoomShift && !evt.shiftKey)
+            if (diagram && diagram.settings && diagram.settings.enableZoomShift && !evt.shiftKey)
                 return;
 
             if (evt.preventDefault)
@@ -425,7 +425,7 @@
             } else {
 
                 var diagram = window.svgpublish;
-                if (diagram && diagram.twoFingersTouch && touches) {
+                if (diagram && diagram.settings && diagram.settings.twoFingersTouch && touches) {
                     state = null;
                     return;
                 }

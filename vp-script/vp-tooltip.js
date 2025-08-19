@@ -6,19 +6,19 @@
 
 /*global jQuery, $, Mustache, marked */
 
-(function () {
+(function (diagram) {
 
-    var diagram = window.svgpublish || {};
+    var settings = diagram.settings || {};
     
-    if (!diagram.shapes || !diagram.enableTooltips) {
+    if (!diagram.shapes || !settings.enableTooltips) {
         return;
     }
 
-    if (diagram.suppressMobileTip && Math.min(window.screen.width, window.screen.height) < 768) {
+    if (settings.suppressMobileTip && Math.min(window.screen.width, window.screen.height) < 768) {
         return;
     }
 
-    if (diagram.tooltipKeepOnHover) {
+    if (settings.tooltipInteractive) {
         var originalLeave = $.fn.tooltip.Constructor.prototype.leave;
         $.fn.tooltip.Constructor.prototype.leave = function(obj) {
             var self = obj instanceof this.constructor ?
@@ -64,9 +64,9 @@
 
         var $shape = $(findTargetShape(shapeId));
 
-        var tooltipMarkdown = shape.TooltipMarkdown || (diagram.enableTooltipMarkdown && diagram.tooltipMarkdown) || shape.Comment || '';
+        var tooltipMarkdown = shape.TooltipMarkdown || (settings.enableTooltipMarkdown && settings.tooltipMarkdown) || shape.Comment || '';
         var tip = tooltipMarkdown && marked.parse(Mustache.render(tooltipMarkdown, shape)).trim();
-        var placement = diagram.tooltipPlacement || "auto top";
+        var placement = settings.tooltipPlacement || "auto top";
 
         if (!tip)
             return;
@@ -78,27 +78,35 @@
             placement: placement
         };
 
-        if (diagram.tooltipTrigger) {
-            options.trigger = diagram.tooltipTrigger;
+        switch (settings.tooltipTrigger) {
+            case 'mouseenter':
+                options.trigger = 'hover';
+                break;
+            case 'click':
+                options.trigger = 'click';
+                break;
+            case 'mouseenter click':
+                options.trigger = 'hover click';
+                break;
         }
 
-        if (diagram.tooltipTimeout || diagram.tooltipKeepOnHover) {
+        if (settings.tooltipDelay || settings.tooltipInteractive) {
             options.delay = {
-                show: diagram.tooltipTimeoutShow || undefined,
-                hide: diagram.tooltipTimeoutHide || diagram.tooltipKeepOnHover ? 200 : undefined
+                show: settings.tooltipDelayShow || undefined,
+                hide: settings.tooltipDelayHide || settings.tooltipInteractive ? 200 : undefined
             }
         }
 
         $shape.tooltip(options);
 
-        if (diagram.processNested) {
+        if (settings.processNested) {
             // avoid double-tooltips
             $shape.on('show.bs.tooltip', function () {
                 $shape.parents().tooltip('hide');
             });
         }
 
-        if (diagram.tooltipUseMousePosition) {
+        if (settings.tooltipUseMousePosition) {
 
             var mouseEvent = {};
             $.fn.tooltip.Constructor.prototype.update = function (e) {
@@ -159,7 +167,7 @@
         }
     });
 
-    if (diagram.tooltipOutsideClick) {
+    if (settings.tooltipOutsideClick) {
         $('div.svg').mouseup(function(e) {
             $.each(diagram.shapes,
                 function(shapeId) {

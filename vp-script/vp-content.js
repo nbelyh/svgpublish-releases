@@ -9,6 +9,8 @@ if (window.svgpublish)
 
     var SVGNS = 'http://www.w3.org/2000/svg';
 
+    var settings = diagram.settings || {};
+
     //TODO: consolidate when migrating from jQuery
     function findTargetShape(shapeId) {
         var shape = document.getElementById(shapeId);
@@ -31,7 +33,7 @@ if (window.svgpublish)
 
         var node = findTargetShape(shapeId);
 
-        var contentMarkdown = shape.ContentMarkdown || (diagram.enableContentMarkdown && diagram.contentMarkdown) || '';
+        var contentMarkdown = shape.ContentMarkdown || (settings.enableContentMarkdown && settings.contentMarkdown) || '';
         var content = contentMarkdown && marked.parseInline(Mustache.render(contentMarkdown, shape)).trim();
 
         if (!content)

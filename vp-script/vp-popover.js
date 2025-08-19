@@ -8,11 +8,13 @@
 
 (function (diagram) {
 
-    if (!diagram.shapes || !diagram.enablePopovers) {
+    var settings = diagram.settings || {};
+
+    if (!diagram.shapes || !settings.enablePopovers) {
         return;
     }
 
-    if (diagram.popoverKeepOnHover) {
+    if (settings.popoverKeepOnHover) {
 
         var originalLeave = $.fn.popover.Constructor.prototype.leave;
         $.fn.popover.Constructor.prototype.leave = function(obj){
@@ -59,7 +61,7 @@
 
         var $shape = $(findTargetShape(shapeId));
 
-        var popoverMarkdown = shape.PopoverMarkdown || (diagram.enablePopoverMarkdown && diagram.popoverMarkdown) || shape.Comment || '';
+        var popoverMarkdown = shape.PopoverMarkdown || (settings.enablePopoverMarkdown && settings.popoverMarkdown) || shape.Comment || '';
 
         var m = /([\s\S]*)^\s*----*\s*$([\s\S]*)/m.exec(popoverMarkdown);
 
@@ -69,7 +71,7 @@
         var title = titleMarkdown && marked.parse(Mustache.render(titleMarkdown, shape)).trim() || '';
         var content = contentMarkdown && marked.parse(Mustache.render(contentMarkdown, shape)).trim() || '';
 
-        var placement = diagram.popoverPlacement || "auto top";
+        var placement = settings.popoverPlacement || "auto top";
 
         if (!content)
             return;
@@ -82,20 +84,20 @@
             placement: placement
         };
 
-        if (diagram.popoverTrigger) {
-            options.trigger = diagram.popoverTrigger;
+        if (settings.popoverTrigger) {
+            options.trigger = settings.popoverTrigger;
         }
 
-        if (diagram.popoverTimeout || diagram.popoverKeepOnHover) {
+        if (settings.popoverTimeout || settings.popoverKeepOnHover) {
             options.delay = {
-                show: diagram.popoverTimeoutShow || undefined,
-                hide: diagram.popoverTimeoutHide || diagram.popoverKeepOnHover ? 200 : undefined
+                show: settings.popoverTimeoutShow || undefined,
+                hide: settings.popoverTimeoutHide || settings.popoverKeepOnHover ? 200 : undefined
             }
         }
 
         $shape.popover(options);
 
-        if (diagram.popoverUseMousePosition) {
+        if (settings.popoverUseMousePosition) {
 
             var mouseEvent = {};
             $.fn.popover.Constructor.prototype.update = function (e) {
@@ -156,7 +158,7 @@
         }
     });
 
-    if (diagram.popoverOutsideClick) {
+    if (settings.popoverOutsideClick) {
         $('div.svg').mouseup(function(e) {
             $.each(diagram.shapes,
                 function(shapeId) {

@@ -8,14 +8,16 @@
 
 (function (diagram) {
 
-    if (!diagram.layers || !diagram.enableLayers)
+    var settings = diagram.settings || {};
+
+    if (!diagram.layers || !settings.enableLayers)
         return;
 
     $("#shape-layers").show();
 
-    var enableLayerToggles = diagram.layerView && diagram.layerView.enableLayerToggles;
-    var enableLayerShowAll = diagram.layerView && diagram.layerView.enableLayerShowAll;
-    var enableLayerSort = diagram.layerView && diagram.layerView.enableLayerSort;
+    var enableLayerToggles = settings.enableLayerToggles;
+    var enableLayerShowAll = settings.enableLayerShowAll;
+    var enableLayerSort = settings.enableLayerSort;
 
     if (enableLayerShowAll) {
         $("#layer-show-all").on("click", function () {

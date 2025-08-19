@@ -8,10 +8,12 @@
 
 (function (diagram) {
 
-    if (!diagram.shapes || !diagram.enableProps)
+    var settings = diagram.settings || {};
+
+    if (!diagram.shapes || !settings.enableProps)
         return;
 
-    var selectedProps = diagram.selectedProps && diagram.selectedProps.split(',') || [];
+    var selectedProps = settings.selectedProps && settings.selectedProps.split(',') || [];
 
     $("#shape-props").show();
 
@@ -48,7 +50,7 @@
                 if (typeof (propValue) === "string" && (propValue.indexOf("https://") >= 0 || propValue.indexOf("http://") >= 0)) {
                     var a = document.createElement("a");
                     a.href = propValue;
-                    if (diagram.openHyperlinksInNewWindow)
+                    if (settings.openHyperlinksInNewWindow)
                         a.target = '_blank';
                     a.textContent = propValue;
                     propValue = a.outerHTML;

@@ -8,7 +8,9 @@
 
 (function (diagram) {
 
-    if (!diagram.pages || !diagram.enablePages)
+    var settings = diagram.settings || {};
+
+    if (!diagram.pages || !settings.enablePages)
         return;
 
     $("#shape-pages").show();
@@ -27,7 +29,7 @@
     function filter(term) {
         var $ul = $('<ul class="nav nav-stacked nav-pills"/>');
 
-        var sortedPages = diagram.enableLayerSort ? numericSort(diagram.pages) : diagram.pages;
+        var sortedPages = settings.enableLayerSort ? numericSort(diagram.pages) : diagram.pages;
         $.each(sortedPages, function (index, page) {
 
             var re = new RegExp("(" + term.replace(/([\\.+*?[^]$(){}=!<>|:])/g, "\\$1") + ")", 'gi');

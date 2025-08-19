@@ -3,7 +3,9 @@
 
 (function (diagram) {
 
-    if (!diagram.shapes || !diagram.enableSearch)
+    var settings = diagram.settings || {};
+
+    if (!diagram.shapes || !settings.enableSearch)
         return;
 
     function parseSearchTerm(term) {
@@ -31,7 +33,7 @@
     }
 
     var propertyFilter = null;
-    if (diagram.enablePropertySearchFilter) {
+    if (settings.enablePropertySearchFilter) {
 
         var usedPropSet = {};
         for (var pageId in diagram.searchIndex) {

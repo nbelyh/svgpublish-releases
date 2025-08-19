@@ -9,7 +9,9 @@
 
     var NS = "http://www.w3.org/2000/svg";
 
-    if (!diagram.shapes || !diagram.enableContainerTip)
+    var settings = diagram.settings || {};
+
+    if (!diagram.shapes || !settings.enableContainerTip)
         return;
 
     var tip = document.getElementById("container-tip");

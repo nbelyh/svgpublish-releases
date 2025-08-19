@@ -5,12 +5,14 @@
 
     var SVGNS = 'http://www.w3.org/2000/svg';
 
+    var settings = diagram.settings || {};
+
     // compatibility with version 0.x
     diagram.diagramData = diagram.shapes;
 
     diagram.selectionChanged = $.Callbacks();
 
-    if (diagram.enableAutoFrameHeight) {
+    if (settings.enableAutoFrameHeight) {
         var iframe = window.top.document.getElementById(window.name);
         if (iframe) {
             var wp = iframe.parentElement;
@@ -19,27 +21,27 @@
         }
     }
 
-    var enableBoxSelection = diagram.selectionView && diagram.selectionView.enableBoxSelection;
+    var enableBoxSelection = settings.enableBoxSelection;
 
     function getMarkerId(markerUrl) {
         const match = markerUrl.match(/url\("(.*)"\)/);
         return match && match[1];
     }
 
-    function replaceMarker(oldId, newId, selectColor) {
+    function replaceMarker(oldId, newId, selectionColor) {
         const markerNode = document.querySelector(oldId);
         if (markerNode) {
             const markerNodeClone = markerNode.cloneNode(true);
             markerNodeClone.id = newId;
-            markerNodeClone.style.stroke = selectColor;
-            markerNodeClone.style.fill = selectColor;
+            markerNodeClone.style.stroke = selectionColor;
+            markerNodeClone.style.fill = selectionColor;
             markerNode.parentElement.appendChild(markerNodeClone);
         }
     }
 
-    diagram.setConnHighlight = function (shape, selectColor) {
+    diagram.setConnHighlight = function (shape, selectionColor) {
 
-        diagram.removeShapeHighlight(shape);
+        diagram.removeConnHighlight(shape);
 
         var path = shape.querySelector('path');
         if (path) {
@@ -48,10 +50,10 @@
 
             var pathClone = path.cloneNode(true);
             pathClone.id = "vp-path-" + shape.id;
-            pathClone.style.stroke = selectColor;
+            pathClone.style.stroke = selectionColor;
 
-            if (diagram.selectionView.enableConnDilate) {
-                const strokeWidth = parseFloat(style.strokeWidth) + (+diagram.selectionView.connDilate || 2);
+            if (settings.enableConnDilate) {
+                const strokeWidth = parseFloat(style.strokeWidth) + (+settings.connDilate || 2);
                 pathClone.style.strokeWidth = strokeWidth;
             }
 
@@ -59,12 +61,12 @@
 
             const markerEndId = getMarkerId(style.markerEnd);
             if (markerEndId) {
-                replaceMarker(markerEndId, "vp-marker-end-" + shape.id, selectColor);
+                replaceMarker(markerEndId, "vp-marker-end-" + shape.id, selectionColor);
                 pathClone.style.markerEnd = 'url("#vp-marker-end-' + shape.id + '")';
             }
             const markerStartId = getMarkerId(style.markerStart);
             if (markerStartId) {
-                replaceMarker(markerStartId, "vp-marker-start-" + shape.id, selectColor);
+                replaceMarker(markerStartId, "vp-marker-start-" + shape.id, selectionColor);
                 pathClone.style.markerStart = 'url("#vp-marker-start-' + shape.id + '")';
             }
 
@@ -72,23 +74,20 @@
         }
     }
 
-    function removeMarker(shape, markerId) {
-        const markerClone = document.getElementById(markerId);
-        if (markerClone) {
-            markerClone.parentElement.removeChild(markerClone);
+    function removeElementById(markerId) {
+        const elem = document.getElementById(markerId);
+        if (elem) {
+            elem.parentElement.removeChild(elem);
         }
     }
 
     diagram.removeConnHighlight = function (shape) {
-        const pathClone = document.getElementById("vp-path-" + shape.id);
-        if (pathClone) {
-            pathClone.parentElement.removeChild(pathClone);
-        }
-        removeMarker(shape, "vp-marker-end-" + shape.id);
-        removeMarker(shape, "vp-marker-start-" + shape.id);
+        removeElementById("vp-path-" + shape.id);
+        removeElementById("vp-marker-end-" + shape.id);
+        removeElementById("vp-marker-start-" + shape.id);
     }
 
-    diagram.setShapeHighlight = function (shape, filter, selectColor) {
+    diagram.setShapeHighlight = function (shape, filter, selectionColor) {
 
         if (enableBoxSelection) {
 
@@ -100,9 +99,9 @@
             var width = rect.width;
             var height = rect.height;
 
-            if (diagram.selectionView && diagram.selectionView.enableDilate) {
+            if (settings.enableDilate) {
 
-                var dilate = +diagram.selectionView.dilate || 4;
+                var dilate = +settings.dilate || 4;
 
                 x -= dilate / 2;
                 width += dilate;
@@ -116,8 +115,8 @@
             box.setAttribute("y", y);
             box.setAttribute("width", width);
             box.setAttribute("height", height);
-            box.style.fill = (diagram.selectionView && diagram.selectionView.mode === 'normal') ? 'none' : selectColor;
-            box.style.stroke = selectColor;
+            box.style.fill = (settings.selectionMode === 'normal') ? 'none' : selectionColor;
+            box.style.stroke = selectionColor;
             box.style.strokeWidth = dilate || 0;
             box.style.pointerEvents = 'none';
             shape.appendChild(box);

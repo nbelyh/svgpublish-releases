@@ -8,6 +8,8 @@
 
 (function (diagram) {
 
+    var settings = diagram.settings || {};
+
     if (!diagram.shapes)
         return;
     
@@ -107,10 +109,10 @@
         $("#panel-links").html($html);
     }
 
-    if (diagram.enableLinks)
+    if (settings.enableLinks)
         diagram.selectionChanged.add(showShapeLinks);
 
-    if (!diagram.enableFollowHyperlinks)
+    if (!settings.enableFollowHyperlinks)
         return;
 
     $.each(diagram.shapes, function (shapeId) {
@@ -134,7 +136,7 @@
                 if (evt && evt.ctrlKey)
                     return;
 
-                if (defaultlink.Address && diagram.openHyperlinksInNewWindow || evt.shiftKey)
+                if (defaultlink.Address && settings.openHyperlinksInNewWindow || evt.shiftKey)
                     window.open(defaultHref, "_blank");
                 else
                     document.location = defaultHref;

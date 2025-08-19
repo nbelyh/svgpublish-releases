@@ -8,14 +8,16 @@
 
 (function (diagram) {
 
-    if (!diagram.enableSidebar)
+    var settings = diagram.settings || {};
+
+    if (!settings.enableSidebar)
         return;
 
-    var right = diagram.rightSidebar;
+    var right = settings.rightSidebar;
 
     $("body").addClass(right ? "vp-sidebar-right" : "vp-sidebar-left");
 
-    var sidebarWidth = +diagram.sidebarDefaultWidth || 400;
+    var sidebarWidth = +settings.sidebarDefaultWidth || 400;
 
     $("#sidebar-toggle").on("dragstart", function () {
         return false;
@@ -40,7 +42,7 @@
 
     $("#sidebar-toggle").show();
 
-    if (isSidebarEnabled() && !diagram.alwaysHideSidebar) {
+    if (isSidebarEnabled() && !settings.alwaysHideSidebar) {
         showSidebar(showSidebarSetting, 0);
         showSidebarMarkdown(null, false);
     }
@@ -142,7 +144,7 @@
     function showSidebarMarkdown(thisShapeId, showAutomatically) {
 
         var shape = thisShapeId ? diagram.shapes[thisShapeId] : diagram.currentPageShape;
-        var sidebarMarkdown = shape && shape.SidebarMarkdown || (diagram.enableSidebarMarkdown && diagram.sidebarMarkdown) || '';
+        var sidebarMarkdown = shape && shape.SidebarMarkdown || (settings.enableSidebarMarkdown && settings.sidebarMarkdown) || '';
         var html = sidebarMarkdown && marked.parse(Mustache.render(sidebarMarkdown, shape || {})).trim() || '';
         $("#sidebar-html").html(html);
 
@@ -152,7 +154,7 @@
     }
 
     function onSelectionChanged(thisShapeId) {
-        showSidebarMarkdown(thisShapeId, diagram.showSidebarOnSelection);
+        showSidebarMarkdown(thisShapeId, settings.showSidebarOnSelection);
     }
 
     diagram.selectionChanged.add(onSelectionChanged);

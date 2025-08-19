@@ -8,7 +8,9 @@
 
 (function (diagram) {
 
-    if (!diagram.shapes || !diagram.enableSelection)
+    var settings = diagram.settings || {};
+
+    if (!diagram.shapes || !settings.enableSelection)
         return;
 
     diagram.highlightedShapeIds= {};
@@ -41,15 +43,15 @@
                 delete diagram.highlightedShapeIds[diagram.selectedShapeId];
                 const info = diagram.shapes[diagram.selectedShapeId];
 
-                if (diagram.selectionView && (diagram.selectionView.enableNextShapeColor || diagram.selectionView.enableNextConnColor) && info.ConnectedTo) {
+                if ((settings.enableNextShapeColor || settings.enableNextConnColor) && info.ConnectedTo) {
                     for (let item of info.ConnectedTo) {
-                        if (diagram.selectionView.enableNextShapeColor) {
+                        if (settings.enableNextShapeColor) {
                             const sid = findTargetShape(item.sid);
                             diagram.removeShapeHighlight(sid);
                             delete diagram.highlightedShapeIds[item.sid];
                         }
 
-                        if (diagram.selectionView.enableNextConnColor) {
+                        if (settings.enableNextConnColor) {
                             const cid = findTargetShape(item.cid);
                             diagram.removeConnHighlight(cid);
                             delete diagram.highlightedShapeIds[item.cid];
@@ -59,15 +61,15 @@
                     }
                 }
 
-                if (diagram.selectionView && (diagram.selectionView.enablePrevShapeColor || diagram.selectionView.enablePrevConnColor) && info.ConnectedFrom) {
+                if ((settings.enablePrevShapeColor || settings.enablePrevConnColor) && info.ConnectedFrom) {
                     for (let item of info.ConnectedFrom) {
-                        if (diagram.selectionView.enablePrevShapeColor) {
+                        if (settings.enablePrevShapeColor) {
                             const sid = findTargetShape(item.sid);
                             diagram.removeShapeHighlight(sid);
                             delete diagram.highlightedShapeIds[item.sid];
                         }
 
-                        if (diagram.selectionView.enablePrevConnColor) {
+                        if (settings.enablePrevConnColor) {
                             const cid = findTargetShape(item.cid);
                             diagram.removeConnHighlight(cid);
                             delete diagram.highlightedShapeIds[item.cid];
@@ -89,17 +91,17 @@
             if (shapeToSelect) {
                 const info = diagram.shapes[shapeId];
 
-                if (diagram.selectionView && (diagram.selectionView.enableNextShapeColor || diagram.selectionView.enableNextConnColor) && info.ConnectedTo) {
+                if ((settings.enableNextShapeColor || settings.enableNextConnColor) && info.ConnectedTo) {
                     for (const item of info.ConnectedTo) {
-                        if (diagram.selectionView.enableNextShapeColor) {
-                            const nextColor = diagram.selectionView.nextShapeColor || "rgba(255, 255, 0, 0.4)";
+                        if (settings.enableNextShapeColor) {
+                            const nextColor = settings.nextShapeColor || "rgba(255, 255, 0, 0.4)";
                             const sid = findTargetShape(item.sid);
                             diagram.setShapeHighlight(sid, 'url(#next)', nextColor);
                             diagram.highlightedShapeIds[item.sid] = true;
                         }
 
-                        if (diagram.selectionView.enableNextConnColor) {
-                            const connColor = diagram.selectionView.nextConnColor || "rgba(255, 0, 0, 1)";
+                        if (settings.enableNextConnColor) {
+                            const connColor = settings.nextConnColor || "rgba(255, 0, 0, 1)";
                             const cid = findTargetShape(item.cid);
                             diagram.setConnHighlight(cid, connColor);
                             diagram.highlightedShapeIds[item.cid] = true;
@@ -107,18 +109,18 @@
                     }
                 }
 
-                if (diagram.selectionView && (diagram.selectionView.enablePrevShapeColor || diagram.selectionView.enablePrevConnColor) && info.ConnectedFrom) {
+                if ((settings.enablePrevShapeColor || settings.enablePrevConnColor) && info.ConnectedFrom) {
                     for (const item of info.ConnectedFrom) {
 
-                        if (diagram.selectionView.enablePrevShapeColor) {
-                            const prevColor = diagram.selectionView && diagram.selectionView.prevShapeColor || "rgba(255, 255, 0, 0.4)";
+                        if (settings.enablePrevShapeColor) {
+                            const prevColor = settings.prevShapeColor || "rgba(255, 255, 0, 0.4)";
                             const sid = findTargetShape(item.sid);
                             diagram.setShapeHighlight(sid, 'url(#prev)', prevColor);
                             diagram.highlightedShapeIds[item.sid] = true;
                         }
 
-                        if (diagram.selectionView.enablePrevConnColor) {
-                            const connColor = diagram.selectionView && diagram.selectionView.prevConnColor || "rgba(255, 0, 0, 1)";
+                        if (settings.enablePrevConnColor) {
+                            const connColor = settings.prevConnColor || "rgba(255, 0, 0, 1)";
                             const cid = findTargetShape(item.cid);
                             diagram.setConnHighlight(cid, connColor);
                             diagram.highlightedShapeIds[item.cid] = true;
@@ -126,8 +128,8 @@
                     }
                 }
 
-                const selectColor = diagram.selectionView && diagram.selectionView.selectColor || "rgba(255, 255, 0, 0.4)";
-                diagram.setShapeHighlight(shapeToSelect, 'url(#select)', selectColor);
+                const selectionColor = settings.selectionColor || "rgba(255, 255, 0, 0.4)";
+                diagram.setShapeHighlight(shapeToSelect, 'url(#select)', selectionColor);
                 diagram.highlightedShapeIds[shapeId] = true;
             }
         }
@@ -145,19 +147,17 @@
             || info.Props && Object.keys(info.Props).length
             || info.Links && info.Links.length
             || info.Comment || info.PopoverMarkdown || info.SidebarMarkdown || info.TooltipMarkdown
-            || diagram.selectionView && diagram.selectionView.enableNextShapeColor && info.ConnectedTo
-            || diagram.selectionView && diagram.selectionView.enablePrevShapeColor && info.ConnectedFrom
+            || settings.enableNextShapeColor && info.ConnectedTo
+            || settings.enablePrevShapeColor && info.ConnectedFrom
         ) {
             const shape = findTargetShape(shapeId);
-            if (!shape)
-                return;
-
-            shape.style.cursor = 'pointer';
-
-            shape.addEventListener('click', function (evt) {
-                evt.stopPropagation();
-                diagram.setSelection(shapeId);
-            });
+            if (shape) {
+                shape.style.cursor = 'pointer';
+                shape.addEventListener('click', function (evt) {
+                    evt.stopPropagation();
+                    diagram.setSelection(shapeId);
+                });
+            }
         }
     }
 
